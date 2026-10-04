@@ -204,7 +204,15 @@
   function route() {
     if (!D) return;
     const tok = ++routeSeq;
-    const h = location.hash.replace(/^#/, "");
+    let h = location.hash.replace(/^#/, "");
+    // the return from an email link (confirm sign-up, reset password) carries Supabase's
+    // tokens or an error in the address; supabase-js reads them, so show the home page
+    if (/(^|&)(access_token|error_description|error_code)=/.test(h)) {
+      const err = new URLSearchParams(h).get("error_description");
+      if (err) toast(err.replace(/\+/g, " ") + ". Try logging in, or ask for a new link.");
+      history.replaceState(null, "", location.pathname + location.search);
+      h = "";
+    }
     // links from before Billd: #play-id
     if (h && !h.startsWith("/")) { let id = ""; try { id = decodeURIComponent(h); } catch (e) { /* malformed */ } if (byId[id]) { location.replace(playUrl(id)); return; } }
     let parts;
