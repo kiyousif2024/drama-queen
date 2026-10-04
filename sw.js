@@ -1,6 +1,6 @@
 // Drama Queen service worker: makes the public website work offline and installable.
 // build_db.py --site replaces BUILD with the build time, so each publish gets fresh caches.
-const BUILD = "2026-10-04T12:35:36Z";
+const BUILD = "2026-10-04T12:48:17Z";
 const SHELL = `dq-shell-${BUILD}`;
 const DATA = `dq-data-${BUILD}`;
 const SHELL_FILES = ["./", "index.html", "config.js", "plays.js", "manifest.webmanifest",

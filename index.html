@@ -1136,7 +1136,8 @@ button, input, select, textarea { font: inherit; color: inherit; }
     const send = c.web ? async () => {
       // A form service (Formspree, Web3Forms...) that emails each submission to the owner
       const body = { ...(c.web.fields || {}), ...doc, play: doc.play ? `${doc.play.title} (${doc.play.id})` : "",
-                     subject: fb.ctx ? `Drama Queen correction: ${fb.ctx.title}` : "Drama Queen feedback", page: location.href };
+                     message: doc.comment, from_name: "Drama Queen", page: location.href,
+                     subject: fb.ctx ? `Drama Queen correction: ${fb.ctx.title}` : "Drama Queen feedback" };
       const res = await fetch(c.web.endpoint, { method: "POST", headers: { "Content-Type": "application/json", Accept: "application/json" }, body: JSON.stringify(body) });
       if (!res.ok) throw Object.assign(new Error("HTTP " + res.status), { code: res.status === 429 ? "resource_exhausted" : "unavailable" });
     } : () => c.db.collection("feedback").add(doc);
