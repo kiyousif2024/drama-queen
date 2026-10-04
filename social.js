@@ -15,13 +15,18 @@
   const cfg = (window.DQ_CONFIG || {}).supabase || null;
   const SUPABASE_JS = "https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.117.2/dist/umd/supabase.min.js";
   const USERNAME = /^[a-z0-9_]{3,20}$/;
-  const listeners = new Set();
-  const emit = (me) => listeners.forEach((f) => { try { f(me); } catch (e) { console.error(e); } });
+  // each backend has its own listeners, so clearing the device's preview diary after moving it
+  // to an account doesn't announce the local "you" as the signed-in member
+  function bus() {
+    const listeners = new Set();
+    return { listeners, emit: (me) => listeners.forEach((f) => { try { f(me); } catch (e) { console.error(e); } }) };
+  }
   const err = (message, code) => Object.assign(new Error(message), { code });
 
   // ---------------------------------------------------------------- local
   const LS_KEY = "billd-local-v1";
   function localBackend() {
+    const { listeners, emit } = bus();
     let db;
     const empty = () => ({ profile: { id: "local", username: "you", display_name: "", bio: "", favorites: [], created_at: new Date().toISOString() },
                            status: {}, logs: [], lists: [], seq: 1 });
@@ -123,6 +128,7 @@
     });
   }
   function supabaseBackend() {
+    const { listeners, emit } = bus();
     let sb = null, profile = null, uid = null;
     const PROFILE = "profile:profiles!user_id(id,username,display_name)";
     const check = ({ data, error }) => { if (error) throw friendly(error); return data; };
@@ -137,6 +143,15 @@
       if (/Failed to fetch|NetworkError|Load failed/i.test(m)) return err("Could not reach the Billd server. Check your connection.", "unavailable");
       return err(m, e?.code || "error");
     }
+    // PostgREST returns at most 1,000 rows a request; page through, in a stable order
+    async function all(make) {
+      const out = [];
+      for (let from = 0; ; from += 1000) {
+        const rows = check(await make().range(from, from + 999));
+        out.push(...rows);
+        if (rows.length < 1000) return out;
+      }
+    }
     const needMe = () => { if (!uid) throw err("Log in to do that.", "signed_out"); return uid; };
     async function loadProfile() {
       if (!uid) { profile = null; return null; }
@@ -149,10 +164,11 @@
       const { data } = await sb.auth.getSession();
       uid = data.session?.user?.id || null;
       await loadProfile();
-      sb.auth.onAuthStateChange(async (_ev, session) => {
+      // supabase-js holds a lock while this runs, so the queries wait until it returns
+      sb.auth.onAuthStateChange((_ev, session) => {
         const next = session?.user?.id || null;
         if (next === uid && (profile || !next)) return;
-        uid = next; await loadProfile(); emit(profile);
+        setTimeout(async () => { uid = next; await loadProfile(); emit(profile); }, 0);
       });
     });
     const shapeLog = (l) => ({ ...l, likes: l.log_likes?.[0]?.count ?? 0, comments: l.log_comments?.[0]?.count ?? 0,
@@ -214,16 +230,12 @@
       },
       async myStatuses() {
         if (!uid) return {};
-        const out = {}; let from = 0;
-        for (;;) {  // PostgREST pages at 1,000 rows
-          const rows = check(await sb.from("play_status").select("play_id,seen,liked,want,rating").eq("user_id", uid).range(from, from + 999));
-          rows.forEach((r) => (out[r.play_id] = r));
-          if (rows.length < 1000) return out;
-          from += 1000;
-        }
+        const out = {};
+        (await all(() => sb.from("play_status").select("play_id,seen,liked,want,rating").eq("user_id", uid).order("play_id"))).forEach((r) => (out[r.play_id] = r));
+        return out;
       },
       async statusesFor(userId) {
-        return check(await sb.from("play_status").select("play_id,seen,liked,want,rating,updated_at").eq("user_id", userId).order("updated_at", { ascending: false }).limit(1000));
+        return all(() => sb.from("play_status").select("play_id,seen,liked,want,rating,updated_at").eq("user_id", userId).order("updated_at", { ascending: false }).order("play_id"));
       },
       async setStatus(playId, patch) {
         needMe();
@@ -256,8 +268,10 @@
         return markMine(check(await sb.from("logs").select(LOG_SEL).eq("play_id", playId).order("created_at", { ascending: false }).limit(limit)).map(shapeLog));
       },
       async logsForUser(userId, { limit = 500 } = {}) {
-        return markMine(check(await sb.from("logs").select(LOG_SEL).eq("user_id", userId).order("seen_on", { ascending: false, nullsFirst: false })
-          .order("created_at", { ascending: false }).limit(limit)).map(shapeLog));
+        const q = () => sb.from("logs").select(LOG_SEL).eq("user_id", userId).order("seen_on", { ascending: false, nullsFirst: false })
+          .order("created_at", { ascending: false }).order("id", { ascending: false });
+        const rows = limit > 1000 ? await all(q) : check(await q().limit(limit));
+        return markMine(rows.map(shapeLog));
       },
       async recentReviews(limit = 20) {
         return markMine(check(await sb.from("logs").select(LOG_SEL).not("review", "is", null).neq("review", "")

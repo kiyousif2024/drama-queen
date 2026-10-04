@@ -1,6 +1,6 @@
 // Billd service worker: makes the public website work offline and installable.
 // build_db.py --site replaces BUILD with the build time, so each publish gets fresh caches.
-const BUILD = "2026-10-04T14:07:18Z";
+const BUILD = "2026-10-04T14:25:57Z";
 const SHELL = `billd-shell-${BUILD}`;
 const DATA = `billd-data-${BUILD}`;
 const SHELL_FILES = ["./", "index.html", "app.css", "app.js", "social.js", "config.js", "plays.js", "manifest.webmanifest",
@@ -20,12 +20,22 @@ self.addEventListener("fetch", (event) => {
   const req = event.request;
   const url = new URL(req.url);
   if (req.method !== "GET" || url.origin !== self.location.origin) return;
-  if (url.pathname.includes("/data/") || url.pathname.endsWith("plays.json")) {
-    // Data: answer from the cache at once, refresh it in the background.
+  if (url.pathname.endsWith("/data/index.json") || url.pathname.endsWith("plays.json")) {
+    // The index: the network first, so a new publish shows at once; the cache when offline.
+    event.respondWith(fetch(req).then((res) => {
+      if (res.ok) { const copy = res.clone(); event.waitUntil(caches.open(DATA).then((c) => c.put(req, copy))); }
+      return res;
+    }).catch(() => caches.match(req)));
+    return;
+  }
+  if (url.pathname.includes("/data/")) {
+    // Shards are named with the build's date (?v=), so a cached copy is always the right one.
     event.respondWith(caches.open(DATA).then(async (cache) => {
       const hit = await cache.match(req);
-      const fresh = fetch(req).then((res) => { if (res.ok) cache.put(req, res.clone()); return res; });
-      return hit || fresh;
+      if (hit) return hit;
+      const res = await fetch(req);
+      if (res.ok) event.waitUntil(cache.put(req, res.clone()));
+      return res;
     }));
     return;
   }

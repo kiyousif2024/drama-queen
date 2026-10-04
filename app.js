@@ -16,7 +16,9 @@
   let me = null, myStatus = {}, rated = {}, popular = {};
 
   // ---------------------------------------------------------------- formatting
-  const TODAY = new Date().toISOString().slice(0, 10);
+  const TODAY = new Date().toISOString().slice(0, 10);  // UTC: for listings, checked in UTC
+  // the visitor's own calendar date: an evening show in Los Angeles is logged on that day
+  const localToday = () => { const d = new Date(); return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}-${String(d.getDate()).padStart(2, "0")}`; };
   const THIS_YEAR = +TODAY.slice(0, 4);
   const fy = (y) => (y < 0 ? `${-y} BCE` : `${y}`);
   function fmtDate(w) {
@@ -64,6 +66,7 @@
   const byText = (w) => writers(w).map((p) => ppl[p.person]?.name || p.person).join(", ");
   function toast(msg) {
     const t = $("#toast"); t.textContent = msg; t.hidden = false;
+    (document.querySelector("dialog[open]") || document.body).appendChild(t);  // modal dialogs sit above everything else
     clearTimeout(toast.t); toast.t = setTimeout(() => (t.hidden = true), 2600);
   }
   function avatar(p, cls = "") {
@@ -110,7 +113,7 @@
   function loadDetail(w) {
     if (!w._lazy || w._loaded) return Promise.resolve(w);
     const n = String(w._shard).padStart(2, "0");
-    shardCache[n] = shardCache[n] || fetch(`data/d/${n}.json`).then((r) => { if (!r.ok) throw new Error(r.status); return r.json(); });
+    shardCache[n] = shardCache[n] || fetch(`data/d/${n}.json?v=${encodeURIComponent(D.meta.generated)}`).then((r) => { if (!r.ok) throw new Error(r.status); return r.json(); });
     return shardCache[n].then((sh) => {
       Object.entries(sh._people || {}).forEach(([slug, r]) => {
         if (!ppl[slug]) ppl[slug] = { slug, name: r[0], name_native: r[1] ?? null, birth_year: r[2] ?? null, death_year: r[3] ?? null, dates_approx: !!r[4] };
@@ -167,7 +170,8 @@
     ["#16494d", "#eef3ef", "#f0b93f"], ["#2a2724", "#f3ede4", "#e04f5f"], ["#c9962c", "#1d1404", "#1d1404"],
     ["#5b5f2a", "#f4f0dc", "#f6d36b"], ["#0f2e3a", "#f6efe2", "#ef8f5a"], ["#7a3b5c", "#fbeef3", "#f6d36b"],
   ];
-  function poster(w, { badge = true, cls = "" } = {}) {
+  // tag "span" when the poster sits inside another link (a list row, a list card): links can't nest
+  function poster(w, { badge = true, cls = "", tag = "a" } = {}) {
     if (!w) return `<div class="fav-empty">Not found</div>`;
     const h = hash(w.id);
     const [bg, fg, acc] = PALETTE[h % PALETTE.length];
@@ -176,12 +180,12 @@
     const size = len > 46 ? " xlong" : len > 26 ? " long" : "";
     const top = trad[w.tradition]?.name || regionName(w.region) || "";
     const nb = badge && w._now ? `<span class="p-badge${w._now === "soon" ? " soon" : ""}">${w._now === "now" ? "On now" : "Soon"}</span>` : "";
-    return `<a class="poster ${layout} ${cls}" href="${playUrl(w.id)}" style="--bg1:${bg};--fg:${fg};--acc:${acc}" aria-label="${esc(t)}${yearOf(w) != null ? ` (${esc(fmtDate(w))})` : ""}">${nb}
+    return `<${tag} class="poster ${layout} ${cls}"${tag === "a" ? ` href="${playUrl(w.id)}"` : ""} style="--bg1:${bg};--fg:${fg};--acc:${acc}" aria-label="${esc(t)}${yearOf(w) != null ? ` (${esc(fmtDate(w))})` : ""}">${nb}
       <span class="p-top" aria-hidden="true">${esc(top)}</span>
       <span class="p-title${size}" aria-hidden="true" lang="en">${esc(t)}</span>
       <span class="p-rule" aria-hidden="true"></span>
       <span class="p-by" aria-hidden="true">${esc(byText(w) || "Anonymous")}</span>
-      <span class="p-yr" aria-hidden="true">${esc(fmtDate(w))}</span></a>`;
+      <span class="p-yr" aria-hidden="true">${esc(fmtDate(w))}</span></${tag}>`;
   }
   // a poster with the viewer's own marks under it (seen, rating, like)
   function cell(w, extra = "") {
@@ -193,12 +197,19 @@
   // ---------------------------------------------------------------- routing
   const pageEl = () => $("#page");
   let lastRoute = "";
+  // Pages load members' data asynchronously; each render checks, after every wait, that the
+  // visitor hasn't moved on, so a slow page never draws over the one now showing.
+  let routeSeq = 0;
+  const stale = (tok) => tok !== routeSeq;
   function route() {
     if (!D) return;
-    const h = decodeURI(location.hash.replace(/^#/, ""));
+    const tok = ++routeSeq;
+    const h = location.hash.replace(/^#/, "");
     // links from before Billd: #play-id
-    if (h && !h.startsWith("/")) { const id = decodeURIComponent(h); if (byId[id]) { location.replace(playUrl(id)); return; } }
-    const parts = h.replace(/^\//, "").split("/").map((x) => decodeURIComponent(x));
+    if (h && !h.startsWith("/")) { let id = ""; try { id = decodeURIComponent(h); } catch (e) { /* malformed */ } if (byId[id]) { location.replace(playUrl(id)); return; } }
+    let parts;
+    try { parts = h.replace(/^\//, "").split("/").map((x) => decodeURIComponent(x)); }
+    catch (e) { $("#v-browse").hidden = true; pageEl().hidden = false; return renderNotFound(); }  // a malformed address
     const [a, b, c] = parts;
     const isBrowse = a === "browse";
     $("#v-browse").hidden = !isBrowse;
@@ -218,7 +229,7 @@
       lists: renderLists, list: () => renderList(b), review: () => renderReview(b), members: renderMembers,
       activity: () => renderActivity(b), settings: renderSettings, about: renderAbout,
     }[a || ""] || renderNotFound;
-    Promise.resolve(go()).catch((e) => { console.error(e); pageEl().innerHTML = `<div class="wrap"><p class="empty">Something went wrong: ${esc(e.message)}</p></div>`; });
+    Promise.resolve(go()).catch((e) => { console.error(e); if (stale(tok)) return; pageEl().innerHTML = `<div class="wrap"><p class="empty">Something went wrong: ${esc(e.message)}</p></div>`; });
   }
   window.addEventListener("hashchange", route);
   function renderNotFound() {
@@ -238,7 +249,7 @@
     if (me && S.kind !== "local") {
       el.innerHTML = `<button class="btn sm" type="button" data-log>+ Log</button>${avatar(me)}`;
     } else if (S.kind === "local") {
-      el.innerHTML = `<button class="btn sm" type="button" data-log>+ Log</button><a class="avatar" href="#/me" style="--hue:40" aria-label="Your diary">Y</a>`;
+      el.innerHTML = `<button class="btn sm" type="button" data-log>+ Log</button>${avatar(S.me())}`;
     } else {
       el.innerHTML = `<button class="btn ghost sm" type="button" data-auth-open="in">Log in</button><button class="btn sm" type="button" data-auth-open="up">Join</button>`;
     }
@@ -248,6 +259,7 @@
     if (e.target.closest("[data-log]")) openLog(null);
   });
   $("#tab-log").addEventListener("click", () => openLog(null));
+  if (matchMedia("(max-width: 420px)").matches) $("#q").placeholder = "Search shows";
   $("#search-form").addEventListener("submit", (e) => { e.preventDefault(); goSearch($("#q").value); });
   let qt;
   $("#q").addEventListener("input", (e) => { clearTimeout(qt); qt = setTimeout(() => goSearch(e.target.value, true), 160); });
@@ -270,6 +282,7 @@
   };
   const onNow = () => works.filter((w) => w._now).sort((a, b) => (popular[b.id] || 0) - (popular[a.id] || 0) || b._pop - a._pop);
   async function renderHome() {
+    const tok = routeSeq;
     document.title = "Billd: a diary for theatregoers";
     const now = onNow();
     const intro = !me || S.kind === "local" ? `
@@ -304,12 +317,14 @@
       if (pop.length >= 4) { $("#home-pop-row").innerHTML = pop.map((w) => cell(w)).join(""); $("#home-pop").hidden = false; }
       if (me && S.kind !== "local") {
         const feed = (await S.feed(30)).filter((l) => l.user_id !== me.id && byId[l.play_id]);
+        if (stale(tok)) return;
         if (feed.length) {
           $("#home-friends-row").innerHTML = feed.slice(0, 18).map((l) => cell(byId[l.play_id], `<div class="cell-meta">${avatar(l.profile, "sm")}${l.rating ? `<span class="stars">${stars(l.rating)}</span>` : ""}${l.liked ? `<span class="heart">♥</span>` : ""}</div>`)).join("");
           $("#home-friends").hidden = false;
         }
       }
       const revs = (await S.recentReviews(6)).filter((l) => byId[l.play_id]);
+      if (stale(tok)) return;
       if (revs.length && S.kind !== "local") { $("#home-rev-list").innerHTML = revs.map((l) => reviewHTML(l)).join(""); $("#home-rev").hidden = false; }
     } catch (e) { console.warn(e); }
   }
@@ -461,6 +476,7 @@
     filtered = works.filter((w) => matches(w));
     const nActive = Object.values(state.sel).reduce((a, x) => a + x.size, 0);
     $("#rail-toggle").textContent = nActive ? `Filters (${nActive})` : "Filters";
+    $("#rail-done").textContent = `Show ${filtered.length.toLocaleString()} ${filtered.length === 1 ? "play" : "plays"}`;
     const ry = (w) => yearOf(w) ?? 99999;
     const cmp = {
       popular: (a, b) => (popular[b.id] || 0) - (popular[a.id] || 0) || (rated[b.id]?.seen || 0) - (rated[a.id]?.seen || 0) || b._pop - a._pop || a.title.localeCompare(b.title),
@@ -493,7 +509,7 @@
   function listRow(w) {
     const s = myStatus[w.id], t = trad[w.tradition];
     const where = w._now ? nowWhere(w) : w._n ? plural(w._n, "production") : "";
-    return `<li><a class="lrow" href="${playUrl(w.id)}">${poster(w, { badge: false })}
+    return `<li><a class="lrow" href="${playUrl(w.id)}">${poster(w, { badge: false, tag: "span" })}
       <span class="t"><strong>${esc(w.title)}</strong>${w.original_title && !sameTitle(w.original_title, w.title) ? `<span class="orig" dir="auto">${esc(w.original_title)}</span>` : ""}${w._now ? ` <span class="badge now">${w._now === "now" ? "On now" : "Soon"}</span>` : ""}
         <small>${esc(byText(w) || "Anonymous")}${fmtDate(w) ? ` · ${esc(fmtDate(w))}` : ""}${t ? ` · ${esc(t.name)}` : ""}</small></span>
       <span class="r">${s?.rating ? `<span class="stars">${stars(s.rating)}</span><br>` : ""}${esc(where)}</span></a></li>`;
@@ -538,7 +554,12 @@
   $("#reset").addEventListener("click", clearFilters);
   $(".toolbar .seg").addEventListener("click", (e) => { const b = e.target.closest("button"); if (!b) return; state.layout = b.dataset.layout; renderResults(); savePrefs(); });
   $("#more").addEventListener("click", () => { state.shown += 120; renderResults(); });
-  $("#rail-toggle").addEventListener("click", (e) => { const open = $("#rail").classList.toggle("open"); e.currentTarget.setAttribute("aria-expanded", String(open)); });
+  function setRail(open) {
+    $("#rail").classList.toggle("open", open); $("#rail-toggle").setAttribute("aria-expanded", String(open));
+    if (!open) $("#rail-toggle").scrollIntoView({ block: "nearest" });
+  }
+  $("#rail-toggle").addEventListener("click", () => setRail(!$("#rail").classList.contains("open")));
+  $("#rail-done").addEventListener("click", () => { setRail(false); $(".results-head").scrollIntoView({ block: "start" }); });
 
   // timeline: a piecewise-linear time axis, since antiquity is long but sparse
   const SEG = [[-560, 500, 0.20], [500, 1500, 0.15], [1500, 1800, 0.22], [1800, 1900, 0.15], [1900, 2030, 0.28]];
@@ -563,7 +584,7 @@
       const ma = ta ? macros.indexOf(macroOf(ta.region)) : 99, mb = tb ? macros.indexOf(macroOf(tb.region)) : 99;
       return ma - mb || (ta?.year_from ?? 9999) - (tb?.year_from ?? 9999) || (ta?.name || "").localeCompare(tb?.name || "");
     });
-    const LABEL = inner.clientWidth < 700 ? 150 : 210, TOPY = 34, LANE = 22, GAP = 18;
+    const LABEL = inner.clientWidth < 700 ? 120 : 210, TOPY = 34, LANE = 22, GAP = 18;
     const rows = []; let y = TOPY, lastMacro = null;
     laneIds.forEach((id) => {
       const m = trad[id] ? macroOf(trad[id].region) : "other";
@@ -574,7 +595,7 @@
     canvas.width = W * dpr; canvas.height = H * dpr; canvas.style.height = H + "px";
     const ctx = canvas.getContext("2d"); ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
     const C = { ink: css("--ink"), muted: css("--muted"), line: css("--line"), accent: css("--gold"), surface: css("--surface"), sunk: css("--raise") };
-    const x0 = LABEL, plotW = W - LABEL - 16;
+    const x0 = LABEL, plotW = W - LABEL - 30;  // room for the dots after 2000
     ctx.clearRect(0, 0, W, H);
     let acc = 0;
     SEG.forEach(([, , f], i) => { if (i % 2 === 1) { ctx.fillStyle = C.sunk; ctx.globalAlpha = 0.5; ctx.fillRect(x0 + acc * plotW, TOPY - 8, f * plotW, H - TOPY); ctx.globalAlpha = 1; } acc += f; });
@@ -639,6 +660,7 @@
 
   // ---------------------------------------------------------------- play page
   async function renderPlay(id) {
+    const tok = routeSeq;
     const w = byId[id];
     if (!w) return renderNotFound();
     document.title = `${w.title} · Billd`;
@@ -671,12 +693,12 @@
     draw();
     renderPlayActions(w);
     if (w._lazy && !w._loaded) {
-      try { await loadDetail(w); } catch (e) { $("#play-desc").innerHTML = `<p class="src">Could not load the details of this play.</p>`; return; }
-      if (!location.hash.startsWith(playUrl(id))) return;
+      try { await loadDetail(w); } catch (e) { if (!stale(tok)) $("#play-desc").innerHTML = `<p class="src">Could not load the details of this play.</p>`; return; }
+      if (stale(tok)) return;
       $("#play-desc").innerHTML = descHTML(w); $("#play-now").innerHTML = nowPlayingHTML(w);
       $("#play-prods").innerHTML = productionsHTML(w); $("#play-facts").innerHTML = factsHTML(w);
     }
-    renderPlaySocial(w);
+    renderPlaySocial(w, tok);
   }
   function descHTML(w) {
     const ids = w.ids || {};
@@ -829,32 +851,38 @@
       if (s) myStatus[w.id] = s; else delete myStatus[w.id];
       if (patch.seen === true && !before?.seen) toast("Marked as seen");
       if (patch.want === true) toast("Added to your want-to-see list");
-      if (location.hash.startsWith("#/play/")) { renderPlayActions(w); refreshStats(w); }
+      if (location.hash === playUrl(w.id)) {
+        renderPlayActions(w); refreshStats(w);
+        if ("rating" in patch && patch.rating) $("#prate-" + patch.rating)?.focus({ preventScroll: true });
+      }
     } catch (e) { toast(e.message); }
   }
-  async function renderPlaySocial(w) {
-    refreshStats(w);
+  async function renderPlaySocial(w, tok) {
+    refreshStats(w, tok);
     try {
       const logs = (await S.logsForPlay(w.id)).filter((l) => l.review || l.rating);
+      if (stale(tok)) return;
       const el = $("#play-rev-list"); if (!el) return;
       const withText = logs.filter((l) => l.review);
       el.innerHTML = withText.length ? withText.map((l) => reviewHTML(l, { poster: false })).join("")
         : `<li class="empty">No reviews yet. ${signedIn() ? `<button class="linkbtn" type="button" data-log-play>Be the first to write one.</button>` : ""}</li>`;
       const lists = await S.listsWithPlay(w.id);
+      if (stale(tok)) return;
       if (lists.length && $("#play-lists")) {
         $("#play-lists").innerHTML = `<h3>In ${plural(lists.length, "list")}</h3><ul class="minilists">${lists.slice(0, 6).map((l) => `<li><a href="#/list/${l.id}">${esc(l.title)}</a><small>by ${who(l.profile)} · ${plural(l.count, "show")}</small></li>`).join("")}</ul>`;
         $("#play-lists").hidden = false;
       }
-    } catch (e) { const el = $("#play-rev-list"); if (el) el.innerHTML = `<li class="empty">Reviews could not be loaded. ${esc(e.message)}</li>`; }
+    } catch (e) { const el = !stale(tok) && $("#play-rev-list"); if (el) el.innerHTML = `<li class="empty">Reviews could not be loaded. ${esc(e.message)}</li>`; }
   }
-  async function refreshStats(w) {
+  async function refreshStats(w, tok = routeSeq) {
     try {
       const st = await S.playStats(w.id);
+      if (stale(tok)) return;
       const el = $("#play-stats"); if (!el) return;
       const max = Math.max(1, ...st.hist);
-      el.innerHTML = `<h3>${S.kind === "local" ? "Your rating" : "Ratings"}</h3>
+      el.innerHTML = `<h3>${S.kind === "local" ? "Your rating" : "Ratings"}</h3>${S.kind === "local" && !st.ratings ? `<p class="hint">Not rated yet.</p>` : ""}
         ${st.ratings ? `<div style="display:flex;align-items:flex-end;gap:14px"><div style="flex:1"><div class="hist" aria-hidden="true">${st.hist.map((n) => `<span style="height:${Math.round((n / max) * 100)}%"></span>`).join("")}</div><div class="hist-ends"><span>★</span><span>★★★★★</span></div></div>
-          <div><div class="avg">${st.avg.toFixed(1)}</div><small class="hint">${plural(st.ratings, "rating")}</small></div></div>` : `<p class="hint">No ratings yet.</p>`}
+          <div><div class="avg">${st.avg.toFixed(1)}</div><small class="hint">${plural(st.ratings, "rating")}</small></div></div>` : `${S.kind === "local" ? "" : `<p class="hint">No ratings yet.</p>`}`}
         ${S.kind !== "local" ? `<div class="stats"><span><b>${st.seen.toLocaleString()}</b> seen</span><span><b>${st.likes.toLocaleString()}</b> likes</span><span><b>${st.wants.toLocaleString()}</b> want to see</span></div>` : ""}`;
     } catch (e) { /* the stats are a nicety */ }
   }
@@ -910,16 +938,19 @@
     } catch (e) { toast(e.message); }
   }
   async function renderReview(id) {
+    const tok = routeSeq;
     const l = await S.getLog(id);
+    if (stale(tok)) return;
     if (!l) return renderNotFound();
     const w = byId[l.play_id];
-    document.title = `${who(l.profile)}'s review of ${l.play_title} · Billd`;
+    document.title = `${l.profile?.display_name || l.profile?.username || "A member"}'s review of ${l.play_title} · Billd`;
     pageEl().innerHTML = `<div class="wrap" style="max-width:820px;padding-top:30px"><ul class="reviews">${reviewHTML(l, { full: true })}</ul>
       <section class="sec"><div class="sec-head"><h2>Comments</h2></div><ul class="comments" id="cm-list"><li class="hint">Loading…</li></ul>
       ${signedIn() && S.kind !== "local" ? `<form class="comment-form" id="cm-form"><label class="vh" for="cm-body">Add a comment</label><input id="cm-body" maxlength="2000" placeholder="Add a comment…" required><button class="btn" type="submit">Post</button></form>` : S.kind !== "local" ? `<p class="hint"><button class="linkbtn" type="button" data-auth-open="in">Log in</button> to comment.</p>` : ""}</section>
       ${w ? `<p style="margin-top:30px"><a class="linkbtn" href="${playUrl(w.id)}">More about ${esc(w.title)} →</a></p>` : ""}</div>`;
     const draw = async () => {
       const cs = await S.comments(l.id);
+      if (stale(tok)) return;
       $("#cm-list").innerHTML = cs.length ? cs.map((c) => `<li><a class="who" href="#/u/${esc(c.profile?.username)}">${who(c.profile)}</a>${esc(c.body)}<time datetime="${esc(c.created_at)}">${ago(c.created_at)}</time>${me && c.user_id === me.id ? ` <button class="linkbtn danger" type="button" data-del-c="${c.id}">Delete</button>` : ""}</li>`).join("") : `<li class="hint">No comments yet.</li>`;
     };
     draw();
@@ -944,9 +975,9 @@
     $("#log-form").hidden = !playId;
     $("#log-pick").value = ""; $("#log-pick-list").innerHTML = "";
     $("#log-note").hidden = true;
-    if (playId) setLogPlay(playId); else { $("#log-title").textContent = "Log a show"; $("#log-meta").textContent = ""; $("#log-poster").innerHTML = ""; $("#log-kicker").textContent = "I saw…"; }
-    $("#log-date").value = edit ? (edit.seen_on || "") : TODAY;
-    $("#log-date").max = TODAY;
+    if (playId) setLogPlay(playId); else { $("#log-title").textContent = "What did you see?"; $("#log-meta").textContent = ""; $("#log-poster").innerHTML = ""; $("#log-kicker").textContent = "Log a show"; }
+    $("#log-date").value = edit ? (edit.seen_on || "") : localToday();
+    $("#log-date").max = localToday();
     $("#log-venue").value = edit?.venue || ""; $("#log-city").value = edit?.city || "";
     $("#log-review").value = edit?.review || "";
     $("#log-spoil").checked = !!edit?.spoilers; $("#log-rewatch").checked = !!edit?.rewatch;
@@ -997,7 +1028,7 @@
     const row = { play_id: w.id, play_title: w.title, seen_on: $("#log-date").value || null, rating: logState.rating || null, liked: logState.liked,
                   review: $("#log-review").value.trim() || null, spoilers: $("#log-spoil").checked, rewatch: $("#log-rewatch").checked,
                   venue: $("#log-venue").value.trim() || null, city: $("#log-city").value.trim() || null };
-    if (row.seen_on && row.seen_on > TODAY) { note("#log-note", "The date seen can't be in the future.", true); return; }
+    if (row.seen_on && row.seen_on > localToday()) { note("#log-note", "The date seen can't be in the future.", true); return; }
     if (logState.edit) row.id = logState.edit.id;
     $("#log-save").disabled = true;
     try {
@@ -1005,7 +1036,7 @@
       const patch = { seen: true }; if (row.rating) patch.rating = row.rating; if (row.liked) patch.liked = true;
       const s = await S.setStatus(w.id, patch); if (s) myStatus[w.id] = s;
       $("#logd").close();
-      toast(logState.edit ? "Entry updated" : row.review ? "Review posted" : "Added to your diary");
+      toast(logState.edit ? "Entry updated" : row.review && S.kind !== "local" ? "Review posted" : "Added to your diary");
       route();
     } catch (err) { note("#log-note", err.message, true); }
     finally { $("#log-save").disabled = false; }
@@ -1047,21 +1078,24 @@
   });
   function listCard(l) {
     const ps = l.items.slice(0, 5).map((i) => byId[i.play_id]).filter(Boolean);
-    return `<a class="lcard" href="#/list/${l.id}"><div class="lcard-stack">${ps.map((w) => poster(w, { badge: false }).replace(/<a /, "<span ").replace(/<\/a>$/, "</span>")).join("")}${Array(Math.max(0, 5 - ps.length)).fill(`<span class="ph"></span>`).join("")}</div>
+    return `<a class="lcard" href="#/list/${l.id}"><div class="lcard-stack">${ps.map((w) => poster(w, { badge: false, tag: "span" })).join("")}${Array(Math.max(0, 5 - ps.length)).fill(`<span class="ph"></span>`).join("")}</div>
       <h3>${esc(l.title)}</h3><p>${who(l.profile)} · ${plural(l.count, "show")}${l.likes ? ` · ♥ ${l.likes}` : ""}</p></a>`;
   }
   async function renderLists() {
+    const tok = routeSeq;
     document.title = "Lists · Billd";
     pageEl().innerHTML = `<div class="wrap" style="padding-top:30px"><div class="results-head"><h1 class="h1">Lists</h1>${signedIn() ? `<button class="btn" type="button" id="new-list">New list</button>` : ""}</div>
       <p class="count" style="margin-top:8px">Collect, rank and share the shows you love, want to see, or think everyone should know.</p>
       ${signedIn() ? `<section class="sec"><div class="sec-head"><h2>Your lists</h2></div><div class="lists-grid" id="my-lists"><p class="hint">Loading…</p></div></section>` : ""}
       ${S.kind !== "local" ? `<section class="sec"><div class="sec-head"><h2>Recently updated</h2></div><div class="lists-grid" id="all-lists"><p class="hint">Loading…</p></div></section>` : ""}</div>`;
     $("#new-list")?.addEventListener("click", () => editList(null));
-    if (signedIn()) { const ls = await S.listsForUser(me.id); $("#my-lists").innerHTML = ls.map(listCard).join("") || `<p class="empty">No lists yet. Start one from any show with “Add to lists”, or with New list.</p>`; }
-    if (S.kind !== "local") { const ls = await S.recentLists(); $("#all-lists").innerHTML = ls.map(listCard).join("") || `<p class="empty">No lists yet.</p>`; }
+    if (signedIn()) { const ls = await S.listsForUser(me.id); if (stale(tok)) return; $("#my-lists").innerHTML = ls.map(listCard).join("") || `<p class="empty">No lists yet. Start one from any show with “Add to lists”, or with New list.</p>`; }
+    if (S.kind !== "local") { const ls = await S.recentLists(); if (stale(tok)) return; $("#all-lists").innerHTML = ls.map(listCard).join("") || `<p class="empty">No lists yet.</p>`; }
   }
   async function renderList(id) {
+    const tok = routeSeq;
     const l = await S.getList(id);
+    if (stale(tok)) return;
     if (!l) return renderNotFound();
     document.title = `${l.title} · Billd`;
     const mine = me && l.user_id === me.id;
@@ -1083,6 +1117,16 @@
       try { await S.likeList(l.id, !l.liked_by_me); route(); } catch (err) { toast(err.message); }
     });
   }
+  // the list and profile editors redraw their form; this puts focus back on the same control
+  function refocus(attrs) {
+    if (!attrs) return;
+    for (const [k, v] of attrs) {
+      const el = $(`#edit-form [${k}="${CSS.escape(v)}"]`) || $(`#edit-form [${k}]`);
+      if (el) { el.focus(); return; }
+    }
+    $("#edit-form input")?.focus();
+  }
+  const focusKey = (e) => { const b = e.target.closest("button"); return b ? [...b.attributes].filter((a) => a.name.startsWith("data-")).map((a) => [a.name, a.value]) : null; };
   function editList(l) {
     const items = l ? [...l.items] : [];
     $("#edit-title").textContent = l ? "Edit list" : "New list";
@@ -1110,9 +1154,9 @@
       const restore = () => { $("#el-title").value = snap.title; $("#el-desc").value = snap.desc; $("#el-ranked").checked = snap.ranked; };
       if (add) { if (!items.some((i) => i.play_id === add.dataset.addp)) items.push({ play_id: add.dataset.addp }); draw(); restore(); $("#el-add").focus(); return; }
       const up = e.target.closest("[data-up]"), dn = e.target.closest("[data-down]"), rm = e.target.closest("[data-rm]");
-      if (up && +up.dataset.up > 0) { const i = +up.dataset.up; [items[i - 1], items[i]] = [items[i], items[i - 1]]; draw(); restore(); return; }
-      if (dn && +dn.dataset.down < items.length - 1) { const i = +dn.dataset.down; [items[i + 1], items[i]] = [items[i], items[i + 1]]; draw(); restore(); return; }
-      if (rm) { items.splice(+rm.dataset.rm, 1); draw(); restore(); return; }
+      if (up && +up.dataset.up > 0) { const i = +up.dataset.up; [items[i - 1], items[i]] = [items[i], items[i - 1]]; draw(); restore(); refocus([["data-up", String(i - 1)]]); return; }
+      if (dn && +dn.dataset.down < items.length - 1) { const i = +dn.dataset.down; [items[i + 1], items[i]] = [items[i], items[i + 1]]; draw(); restore(); refocus([["data-down", String(i + 1)]]); return; }
+      if (rm) { const k = focusKey(e); items.splice(+rm.dataset.rm, 1); draw(); restore(); refocus(k); return; }
       if (e.target.closest("#el-del")) {
         if (!confirm("Delete this list? This can't be undone.")) return;
         try { await S.deleteList(l.id); $("#editd").close(); toast("List deleted"); location.hash = "#/lists"; } catch (err) { note("#el-note", err.message, true); }
@@ -1147,13 +1191,16 @@
     return followingSet;
   }
   async function renderProfile(username, tab = "") {
+    const tok = routeSeq;
     const p = await S.getProfile(username);
+    if (stale(tok)) return;
     if (!p) return renderNotFound();
     const mine = me && p.id === me.id;
     document.title = `${p.display_name || p.username} · Billd`;
     const [logs, statuses, lists] = await Promise.all([S.logsForUser(p.id), S.statusesFor(p.id), S.listsForUser(p.id)]);
     const [following, followers] = S.kind === "local" ? [[], []] : await Promise.all([S.following(p.id), S.followers(p.id)]);
     const fset = await myFollowing();
+    if (stale(tok)) return;
     const seen = statuses.filter((s) => s.seen), want = statuses.filter((s) => s.want && !s.seen), liked = statuses.filter((s) => s.liked);
     const year = logs.filter((l) => (l.seen_on || l.created_at).startsWith(String(THIS_YEAR))).length;
     const base = "#/u/" + encodeURIComponent(p.username);
@@ -1191,6 +1238,7 @@
       </header>
       <nav class="tabs" aria-label="Profile">${tabs.map(([k, n]) => `<a href="${base}${k ? "/" + k : ""}"${k === (tab || "") ? ' aria-current="page"' : ""}>${n}</a>`).join("")}</nav>
       ${body}</div>`;
+    $('.tabs a[aria-current="page"]')?.scrollIntoView({ inline: "center", block: "nearest" });
     $("#share-prof").addEventListener("click", () => share(`${p.display_name || p.username} on Billd`, location.href));
     $("#edit-favs")?.addEventListener("click", () => editProfile());
     $("#new-list2")?.addEventListener("click", () => editList(null));
@@ -1210,7 +1258,7 @@
         <td>${mine ? `<button class="icon-btn" type="button" data-edit-log="${l.id}" aria-label="Edit entry">✎</button>` : ""}</td></tr>`;
       lastMonth = m;
     }
-    return `<table class="diary"><thead><tr><th>Month</th><th>Day</th><th>Show</th><th>Rating</th><th><span class="vh">Liked</span></th><th class="hide-sm"><span class="vh">Seen before</span></th><th><span class="vh">Review</span></th><th></th></tr></thead><tbody>${rows}</tbody></table>`;
+    return `<div class="diary-wrap"><table class="diary"><thead><tr><th>Month</th><th>Day</th><th>Show</th><th>Rating</th><th><span class="vh">Liked</span></th><th class="hide-sm"><span class="vh">Seen before</span></th><th><span class="vh">Review</span></th><th></th></tr></thead><tbody>${rows}</tbody></table></div>`;
   }
   function memberHTML(m, fset) {
     const isMe = me && m.id === me.id;
@@ -1236,12 +1284,14 @@
       <p class="count" style="margin:8px 0 16px">Follow friends and other theatregoers to see what they've seen and what they thought.</p>
       <form id="mem-form" role="search" style="max-width:420px;margin-bottom:20px"><label class="vh" for="mem-q">Find members</label><input id="mem-q" type="search" placeholder="Find members by name or username"></form>
       <ul class="members" id="mem-list"><li class="hint">Loading…</li></ul></div>`;
-    const draw = async (q) => { const fset = await myFollowing(); const ms = await S.members(q); $("#mem-list").innerHTML = ms.map((m) => memberHTML(m, fset)).join("") || `<li class="empty">No members found.</li>`; };
+    const tok = routeSeq;
+    const draw = async (q) => { const fset = await myFollowing(); const ms = await S.members(q); if (stale(tok)) return; $("#mem-list").innerHTML = ms.map((m) => memberHTML(m, fset)).join("") || `<li class="empty">No members found.</li>`; };
     draw();
     let t; $("#mem-q").addEventListener("input", (e) => { clearTimeout(t); t = setTimeout(() => draw(e.target.value.trim()), 250); });
     $("#mem-form").addEventListener("submit", (e) => e.preventDefault());
   }
   async function renderActivity(which) {
+    const tok = routeSeq;
     document.title = "Activity · Billd";
     const everyone = which === "everyone" || !me || S.kind === "local";
     pageEl().innerHTML = `<div class="wrap" style="padding-top:30px;max-width:860px"><h1 class="h1">Activity</h1>
@@ -1249,8 +1299,9 @@
       <ul class="feed" id="feed"><li class="hint">Loading…</li></ul></div>`;
     try {
       const logs = (everyone ? await S.recentLogs(60) : await S.feed(60)).filter((l) => byId[l.play_id]);
-      $("#feed").innerHTML = logs.length ? logs.map(feedItem).join("") : `<li class="empty">${everyone ? "Nothing yet. Log a show to get things started." : `Nothing from people you follow yet. <a class="linkbtn" href="#/members">Find members to follow</a>.`}</li>`;
-    } catch (e) { $("#feed").innerHTML = `<li class="empty">${esc(e.message)}</li>`; }
+      if (stale(tok)) return;
+      $("#feed").innerHTML = logs.length ? logs.map(feedItem).join("") : `<li class="empty">${everyone ? `Nothing yet. <button class="linkbtn" type="button" data-log>Log a show</button> to get things started.` : `Nothing from people you follow yet. <a class="linkbtn" href="#/members">Find members to follow</a>.`}</li>`;
+    } catch (e) { if (!stale(tok)) $("#feed").innerHTML = `<li class="empty">${esc(e.message)}</li>`; }
   }
   function feedItem(l) {
     const w = byId[l.play_id];
@@ -1322,7 +1373,7 @@
     form.onclick = (e) => {
       const a = e.target.closest("[data-fadd]"), r = e.target.closest("[data-frm]");
       if (a && favs.length < 4 && !favs.includes(a.dataset.fadd)) { const v = vals(); favs.push(a.dataset.fadd); draw(v); $("#ep-add")?.focus(); }
-      if (r) { const v = vals(); favs.splice(+r.dataset.frm, 1); draw(v); }
+      if (r) { const v = vals(); favs.splice(+r.dataset.frm, 1); draw(v); refocus([["data-frm", r.dataset.frm]]); }
     };
     form.onsubmit = async (e) => {
       e.preventDefault();
@@ -1397,8 +1448,17 @@
   });
 
   // ---------------------------------------------------------------- dialogs: shared behaviour
+  // A click in the dialog's own padding also targets the dialog, so the pointer must be outside
+  // its box, both when pressed and when released (a drag out of the review box keeps the text).
   $$("dialog").forEach((d) => {
-    d.addEventListener("click", (e) => { if (e.target === d || e.target.closest("[data-close]")) d.close(); });
+    const outside = (e) => { const r = d.getBoundingClientRect(); return e.clientX < r.left || e.clientX > r.right || e.clientY < r.top || e.clientY > r.bottom; };
+    let downOutside = false;
+    d.addEventListener("pointerdown", (e) => { downOutside = e.target === d && outside(e); });
+    d.addEventListener("click", (e) => {
+      if (e.target.closest("[data-close]")) return d.close();
+      if (e.target === d && downOutside && outside(e)) d.close();
+      downOutside = false;
+    });
   });
 
   // ---------------------------------------------------------------- feedback
@@ -1447,12 +1507,12 @@
     window.addEventListener("load", () => { navigator.serviceWorker.register("sw.js").catch(() => { /* offline support is optional */ }); });
   }
   let installPrompt = null;
-  window.addEventListener("beforeinstallprompt", (e) => { e.preventDefault(); installPrompt = e; $("#install").hidden = false; });
+  window.addEventListener("beforeinstallprompt", (e) => { e.preventDefault(); installPrompt = e; $("#install-wrap").hidden = false; });
   $("#install").addEventListener("click", async () => {
     if (!installPrompt) return;
     installPrompt.prompt();
     try { await installPrompt.userChoice; } catch (e) { /* dismissed */ }
-    installPrompt = null; $("#install").hidden = true;
+    installPrompt = null; $("#install-wrap").hidden = true;
   });
   document.body.addEventListener("click", (e) => {  // buttons outside the page area (home hero, footer)
     if (e.target.closest("#page")) return;

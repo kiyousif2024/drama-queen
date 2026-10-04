@@ -52,6 +52,7 @@
         <div class="rail-head"><h2>Filter</h2><button class="linkbtn" id="reset" type="button">Clear all</button></div>
         <div id="facets"></div>
         <p class="about" id="gen"></p>
+        <button class="btn rail-done" id="rail-done" type="button">Show results</button>
       </aside>
       <div class="results">
         <div class="results-head">
@@ -104,7 +105,7 @@
 <footer class="foot" id="foot">
   <div class="wrap">
     <p><b>Billd</b> is a diary for theatregoers: plays and musicals from every culture and era, what's on stage now, and what your friends thought.</p>
-    <p class="foot-links"><button class="linkbtn" id="fb-open" type="button" aria-haspopup="dialog">Send feedback</button> · <a href="#/about">About the data</a> · <button class="linkbtn" id="install" type="button" hidden>Install the app</button></p>
+    <p class="foot-links"><button class="linkbtn" id="fb-open" type="button" aria-haspopup="dialog">Send feedback</button> · <a href="#/about">About the data</a><span id="install-wrap" hidden> · <button class="linkbtn" id="install" type="button">Install the app</button></span></p>
   </div>
 </footer>
 
@@ -154,7 +155,7 @@
   <div class="field" id="log-pick-f" hidden>
     <label for="log-pick">Which show?</label>
     <input id="log-pick" type="search" placeholder="Start typing a title" autocomplete="off">
-    <ul class="pick" id="log-pick-list" role="listbox"></ul>
+    <ul class="pick" id="log-pick-list"></ul>
   </div>
   <form id="log-form" novalidate>
     <div class="log-grid">
@@ -219,7 +220,7 @@
 <dialog class="dlg" id="fb" aria-labelledby="fb-title" aria-describedby="fb-about">
   <button class="close" type="button" data-close aria-label="Close">×</button>
   <h2 id="fb-title">Feedback</h2>
-  <p class="kicker" id="fb-about">Tell us what works, what is missing, or what looks wrong.</p>
+  <p class="hint" id="fb-about">Tell us what works, what is missing, or what looks wrong.</p>
   <form id="fb-form" novalidate>
     <div class="field">
       <label for="fb-text">Your comment</label>
