@@ -105,7 +105,7 @@
 <footer class="foot" id="foot">
   <div class="wrap">
     <p><b>Billd</b> is a diary for theatregoers: plays and musicals from every culture and era, what's on stage now, and what your friends thought.</p>
-    <p class="foot-links"><button class="linkbtn" id="fb-open" type="button" aria-haspopup="dialog">Send feedback</button> · <a href="#/about">About the data</a><span id="install-wrap" hidden> · <button class="linkbtn" id="install" type="button">Install the app</button></span></p>
+    <p class="foot-links"><button class="linkbtn" id="fb-open" type="button" aria-haspopup="dialog">Send feedback</button> · <a href="#/about">About the data</a><span id="install-wrap" hidden> · <button class="linkbtn" id="install" type="button" data-install>Install the app</button></span></p>
   </div>
 </footer>
 
@@ -259,6 +259,15 @@
     <p class="note" id="ap-note2" role="status" aria-live="polite" hidden></p>
     <div class="acts"><button class="linkbtn" type="button" id="ap-back">Back</button><button class="btn" type="submit" id="ap-send">Send for review</button></div>
   </form>
+</dialog>
+
+<!-- How to put Billd on the home screen -->
+<dialog class="dlg" id="installd" aria-labelledby="inst-title">
+  <button class="close" type="button" data-close aria-label="Close">×</button>
+  <p class="kicker">Get the app</p>
+  <h2 id="inst-title">Add Billd to your home screen</h2>
+  <div id="inst-steps"></div>
+  <div class="acts"><button class="btn" type="button" data-close>Got it</button></div>
 </dialog>
 
 <!-- Feedback for the owner of the site -->

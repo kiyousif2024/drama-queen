@@ -312,7 +312,7 @@
         </div>
         ${S.kind === "local" ? `<p class="banner"><b>Preview mode.</b> Your diary is saved on this device. Member accounts, following and shared reviews switch on when Billd's server is connected.</p>` : ""}
       </section>` : `<section class="welcome">${avatar(me)}<h1>Welcome back, ${who(me)}.</h1></section>`;
-    pageEl().innerHTML = `<div class="wrap">${intro}
+    pageEl().innerHTML = `<div class="wrap">${installCardHTML()}${intro}
       <section class="sec"><div class="sec-head"><h2>On stage now</h2><a href="#/onstage">All ${now.length.toLocaleString()} →</a></div>
         <div class="row-scroll">${now.slice(0, 18).map((w) => cell(w, `<div class="cell-cap">${esc(nowWhere(w))}</div>`)).join("") || `<p class="empty">No current listings.</p>`}</div></section>
       <section class="sec" id="home-pop" hidden><div class="sec-head"><h2>Popular on Billd this week</h2></div><div class="row-scroll" id="home-pop-row"></div></section>
@@ -1543,6 +1543,7 @@
     const local = S.local && S.kind !== "local" && S.local.isLocalData();
     pageEl().innerHTML = `<div class="wrap" style="padding-top:30px;max-width:720px"><h1 class="h1">Settings</h1>
       ${me ? `<section class="sec"><div class="sec-head"><h2>Profile</h2></div><button class="btn ghost" type="button" id="st-prof">Edit profile and favourites</button></section>` : ""}
+      ${canInstall() ? `<section class="sec"><div class="sec-head"><h2>The app</h2></div><p class="hint" style="margin-bottom:10px">Put Billd on your home screen and open it like an app.</p><button class="btn ghost" type="button" data-install>Install the app</button></section>` : ""}
       <section class="sec"><div class="sec-head"><h2>Appearance</h2></div>
         <div class="seg" role="radiogroup" aria-label="Theme">${[["dark", "Dark"], ["light", "Light"]].map(([k, n]) => `<button type="button" role="radio" data-theme-set="${k}" aria-selected="${theme === k}" aria-checked="${theme === k}">${n}</button>`).join("")}</div></section>
       ${local && me ? `<section class="sec"><div class="sec-head"><h2>Diary saved on this device</h2></div><p>This device has shows you logged before you had an account. <button class="btn sm" type="button" id="st-import">Move them to my account</button></p></section>` : ""}
@@ -1734,14 +1735,45 @@
   if ("serviceWorker" in navigator && /^https?:$/.test(location.protocol) && !window.claude && window.top === window) {
     window.addEventListener("load", () => { navigator.serviceWorker.register("sw.js").catch(() => { /* offline support is optional */ }); });
   }
+  // Android's Chrome offers to install the site (beforeinstallprompt); iPhones never do, so
+  // there the steps are shown instead: Share, then Add to Home Screen.
   let installPrompt = null;
-  window.addEventListener("beforeinstallprompt", (e) => { e.preventDefault(); installPrompt = e; $("#install-wrap").hidden = false; });
-  $("#install").addEventListener("click", async () => {
-    if (!installPrompt) return;
-    installPrompt.prompt();
-    try { await installPrompt.userChoice; } catch (e) { /* dismissed */ }
-    installPrompt = null; $("#install-wrap").hidden = true;
+  const UA = navigator.userAgent;
+  const IOS = /iPhone|iPad|iPod/.test(UA) || (navigator.platform === "MacIntel" && navigator.maxTouchPoints > 1);
+  const ANDROID = /Android/.test(UA);
+  const PHONE = IOS || ANDROID || matchMedia("(max-width: 860px) and (pointer: coarse)").matches;
+  const installed = () => matchMedia("(display-mode: standalone)").matches || navigator.standalone === true;
+  const canInstall = () => !installed() && (PHONE || !!installPrompt);
+  function showInstallLinks() { $("#install-wrap").hidden = !canInstall(); }
+  window.addEventListener("beforeinstallprompt", (e) => { e.preventDefault(); installPrompt = e; showInstallLinks(); if (location.hash === "" || location.hash === "#/") route(); });
+  window.addEventListener("appinstalled", () => { installPrompt = null; showInstallLinks(); toast("Billd is on your home screen"); });
+  showInstallLinks();
+  const SHARE_ICON = `<svg viewBox="0 0 24 24" width="18" height="18" aria-hidden="true" style="vertical-align:-3px"><path fill="currentColor" d="M12 2 7.5 6.5l1.4 1.4L11 5.8V15h2V5.8l2.1 2.1 1.4-1.4zM5 10v10a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V10h-3v2h1v8H7v-8h1v-2z"/></svg>`;
+  async function install() {
+    if (installPrompt) {
+      installPrompt.prompt();
+      try { await installPrompt.userChoice; } catch (e) { /* dismissed */ }
+      installPrompt = null; showInstallLinks(); return;
+    }
+    const steps = IOS
+      ? `<ol class="steps"><li>Tap the <b>Share</b> button ${SHARE_ICON} in Safari's toolbar (at the bottom on iPhone, at the top on iPad). In Chrome, it's at the top right.</li><li>Scroll down and tap <b>Add to Home Screen</b>.</li><li>Tap <b>Add</b>. Billd opens from its icon, full screen, like an app.</li></ol>`
+      : ANDROID
+      ? `<ol class="steps"><li>Tap the <b>⋮</b> menu at the top right of Chrome.</li><li>Tap <b>Install app</b> (or <b>Add to Home screen</b>).</li><li>Tap <b>Install</b>. In Samsung Internet: menu <b>≡</b> → <b>Add page to</b> → <b>Home screen</b>.</li></ol>`
+      : `<ol class="steps"><li>On a phone, open this page and choose <b>Add to Home Screen</b> from the browser's Share or ⋮ menu.</li><li>On a computer, in Chrome or Edge, click the install icon at the right of the address bar.</li></ol>`;
+    $("#inst-steps").innerHTML = steps + `<p class="hint">No app store needed. It's free, and works offline for browsing.</p>`;
+    $("#installd").showModal();
+  }
+  document.addEventListener("click", (e) => {
+    if (e.target.closest("[data-install]")) { e.preventDefault(); install(); }
+    const d = e.target.closest("[data-install-dismiss]");
+    if (d) { try { localStorage.setItem("billd-install-dismissed", "1"); } catch (err) { /* not kept */ } d.closest(".install-card")?.remove(); }
   });
+  function installCardHTML() {
+    let dismissed = false; try { dismissed = localStorage.getItem("billd-install-dismissed") === "1"; } catch (e) { /* show it */ }
+    if (!canInstall() || dismissed) return "";
+    return `<div class="install-card"><span class="logo-mark" aria-hidden="true">B</span><div><b>Get the Billd app</b><span>Add it to your home screen: free, no app store.</span></div>
+      <button class="btn sm" type="button" data-install>Install</button><button class="x" type="button" data-install-dismiss aria-label="Not now">×</button></div>`;
+  }
   document.body.addEventListener("click", (e) => {  // buttons outside the page area (home hero, footer)
     if (e.target.closest("#page")) return;
     if (e.target.closest("[data-log]") && !e.target.closest("#acct")) openLog(null);
