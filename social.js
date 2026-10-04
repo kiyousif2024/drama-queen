@@ -79,6 +79,10 @@
       async recentReviews(limit = 20) { return db.logs.filter((l) => l.review).slice(0, limit).map(withAuthor); },
       async feed(limit = 40) { return db.logs.slice(0, limit).map(withAuthor); },
       async recentLogs(limit = 40) { return db.logs.slice(0, limit).map(withAuthor); },
+      async recentMarks(limit = 60) {
+        return Object.entries(db.status).map(([play_id, st]) => ({ play_id, ...st, user_id: "local", profile: author() }))
+          .sort((a, b) => String(b.updated_at).localeCompare(String(a.updated_at))).slice(0, limit);
+      },
       async ratedPlays() { return Object.entries(db.status).filter(([, s]) => s.rating).map(([play_id, s]) => ({ play_id, avg_rating: s.rating / 2, ratings: 1, seen: 1 })); },
       async likeLog() { throw err("Liking reviews needs an account.", "no_server"); },
       async comments() { return []; },
@@ -297,6 +301,17 @@
         if (!uid) return [];
         const ids = check(await sb.from("follows").select("followee").eq("follower", uid)).map((r) => r.followee).concat([uid]);
         return markMine(check(await sb.from("logs").select(LOG_SEL).in("user_id", ids).order("created_at", { ascending: false }).limit(limit)).map(shapeLog));
+      },
+      // shows marked on a play's page (seen, liked, rated, want to see), with or without a diary entry
+      async recentMarks(limit = 60, { friends = false } = {}) {
+        let q = sb.from("play_status").select(`play_id,seen,liked,want,rating,updated_at,user_id,${PROFILE}`)
+          .or("seen.eq.true,want.eq.true").order("updated_at", { ascending: false }).limit(limit);
+        if (friends) {
+          if (!uid) return [];
+          const ids = check(await sb.from("follows").select("followee").eq("follower", uid)).map((r) => r.followee).concat([uid]);
+          q = q.in("user_id", ids);
+        }
+        return check(await q);
       },
       async recentLogs(limit = 40) {
         return markMine(check(await sb.from("logs").select(LOG_SEL).order("created_at", { ascending: false }).limit(limit)).map(shapeLog));

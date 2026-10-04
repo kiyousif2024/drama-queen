@@ -327,7 +327,8 @@
       const pop = Object.keys(popular).map((id) => byId[id]).filter(Boolean).slice(0, 18);
       if (pop.length >= 4) { $("#home-pop-row").innerHTML = pop.map((w) => cell(w)).join(""); $("#home-pop").hidden = false; }
       if (me && S.kind !== "local") {
-        const feed = (await S.feed(30)).filter((l) => l.user_id !== me.id && byId[l.play_id]);
+        const [lg, mk] = await Promise.all([S.feed(30), S.recentMarks(30, { friends: true }).catch(() => [])]);
+        const feed = withMarks(lg.filter((l) => byId[l.play_id]), mk.filter((m) => m.seen)).filter((l) => l.user_id !== me.id);
         if (stale(tok)) return;
         if (feed.length) {
           $("#home-friends-row").innerHTML = feed.slice(0, 18).map((l) => cell(byId[l.play_id], `<div class="cell-meta">${avatar(l.profile, "sm")}${l.rating ? `<span class="stars">${stars(l.rating)}</span>` : ""}${l.liked ? `<span class="heart">♥</span>` : ""}</div>`)).join("");
@@ -1444,10 +1445,16 @@
     const grid = (rows, extra) => `<div class="grid">${rows.map((s) => byId[s.play_id] ? cell(byId[s.play_id], extra ? extra(s) : `<div class="cell-meta">${s.rating ? `<span class="stars">${stars(s.rating)}</span>` : ""}${s.liked ? `<span class="heart">♥</span>` : ""}</div>`) : "").join("")}</div>`;
     if (!tab) {
       const favs = (p.favorites || []).map((id) => byId[id]);
+      // diary entries and shows marked seen without one, newest first, each play once
+      const loggedPlays = new Set(logs.map((l) => l.play_id));
+      const recent = logs.map((l) => ({ ...l, when: l.seen_on || l.created_at.slice(0, 10), at: l.created_at }))
+        .concat(seen.filter((s) => !loggedPlays.has(s.play_id)).map((s) => ({ ...s, when: (s.updated_at || "").slice(0, 10), at: s.updated_at || "" })))
+        .filter((x) => byId[x.play_id])
+        .sort((a, b) => b.when.localeCompare(a.when) || String(b.at).localeCompare(String(a.at)));
       body = `<section class="sec"><div class="sec-head"><h2>Favourite shows</h2>${mine ? `<button type="button" id="edit-favs">Edit</button>` : ""}</div>
           <div class="favs">${[0, 1, 2, 3].map((i) => favs[i] ? `<div>${poster(favs[i], { badge: false })}</div>` : `<div class="fav-empty">${mine ? "Pick a favourite in Edit profile" : ""}</div>`).join("")}</div></section>
         <section class="sec"><div class="sec-head"><h2>Recent activity</h2><a href="${base}/diary">Diary →</a></div>
-          ${logs.length ? `<div class="grid dense">${logs.slice(0, 8).map((l) => byId[l.play_id] ? cell(byId[l.play_id], `<div class="cell-meta">${l.rating ? `<span class="stars">${stars(l.rating)}</span>` : ""}${l.liked ? `<span class="heart">♥</span>` : ""}${l.review ? `<span title="Reviewed">≡</span>` : ""}</div>`) : "").join("")}</div>` : `<p class="empty">${mine ? `Nothing logged yet. <button class="linkbtn" type="button" data-log>Log the last show you saw.</button>` : "Nothing logged yet."}</p>`}</section>
+          ${recent.length ? `<div class="grid dense">${recent.slice(0, 8).map((l) => cell(byId[l.play_id], `<div class="cell-meta">${l.rating ? `<span class="stars">${stars(l.rating)}</span>` : ""}${l.liked ? `<span class="heart">♥</span>` : ""}${l.review ? `<span title="Reviewed">≡</span>` : ""}</div>`)).join("")}</div>` : `<p class="empty">${mine ? `Nothing logged yet. <button class="linkbtn" type="button" data-log>Log the last show you saw.</button>` : "Nothing logged yet."}</p>`}</section>
         ${logs.some((l) => l.review) ? `<section class="sec"><div class="sec-head"><h2>Recent reviews</h2><a href="${base}/reviews">All →</a></div><ul class="reviews">${logs.filter((l) => l.review).slice(0, 3).map((l) => reviewHTML(l)).join("")}</ul></section>` : ""}`;
     } else if (tab === "diary") {
       body = diaryHTML(logs, mine);
@@ -1533,13 +1540,28 @@
       ${S.kind !== "local" ? `<nav class="tabs" aria-label="Activity"><a href="#/activity"${!everyone ? ' aria-current="page"' : ""}>Friends</a><a href="#/activity/everyone"${everyone ? ' aria-current="page"' : ""}>Everyone</a></nav>` : `<p class="banner"><b>Preview mode.</b> This is your own activity. Friends' activity appears once Billd's server is connected.</p>`}
       <ul class="feed" id="feed"><li class="hint">Loading…</li></ul></div>`;
     try {
-      const logs = (everyone ? await S.recentLogs(60) : await S.feed(60)).filter((l) => byId[l.play_id]);
+      const [lg, mk] = await Promise.all([everyone ? S.recentLogs(60) : S.feed(60), S.recentMarks(60, { friends: !everyone }).catch(() => [])]);
+      const logs = withMarks(lg.filter((l) => byId[l.play_id]), mk).slice(0, 80);
       if (stale(tok)) return;
       $("#feed").innerHTML = logs.length ? logs.map(feedItem).join("") : `<li class="empty">${everyone ? `Nothing yet. <button class="linkbtn" type="button" data-log>Log a show</button> to get things started.` : `Nothing from people you follow yet. <a class="linkbtn" href="#/members">Find members to follow</a>.`}</li>`;
     } catch (e) { if (!stale(tok)) $("#feed").innerHTML = `<li class="empty">${esc(e.message)}</li>`; }
   }
+  // Diary entries plus shows marked on a play's page without one (Letterboxd shows both). Logging
+  // also marks the show, so a mark is left out when the same member logged that play around then.
+  function withMarks(logs, marks) {
+    const logged = new Map();
+    logs.forEach((l) => { const k = l.user_id + "|" + l.play_id; logged.set(k, [...(logged.get(k) || []), Date.parse(l.created_at)]); });
+    const extra = marks.filter((m) => byId[m.play_id] && !(logged.get(m.user_id + "|" + m.play_id) || []).some((t) => Math.abs(t - Date.parse(m.updated_at)) < 864e5))
+      .map((m) => ({ ...m, mark: true, created_at: m.updated_at }));
+    return logs.concat(extra).sort((a, b) => Date.parse(b.created_at) - Date.parse(a.created_at));
+  }
   function feedItem(l) {
     const w = byId[l.play_id];
+    if (l.mark) {
+      const verb = !l.seen ? "wants to see" : l.rating ? "rated" : l.liked ? "liked" : "saw";
+      return `<li>${poster(w, { badge: false })}<div class="what"><a href="#/u/${esc(l.profile?.username)}">${who(l.profile)}</a> ${verb} <a href="${playUrl(w.id)}">${esc(w.title)}</a>
+        ${l.seen && l.rating ? ` <span class="stars" aria-label="${starsLabel(l.rating)}">${stars(l.rating)}</span>` : ""}${l.seen && l.liked ? ` <span class="heart">♥</span>` : ""}</div><time datetime="${esc(l.created_at)}">${ago(l.created_at)}</time></li>`;
+    }
     const verb = l.review ? "reviewed" : l.rewatch ? "saw again" : "saw";
     return `<li>${poster(w, { badge: false })}<div class="what"><a href="#/u/${esc(l.profile?.username)}">${who(l.profile)}</a> ${verb} <a href="${l.review ? `#/review/${l.id}` : playUrl(w.id)}">${esc(w.title)}</a>
       ${l.rating ? ` <span class="stars" aria-label="${starsLabel(l.rating)}">${stars(l.rating)}</span>` : ""}${l.liked ? ` <span class="heart">♥</span>` : ""}${l.venue ? ` <small class="hint">at ${esc(l.venue)}</small>` : ""}</div><time datetime="${esc(l.created_at)}">${ago(l.created_at)}</time></li>`;
