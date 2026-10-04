@@ -225,6 +225,33 @@
     const ad = grab(lines, ADAPTER);
     if (ad.names.length) { out.adapters = ad.names.filter(notWriter).slice(0, 3); note("adapters", ad.words); }
     if (!out.cast) { const g = grab(lines, CAST); if (g.names.length) { out.cast = g.names.filter(notWriter).slice(0, 20); note("cast", g.words); } }
+    // lists under a "Cast" heading, from the page's structure (see parse.js castLists)
+    for (const list of page.castLists || []) {
+      const listed = list.map((t) => cleanName(t === t.toUpperCase() ? titleCase(t) : t)).filter((n) => n && notWriter(n) && new RegExp(`^${NAME}$`, "u").test(n));
+      if (listed.length >= 2) {
+        const have = new Set((out.cast || []).map(fold));
+        out.cast = [...(out.cast || []), ...listed.filter((n) => !have.has(fold(n)))].slice(0, 40);
+        note("cast", `the page's cast list: ${listed.slice(0, 3).join(", ")}…`);
+        break;
+      }
+    }
+    // a "Cast" / "Current cast" heading followed by one name per line
+    const head = lines.findIndex((l) => /^(?:the\s+)?(?:current\s+|original\s+|full\s+)?cast(?:\s+list)?:?$/i.test(l.trim()));
+    if (head >= 0) {
+      const listed = [];
+      for (const l of lines.slice(head + 1, head + 60)) {
+        if (/full cast|cast details|see all|creative team|creatives/i.test(l)) continue;
+        const s = l === l.toUpperCase() ? titleCase(l) : l;
+        if (!new RegExp(`^${NAME}$`, "u").test(s)) { if (listed.length) break; continue; }
+        const n = cleanName(s);
+        if (n && notWriter(n)) listed.push(n);
+      }
+      if (listed.length >= 2) {
+        const have = new Set((out.cast || []).map(fold));
+        out.cast = [...(out.cast || []), ...listed.filter((n) => !have.has(fold(n)))].slice(0, 40);
+        note("cast", `${lines[head].trim()}: ${listed.slice(0, 3).join(", ")}…`);
+      }
+    }
     // names standing on their own lines near the title (a credits block), for the member to sort
     const used = new Set([...(out.directors || []), ...(out.adapters || []), ...(out.cast || [])].map(fold));
     // only just under the title, where pages list the artists; elsewhere it's menus and buttons
