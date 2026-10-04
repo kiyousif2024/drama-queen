@@ -120,6 +120,8 @@
       async fetchProductionPage() { throw err("Adding productions needs Billd's server.", "no_server"); },
       async suggestProduction() { throw err("Adding productions needs Billd's server.", "no_server"); },
       async mySuggestions() { return []; },
+      async suggestPlay() { throw err("Suggesting plays needs Billd's server.", "no_server"); },
+      async myPlaySuggestions() { return []; },
       // the Billd team and moderation need the server
       role: () => null,
       standing: () => ({ status: "active", note: null }),
@@ -209,12 +211,12 @@
       ready,
       me: () => profile,
       isLocalData: () => false,
-      async signUp(email, password, username) {
+      async signUp(email, password, username, displayName) {
         username = String(username || "").toLowerCase();
         if (!USERNAME.test(username)) throw err("Usernames are 3 to 20 letters, numbers or underscores.", "bad_username");
         const taken = check(await sb.from("profiles").select("id").eq("username", username).maybeSingle());
         if (taken) throw err("That username is taken.", "username_taken");
-        const { data, error } = await sb.auth.signUp({ email, password, options: { data: { username }, emailRedirectTo: location.origin + location.pathname } });
+        const { data, error } = await sb.auth.signUp({ email, password, options: { data: { username, display_name: (displayName || "").trim().slice(0, 50) || undefined }, emailRedirectTo: location.origin + location.pathname } });
         if (error) throw friendly(error);
         if (!data.session) return { confirm: true };  // the project asks new members to confirm their email
         uid = data.user.id; await loadProfile(); emit(profile); return { confirm: false };
@@ -251,7 +253,7 @@
       async myStatuses() {
         if (!uid) return {};
         const out = {};
-        (await all(() => sb.from("play_status").select("play_id,seen,liked,want,rating").eq("user_id", uid).order("play_id"))).forEach((r) => (out[r.play_id] = r));
+        (await all(() => sb.from("play_status").select("play_id,seen,liked,want,rating,visibility").eq("user_id", uid).order("play_id"))).forEach((r) => (out[r.play_id] = r));
         return out;
       },
       async statusesFor(userId) {
@@ -269,12 +271,12 @@
           return null;
         }
         return check(await sb.from("play_status").upsert({ user_id: uid, play_id: playId, seen: s.seen, liked: s.liked, want: s.want,
-                                                           rating: s.rating, updated_at: new Date().toISOString() }).select().single());
+                                                           rating: s.rating, visibility: s.visibility || "public", updated_at: new Date().toISOString() }).select().single());
       },
       async saveLog(log) {
         needMe();
         const row = {};
-        for (const k of ["play_id", "play_title", "seen_on", "rating", "liked", "review", "spoilers", "rewatch", "venue", "city"]) if (k in log) row[k] = log[k];
+        for (const k of ["play_id", "play_title", "seen_on", "rating", "liked", "review", "spoilers", "rewatch", "venue", "city", "visibility"]) if (k in log) row[k] = log[k];
         const q = log.id ? sb.from("logs").update({ ...row, updated_at: new Date().toISOString() }).eq("id", log.id).eq("user_id", uid)
                          : sb.from("logs").insert({ ...row, user_id: uid });
         return shapeLog(check(await q.select(LOG_SEL).single()));
@@ -406,6 +408,20 @@
         for (const k of keep) if (row[k] != null && row[k] !== "") out[k] = row[k];
         return check(await sb.from("production_suggestions").insert(out).select().single());
       },
+      async suggestPlay(row) {
+        needMe();
+        const out = { user_id: uid };
+        for (const k of ["title", "playwright", "year", "url", "notes"]) if (row[k]) out[k] = row[k];
+        return check(await sb.from("play_suggestions").insert(out).select().single());
+      },
+      async myPlaySuggestions() {
+        if (!uid) return [];
+        return check(await sb.from("play_suggestions").select("id,title,playwright,status,review_note,created_at").eq("user_id", uid).order("created_at", { ascending: false }).limit(50));
+      },
+      async playSuggestionsFor(status = "pending") {
+        return check(await sb.from("play_suggestions").select(`*,${PROFILE}`).eq("status", status).order("created_at", { ascending: status === "pending" }).limit(100));
+      },
+      reviewPlaySuggestion: (id, status, why) => rpc("review_play_suggestion", { suggestion_id: id, new_status: status, why: why || null }),
       async mySuggestions(playId) {
         if (!uid) return [];
         let q = sb.from("production_suggestions").select("id,play_id,play_title,venue,city,date_from,date_to,status,review_note,created_at").eq("user_id", uid).order("created_at", { ascending: false }).limit(50);

@@ -336,7 +336,11 @@ details.more-prods summary { cursor: pointer; color: var(--gold); font-weight: 6
 .diary .icon-btn { border: 0; background: none; color: var(--muted); cursor: pointer; padding: 2px 6px; }
 .feed { list-style: none; margin: 0; padding: 0; }
 .feed li { display: flex; gap: 12px; align-items: center; padding: 12px 0; border-bottom: 1px solid var(--line-soft); font-size: 15px; }
-.feed li .poster { width: 44px; flex: none; padding: 6%; }
+.feed li .poster { width: 64px; flex: none; padding: 7px 6px; }  /* px: a % would be of the whole row, crushing the title to nothing */
+/* the title stays readable at thumbnail size */
+.feed li .poster .p-title, .feed li .poster.b .p-title { font-size: 23cqi; -webkit-line-clamp: 5; line-height: 1.05; }
+.feed li .poster .p-title.long, .feed li .poster.b .p-title.long { font-size: 18cqi; }
+.feed li .poster .p-title.xlong, .feed li .poster.b .p-title.xlong { font-size: 14.5cqi; }
 .feed li .poster .p-top, .feed li .poster .p-by, .feed li .poster .p-yr, .feed li .poster .p-rule { display: none; }
 .feed .what { flex: 1; min-width: 0; }
 .feed .what a { font-weight: 700; text-decoration: none; }
@@ -621,3 +625,7 @@ fieldset.field { border: 0; padding: 0; margin: 0; }
   .adm-row { flex-wrap: wrap; }
   .adm-row .adm-acts { width: 100%; }
 }
+.vis { font: 700 10.5px/1.6 var(--font-ui); letter-spacing: 0.06em; text-transform: uppercase; border: 1px solid var(--line); border-radius: 4px; padding: 0 5px; color: var(--muted); }
+/* small posters beside reviews keep a readable title */
+.review .poster.sm .p-title, .review .poster.sm.b .p-title { font-size: max(13cqi, 9px); }
+.review .poster.sm .p-title.long, .review .poster.sm .p-title.xlong { font-size: max(10cqi, 8px); }

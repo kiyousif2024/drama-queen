@@ -70,10 +70,11 @@
     clearTimeout(toast.t); toast.t = setTimeout(() => (t.hidden = true), 2600);
   }
   function avatar(p, cls = "") {
-    const name = p?.display_name || p?.username || "?";
+    const name = p?.display_name || cap(p?.username) || "?";
     return `<a class="avatar ${cls}" href="#/u/${esc(p?.username || "")}" style="--hue:${hash(p?.username || "") % 360}" aria-label="${esc(name)}">${esc(name.trim()[0] || "?")}</a>`;
   }
-  const who = (p) => esc(p?.display_name || p?.username || "Someone");
+  const cap = (u) => (u ? u.charAt(0).toUpperCase() + u.slice(1) : "");
+  const who = (p) => esc(p?.display_name || cap(p?.username) || "Someone");
   const playUrl = (id) => "#/play/" + encodeURIComponent(id);
 
   // ---------------------------------------------------------------- data
@@ -510,7 +511,8 @@
     for (const l of ["posters", "list", "timeline", "traditions"]) $("#b-" + l).hidden = state.layout !== l;
     $("#sort").value = state.sort;
     const items = filtered.slice(0, state.shown);
-    const empty = `<p class="empty">No plays match. ${state.when === "now" && (state.sel.place.size || state.sel.district.size) ? `<button class="linkbtn" type="button" data-when="ever">Include past productions</button> or remove a filter.` : "Try removing a filter or shortening the search."}</p>`;
+    const empty = `<p class="empty">No plays match. ${state.when === "now" && (state.sel.place.size || state.sel.district.size) ? `<button class="linkbtn" type="button" data-when="ever">Include past productions</button> or remove a filter.` : "Try removing a filter or shortening the search."}
+      ${state.q.length ? `<br>Billd doesn't have it? <button class="linkbtn" type="button" data-suggest-play>Suggest a play</button>` : ""}</p>`;
     if (state.layout === "posters") $("#b-posters").innerHTML = items.length ? items.map((w) => cell(w)).join("") : empty;
     if (state.layout === "list") $("#b-list").innerHTML = items.length ? items.map(listRow).join("") : `<li>${empty}</li>`;
     if (state.layout === "timeline") drawTimeline();
@@ -1012,6 +1014,8 @@
   }
 
   // ---------------------------------------------------------------- reviews
+  const VIS_LABEL = { friends: "Friends", private: "Only you" };
+  const VIS_TITLE = { friends: "Only the people this member follows can see this", private: "Only you can see this" };
   function reviewHTML(l, { poster: withPoster = true, full = false } = {}) {
     const w = byId[l.play_id];
     const mine = me && l.user_id === me.id;
@@ -1020,7 +1024,7 @@
     return `<li class="review${withPoster && w ? "" : " noposter"}">${withPoster && w ? poster(w, { badge: false, cls: "sm" }) : ""}
       <div>${withPoster ? `<h3 class="review-title"><a href="${playUrl(l.play_id)}">${esc(w?.title || l.play_title)}</a>${w && fmtDate(w) ? `<small>${esc(fmtDate(w))}</small>` : ""}</h3>` : ""}
         <div class="review-head">${avatar(l.profile, "sm")}<a href="#/u/${esc(l.profile?.username)}">${who(l.profile)}</a>${l.rating ? `<span class="stars" aria-label="${starsLabel(l.rating)}">${stars(l.rating)}</span>` : ""}${l.liked ? `<span class="heart" title="Liked it">♥</span>` : ""}${l.rewatch ? `<span title="Seen before">↻</span>` : ""}
-          <span>${l.seen_on ? `Seen ${esc(fmtPartial(l.seen_on))}` : ago(l.created_at)}${l.venue ? ` · ${esc(l.venue)}` : ""}</span></div>
+          <span>${l.seen_on ? `Seen ${esc(fmtPartial(l.seen_on))}` : ago(l.created_at)}${l.venue ? ` · ${esc(l.venue)}` : ""}</span>${VIS_LABEL[l.visibility] ? `<span class="vis" title="${VIS_TITLE[l.visibility]}">${VIS_LABEL[l.visibility]}</span>` : ""}</div>
         ${body}
         <div class="review-foot">
           ${S.kind !== "local" ? `<button type="button" data-like-log="${l.id}" aria-pressed="${!!l.liked_by_me}">♥ <span>${l.likes ? l.likes.toLocaleString() : ""}</span> ${l.liked_by_me ? "Liked" : "Like"}</button>
@@ -1086,6 +1090,9 @@
     $("#log-review").value = edit?.review || "";
     $("#log-spoil").checked = !!edit?.spoilers; $("#log-rewatch").checked = !!edit?.rewatch;
     $("#log-del").hidden = !edit;
+    $("#log-vis-f").hidden = S.kind === "local";
+    let lastVis = "public"; try { lastVis = localStorage.getItem("billd-vis") || "public"; } catch (e) { /* default */ }
+    $("#log-vis").value = edit?.visibility || lastVis;
     $("#log-save").textContent = edit ? "Save changes" : "Save";
     $("#log-rate").outerHTML = rateHTML("lrate", logState.rating, "big").replace('class="rate big"', 'class="rate big" id="log-rate"');
     const r = $("#log-rate"); r.dataset.value = logState.rating; wireRate(r, (v) => (logState.rating = v));
@@ -1122,7 +1129,7 @@
     const q = fold(e.target.value).split(/\s+/).filter(Boolean);
     if (!q.length) { $("#log-pick-list").innerHTML = ""; return; }
     const hits = works.filter((w) => q.every((t) => w._hay.includes(t))).sort((a, b) => b._pop - a._pop).slice(0, 12);
-    $("#log-pick-list").innerHTML = hits.map((w) => `<li><button type="button" data-pick="${esc(w.id)}"><span>${esc(w.title)}</span><small>${esc([fmtDate(w), byText(w)].filter(Boolean).join(" · "))}</small></button></li>`).join("") || `<li class="hint">No match.</li>`;
+    $("#log-pick-list").innerHTML = hits.map((w) => `<li><button type="button" data-pick="${esc(w.id)}"><span>${esc(w.title)}</span><small>${esc([fmtDate(w), byText(w)].filter(Boolean).join(" · "))}</small></button></li>`).join("") || `<li class="hint">No match. Billd doesn't have it? <button class="linkbtn" type="button" data-suggest-play>Suggest a play</button></li>`;
   });
   $("#log-pick-list").addEventListener("click", (e) => { const b = e.target.closest("[data-pick]"); if (b) { setLogPlay(b.dataset.pick); $("#log-date").focus(); } });
   $("#log-like").addEventListener("click", (e) => { logState.liked = !logState.liked; e.currentTarget.setAttribute("aria-pressed", String(logState.liked)); });
@@ -1132,12 +1139,14 @@
     const row = { play_id: w.id, play_title: w.title, seen_on: $("#log-date").value || null, rating: logState.rating || null, liked: logState.liked,
                   review: $("#log-review").value.trim() || null, spoilers: $("#log-spoil").checked, rewatch: $("#log-rewatch").checked,
                   venue: $("#log-venue").value.trim() || null, city: $("#log-city").value.trim() || null };
+    if (S.kind !== "local") { row.visibility = $("#log-vis").value; try { localStorage.setItem("billd-vis", row.visibility); } catch (e) { /* not kept */ } }
     if (row.seen_on && row.seen_on > localToday()) { note("#log-note", "The date seen can't be in the future.", true); return; }
     if (logState.edit) row.id = logState.edit.id;
     $("#log-save").disabled = true;
     try {
       await S.saveLog(row);
       const patch = { seen: true }; if (row.rating) patch.rating = row.rating; if (row.liked) patch.liked = true;
+      if (row.visibility) patch.visibility = row.visibility;  // the show's rating and marks follow the entry
       const s = await S.setStatus(w.id, patch); if (s) myStatus[w.id] = s;
       $("#logd").close();
       toast(logState.edit ? "Entry updated" : row.review && S.kind !== "local" ? "Review posted" : "Added to your diary");
@@ -1587,7 +1596,13 @@
       ${S.kind === "local" ? `<section class="sec"><div class="sec-head"><h2>Preview mode</h2></div><p class="hint">Billd isn't connected to its server yet, so your diary lives in this browser. Clearing your browser data would erase it; download it above to keep a copy.</p><p><button class="linkbtn danger" type="button" id="st-clear">Erase the diary on this device</button></p></section>` : ""}
     </div>`;
     $("#st-prof")?.addEventListener("click", editProfile);
-    if ($("#st-sugg")) S.mySuggestions().then((list) => { if (list.length && $("#st-sugg")) { $("#st-sugg").innerHTML = suggestionsHTML(list, "Productions you suggested"); $("#st-sugg").hidden = false; } }).catch(() => {});
+    if ($("#st-sugg")) Promise.all([S.mySuggestions(), S.myPlaySuggestions().catch(() => [])]).then(([list, plays]) => {
+      if (!$("#st-sugg") || !(list.length || plays.length)) return;
+      $("#st-sugg").innerHTML = (list.length ? suggestionsHTML(list, "Productions you suggested") : "")
+        + (plays.length ? `<div class="sugg-box"><h3>Plays you suggested</h3><ul>${plays.map((x) => `<li><b>${esc(x.title)}</b>${x.playwright ? ` · ${esc(x.playwright)}` : ""}
+            <span class="badge${x.status === "added" ? " now" : ""}">${SUGG_STATUS[x.status] || x.status}</span>${x.review_note ? ` <small>${esc(x.review_note)}</small>` : ""} <small class="hint">sent ${ago(x.created_at)}</small></li>`).join("")}</ul></div>` : "");
+      $("#st-sugg").hidden = false;
+    }).catch(() => {});
     $$("[data-theme-set]").forEach((b) => b.addEventListener("click", () => {
       const t = b.dataset.themeSet; document.documentElement.dataset.theme = t;
       try { localStorage.setItem("billd-theme", t); } catch (e) { /* not kept */ }
@@ -1681,6 +1696,7 @@
     $$("[data-auth]").forEach((b) => b.setAttribute("aria-selected", String(b.dataset.auth === mode)));
     $("#auth-title").textContent = mode === "up" ? "Join Billd" : mode === "reset" ? "Reset your password" : "Welcome back";
     $("#auth-user-f").hidden = mode !== "up";
+    $("#auth-name-f").hidden = mode !== "up";
     $("#auth-pass-f").hidden = mode === "reset";
     $("#auth-pass").autocomplete = mode === "up" ? "new-password" : "current-password";
     $("#auth-go").textContent = mode === "up" ? "Create account" : mode === "reset" ? "Email me a reset link" : "Log in";
@@ -1697,9 +1713,9 @@
     $("#auth-go").disabled = true;
     try {
       if (authMode === "up") {
-        const r = await S.signUp(email, pass, user);
+        const r = await S.signUp(email, pass, user, $("#auth-name").value);
         if (r.confirm) { note("#auth-note", "Almost there: open the link we emailed you to confirm your address, then log in.", false, true); return; }
-        $("#auth").close(); toast(`Welcome to Billd, @${user}`);
+        $("#auth").close(); toast(`Welcome to Billd, ${$("#auth-name").value.trim() || cap(user)}`);
       } else if (authMode === "reset") {
         await S.resetPassword(email); note("#auth-note", "If there's an account for that email, a reset link is on its way.", false, true); return;
       } else {
@@ -1721,6 +1737,26 @@
       if (e.target === d && downOutside && outside(e)) d.close();
       downOutside = false;
     });
+  });
+
+  // ---------------------------------------------------------------- suggest a play
+  function openSuggestPlay(title = "") {
+    if (S.kind === "local") { toast("Suggesting plays needs Billd's server, which isn't connected on this copy."); return; }
+    if (!requireMe("Log in to suggest a play.")) return;
+    if ($("#logd").open) $("#logd").close();
+    $("#sp-form").reset(); $("#sp-name").value = title; note("#sp-note", "");
+    $("#suggplay").showModal(); (title ? $("#sp-by") : $("#sp-name")).focus();
+  }
+  document.addEventListener("click", (e) => {
+    if (!e.target.closest("[data-suggest-play]")) return;
+    openSuggestPlay(($("#logd").open ? $("#log-pick").value : $("#q").value).trim());
+  });
+  $("#sp-form").addEventListener("submit", async (e) => {
+    e.preventDefault();
+    const row = { title: $("#sp-name").value.trim(), playwright: $("#sp-by").value.trim(), year: $("#sp-year").value.trim(), url: $("#sp-url").value.trim(), notes: $("#sp-notes").value.trim() };
+    if (!row.title) return note("#sp-note", "What's the play called?", true);
+    try { await S.suggestPlay(row); $("#suggplay").close(); toast("Thanks! The team will look at it. You'll see its status in Settings"); }
+    catch (err) { note("#sp-note", err.message, true); }
   });
 
   // ---------------------------------------------------------------- the Billd team
@@ -1868,6 +1904,7 @@
     else if (x.action.startsWith("remove ")) s = `${a} removed ${t}'s ${esc(x.action.slice(7))}${d.text || d.title ? ` <small class="hint">${esc(String(d.title || d.text).slice(0, 120))}</small>` : ""}`;
     else if (x.action === "clear profile") s = `${a} cleared ${t}'s name and bio`;
     else if (x.action.startsWith("report ")) s = `${a} marked report #${esc(d.id)} ${esc(x.action.slice(7))}`;
+    else if (x.action.startsWith("play ")) s = `${a} ${esc(x.action.slice(5))} ${t}'s suggested play #${esc(d.id)}`;
     else if (x.action.startsWith("suggestion ")) s = `${a} ${esc(x.action.slice(11))} ${t}'s production suggestion #${esc(d.id)}`;
     else if (x.action === "setting") s = `${a} ${d.require_approval ? "turned on" : "turned off"} approval for new members`;
     else s = `${a}: ${esc(x.action)}`;
@@ -1887,7 +1924,8 @@
     await loadTeam();
     if (stale(tok)) return;
     if (!tab) {
-      const [pending, reports, suggs, approved] = await Promise.all([S.standings("pending"), S.reports("open"), S.suggestionsFor("pending"), S.suggestionsFor("approved")]);
+      const [pending, reports, suggs, approved, plays] = await Promise.all([S.standings("pending"), S.reports("open"), S.suggestionsFor("pending"), S.suggestionsFor("approved"),
+        S.playSuggestionsFor("pending").catch(() => [])]);
       const targets = await Promise.all(reports.map((r) => reportTarget(r).catch(() => null)));
       if (stale(tok)) return;
       pending.forEach((x) => x.profile && (people[x.user_id] = x.profile));
@@ -1912,6 +1950,10 @@
           <div class="adm-acts"><button class="btn sm" type="button" data-adm="approve-s" data-id="${x.id}">Approve</button><button class="btn ghost sm" type="button" data-adm="decline-s" data-id="${x.id}">Decline</button></div></li>`);
       el.innerHTML = admSection("Members waiting for approval", pending.length, pending.filter((x) => x.profile).map((x) => admMember(x.profile, x)), "No one is waiting.")
         + admSection("Reports", reports.length, rep, "No open reports.")
+        + admSection("Suggested plays", plays.length, plays.map((x) => `<li class="adm-item"><div class="adm-meta"><b>${esc(x.title)}</b> · from ${nameLink(x.profile)} · ${ago(x.created_at)}</div>
+            <dl class="adm-dl">${field("Playwright", x.playwright)}${field("Year", x.year)}${field("Notes", x.notes)}
+              ${x.url ? `<dt>Link</dt><dd><a href="${esc(/^https?:\/\//i.test(x.url) ? x.url : "https://" + x.url)}" target="_blank" rel="noopener nofollow">${esc(x.url)}</a></dd>` : ""}</dl>
+            <div class="adm-acts"><button class="btn sm" type="button" data-adm="approve-p" data-id="${x.id}">Approve</button><button class="btn ghost sm" type="button" data-adm="decline-p" data-id="${x.id}">Decline</button></div></li>`), "No plays waiting.")
         + admSection("Suggested productions", suggs.length, sug, "No suggestions waiting.")
         + (approved.length ? `<p class="hint">${plural(approved.length, "approved production")} will be added to the plays' histories at the next data update.</p>` : "");
     } else if (tab === "members") {
@@ -1982,6 +2024,11 @@
         if (k === "approve-s") return teamAction({ title: "Approve this production?", go: "Approve", why: "Note for the member",
           body: `<p class="hint">Check it against its link first. It's added to the play's history at the next data update.</p>`,
           run: async (w) => { await S.reviewSuggestion(+b.dataset.id, "approved", w || "Approved. It'll appear at the next update. Thank you!"); toast("Approved"); again(); } });
+        if (k === "approve-p") return teamAction({ title: "Approve this play?", go: "Approve", why: "Note for the member",
+          body: `<p class="hint">Check that it's a real play and isn't on Billd under another title. It's added at the next data update.</p>`,
+          run: async (w) => { await S.reviewPlaySuggestion(+b.dataset.id, "approved", w || "Approved. It'll be on Billd after the next update. Thank you!"); toast("Approved"); again(); } });
+        if (k === "decline-p") return teamAction({ title: "Decline this play?", go: "Decline", danger: true, required: true, why: "Reason (the member sees this)",
+          run: async (w) => { await S.reviewPlaySuggestion(+b.dataset.id, "declined", w); toast("Declined"); again(); } });
         if (k === "decline-s") return teamAction({ title: "Decline this production?", go: "Decline", danger: true, required: true, why: "Reason (the member sees this)",
           run: async (w) => { await S.reviewSuggestion(+b.dataset.id, "declined", w); toast("Declined"); again(); } });
       } catch (err) { toast(err.message); b.disabled = false; }

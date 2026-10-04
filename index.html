@@ -128,6 +128,11 @@
       <input id="auth-user" autocomplete="username" maxlength="20" pattern="[a-z0-9_]{3,20}" autocapitalize="none" spellcheck="false">
       <p class="hint">3 to 20 lowercase letters, numbers or _. It's your profile address.</p>
     </div>
+    <div class="field" id="auth-name-f" hidden>
+      <label for="auth-name">Your name <span class="opt">(optional)</span></label>
+      <input id="auth-name" autocomplete="name" maxlength="50" autocapitalize="words">
+      <p class="hint">How it's shown on your reviews, like “Aylie” or “Aylie Smith”.</p>
+    </div>
     <div class="field">
       <label for="auth-email">Email</label>
       <input id="auth-email" type="email" autocomplete="email" required>
@@ -192,6 +197,14 @@
       <label class="check"><input type="checkbox" id="log-spoil"> Contains spoilers</label>
       <label class="check"><input type="checkbox" id="log-rewatch"> I'd seen it before</label>
     </div>
+    <div class="field" id="log-vis-f">
+      <label for="log-vis">Who can see this</label>
+      <select id="log-vis">
+        <option value="public">Everyone</option>
+        <option value="friends">Friends: the people you follow</option>
+        <option value="private">Only me</option>
+      </select>
+    </div>
     <p class="note" id="log-note" role="status" aria-live="polite" hidden></p>
     <div class="acts">
       <button class="linkbtn danger" type="button" id="log-del" hidden>Delete entry</button>
@@ -210,6 +223,22 @@
     <label class="vh" for="listd-name">New list name</label>
     <input id="listd-name" placeholder="New list…" maxlength="100">
     <button class="btn" type="submit">Create</button>
+  </form>
+</dialog>
+
+<!-- Suggest a play Billd doesn't have -->
+<dialog class="dlg" id="suggplay" aria-labelledby="sp-title">
+  <button class="close" type="button" data-close aria-label="Close">×</button>
+  <h2 id="sp-title">Suggest a play</h2>
+  <p class="hint" style="margin:10px 0 0">Billd doesn't have every play yet. Tell us about it and the team will add it.</p>
+  <form id="sp-form" novalidate>
+    <div class="field"><label for="sp-name">Title</label><input id="sp-name" maxlength="300" required></div>
+    <div class="field"><label for="sp-by">Playwright <span class="opt">(if you know)</span></label><input id="sp-by" maxlength="300"></div>
+    <div class="field"><label for="sp-year">Year written or first staged <span class="opt">(if you know)</span></label><input id="sp-year" maxlength="40" inputmode="numeric"></div>
+    <div class="field"><label for="sp-url">A link about it <span class="opt">(optional)</span></label><input id="sp-url" type="url" maxlength="1000" placeholder="Wikipedia, the publisher, a theatre's page"></div>
+    <div class="field"><label for="sp-notes">Anything else <span class="opt">(optional)</span></label><textarea id="sp-notes" maxlength="2000" style="min-height:4em" placeholder="Where you saw it, for example"></textarea></div>
+    <p class="note" id="sp-note" hidden></p>
+    <div class="acts"><button class="btn ghost" type="button" data-close>Cancel</button><button class="btn" type="submit">Send</button></div>
   </form>
 </dialog>
 
