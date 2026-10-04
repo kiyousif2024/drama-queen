@@ -590,3 +590,34 @@ legend { padding: 0; margin-bottom: 8px; }
   .favs { gap: 8px; }
 }
 @media (prefers-reduced-motion: reduce) { .spot { animation: none; } }
+
+/* ---------------------------------------------------------------- the Billd team */
+.standing { margin: 0; padding: 10px 16px; text-align: center; font-size: 14.5px; background: color-mix(in srgb, var(--gold) 16%, var(--surface)); border-bottom: 1px solid var(--line); }
+.badge.role { background: color-mix(in srgb, var(--red) 22%, transparent); color: var(--ink); margin-left: 4px; }
+.btn.danger { background: var(--red); color: #fff; }
+.btn.ghost.danger { background: transparent; color: var(--red); border-color: color-mix(in srgb, var(--red) 50%, var(--line)); }
+.mod-acts, .adm-acts { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; }
+.adm-list { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 10px; }
+.adm-item { padding: 14px 16px; border-radius: var(--radius); background: var(--surface); border: 1px solid var(--line-soft); display: flex; flex-direction: column; gap: 8px; }
+.adm-row { flex-direction: row; align-items: center; gap: 12px; }
+.adm-row .adm-who { flex: 1; min-width: 0; }
+.adm-row .adm-who a { font-weight: 700; text-decoration: none; }
+.adm-meta { font-size: 14px; color: var(--muted); }
+.adm-meta a { color: var(--ink); }
+.adm-reason { margin: 0; font-weight: 600; }
+.adm-quote { margin: 0; padding: 8px 12px; border-left: 3px solid var(--line); color: var(--ink); font-size: 14.5px; white-space: pre-wrap; overflow-wrap: anywhere; }
+.adm-dl { display: grid; grid-template-columns: max-content 1fr; gap: 4px 14px; margin: 0; font-size: 14px; }
+.adm-dl dt { color: var(--muted); }
+.adm-dl dd { margin: 0; overflow-wrap: anywhere; }
+.adm-log { padding: 10px 2px; border-bottom: 1px solid var(--line-soft); font-size: 14.5px; list-style: none; }
+.check { display: flex; gap: 10px; align-items: center; font-weight: 600; cursor: pointer; }
+.check input { width: 20px; height: 20px; }
+.radios { display: flex; flex-direction: column; gap: 8px; }
+.radios label { display: flex; gap: 10px; align-items: center; cursor: pointer; text-transform: none; letter-spacing: 0; font-size: 15px; font-weight: 500; color: var(--ink); }
+fieldset.field { border: 0; padding: 0; margin: 0; }
+.review-foot [data-report], .review-foot [data-mod-remove] { margin-left: auto; color: var(--muted); }
+@media (max-width: 640px) {
+  .acct-admin { display: none; }
+  .adm-row { flex-wrap: wrap; }
+  .adm-row .adm-acts { width: 100%; }
+}

@@ -42,6 +42,9 @@
   </div>
 </header>
 
+<!-- A member waiting for approval, or suspended, sees why they can't post -->
+<div class="standing" id="standing" role="status" hidden></div>
+
 <main id="main" tabindex="-1">
   <div class="loading" id="loading"><span class="spot" aria-hidden="true"></span>Raising the curtain…</div>
 
@@ -207,6 +210,32 @@
     <label class="vh" for="listd-name">New list name</label>
     <input id="listd-name" placeholder="New list…" maxlength="100">
     <button class="btn" type="submit">Create</button>
+  </form>
+</dialog>
+
+<!-- The Billd team: confirm an action, with a note -->
+<dialog class="dlg" id="modd" aria-labelledby="modd-title">
+  <button class="close" type="button" data-close aria-label="Close">×</button>
+  <h2 id="modd-title"></h2>
+  <form id="modd-form" novalidate>
+    <div id="modd-body"></div>
+    <div class="field" id="modd-why-f"><label for="modd-why" id="modd-why-l">Note</label><textarea id="modd-why" maxlength="500" style="min-height:4em"></textarea></div>
+    <p class="note err" id="modd-note" hidden></p>
+    <div class="acts"><button class="btn ghost" type="button" data-close>Cancel</button><button class="btn" type="submit" id="modd-go"></button></div>
+  </form>
+</dialog>
+
+<!-- Report a review, comment, list or member to the Billd team -->
+<dialog class="dlg" id="reportd" aria-labelledby="rep-title">
+  <button class="close" type="button" data-close aria-label="Close">×</button>
+  <h2 id="rep-title">Report</h2>
+  <form id="rep-form" novalidate>
+    <p class="hint" id="rep-what" style="margin:0"></p>
+    <fieldset class="field"><legend class="label">What's wrong?</legend>
+      <div class="radios" id="rep-reasons"></div></fieldset>
+    <div class="field"><label for="rep-more">Anything the team should know <span class="opt">(optional)</span></label><textarea id="rep-more" maxlength="800" style="min-height:4em"></textarea></div>
+    <p class="note" id="rep-note" hidden></p>
+    <div class="acts"><button class="btn ghost" type="button" data-close>Cancel</button><button class="btn" type="submit">Send report</button></div>
   </form>
 </dialog>
 

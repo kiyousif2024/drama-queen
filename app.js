@@ -238,7 +238,7 @@
     const go = {
       "": renderHome, onstage: () => renderOnStage(b), play: () => renderPlay(b), u: () => renderProfile(b, c), me: renderMe,
       lists: renderLists, list: () => renderList(b), review: () => renderReview(b), members: renderMembers,
-      activity: () => renderActivity(b), settings: renderSettings, about: renderAbout,
+      activity: () => renderActivity(b), settings: renderSettings, about: renderAbout, admin: () => renderAdmin(b),
     }[a || ""] || renderNotFound;
     Promise.resolve(go()).catch((e) => { console.error(e); if (stale(tok)) return; pageEl().innerHTML = `<div class="wrap"><p class="empty">Something went wrong: ${esc(e.message)}</p></div>`; });
   }
@@ -258,7 +258,7 @@
   function renderAcct() {
     const el = $("#acct");
     if (me && S.kind !== "local") {
-      el.innerHTML = `<button class="btn sm" type="button" data-log>+ Log</button>${avatar(me)}`;
+      el.innerHTML = `${myRank() ? `<a class="btn ghost sm acct-admin" href="#/admin">Admin</a>` : ""}<button class="btn sm" type="button" data-log>+ Log</button>${avatar(me)}`;
     } else if (S.kind === "local") {
       el.innerHTML = `<button class="btn sm" type="button" data-log>+ Log</button>${avatar(S.me())}`;
     } else {
@@ -997,6 +997,10 @@
     const sp = t.closest("[data-reveal]"); if (sp) { const b = sp.closest(".review").querySelector(".review-body"); b.hidden = false; sp.remove(); return; }
     const ed = t.closest("[data-edit-log]"); if (ed) { const l = await S.getLog(ed.dataset.editLog); if (l) openLog(l.play_id, l); return; }
     const fo = t.closest("[data-follow]"); if (fo) return follow(fo);
+    const rp = t.closest("[data-report]"); if (rp) { const [k, id] = rp.dataset.report.split(":"); return openReport(k, id); }
+    const mr = t.closest("[data-mod-remove]"); if (mr) { const [k, id] = mr.dataset.modRemove.split(":"); if (k !== "list") return removePost(k, id);
+      return removePost(k, id, () => { location.hash = "#/lists"; }); }
+    const mg = t.closest("[data-manage]"); if (mg) { const p = await S.profileById(mg.dataset.manage); if (p) manageMember(p); return; }
     if (t.closest("[data-log]")) return openLog(null);
     const ao = t.closest("[data-auth-open]"); if (ao) return openAuth(ao.dataset.authOpen);
   });
@@ -1019,7 +1023,7 @@
         <div class="review-foot">
           ${S.kind !== "local" ? `<button type="button" data-like-log="${l.id}" aria-pressed="${!!l.liked_by_me}">♥ <span>${l.likes ? l.likes.toLocaleString() : ""}</span> ${l.liked_by_me ? "Liked" : "Like"}</button>
           <a href="#/review/${l.id}">${l.comments ? plural(l.comments, "comment") : "Comment"}</a>` : ""}
-          ${mine ? `<button type="button" data-edit-log="${l.id}">Edit</button>` : ""}
+          ${mine ? `<button type="button" data-edit-log="${l.id}">Edit</button>` : l.review ? modButton("review", l.id, l.user_id) : ""}
         </div></div></li>`;
   }
   async function likeLog(btn) {
@@ -1046,7 +1050,7 @@
     const draw = async () => {
       const cs = await S.comments(l.id);
       if (stale(tok)) return;
-      $("#cm-list").innerHTML = cs.length ? cs.map((c) => `<li><a class="who" href="#/u/${esc(c.profile?.username)}">${who(c.profile)}</a>${esc(c.body)}<time datetime="${esc(c.created_at)}">${ago(c.created_at)}</time>${me && c.user_id === me.id ? ` <button class="linkbtn danger" type="button" data-del-c="${c.id}">Delete</button>` : ""}</li>`).join("") : `<li class="hint">No comments yet.</li>`;
+      $("#cm-list").innerHTML = cs.length ? cs.map((c) => `<li><a class="who" href="#/u/${esc(c.profile?.username)}">${who(c.profile)}</a>${esc(c.body)}<time datetime="${esc(c.created_at)}">${ago(c.created_at)}</time>${me && c.user_id === me.id ? ` <button class="linkbtn danger" type="button" data-del-c="${c.id}">Delete</button>` : ` ${modButton("comment", c.id, c.user_id, "linkbtn")}`}</li>`).join("") : `<li class="hint">No comments yet.</li>`;
     };
     draw();
     $("#cm-form")?.addEventListener("submit", async (e) => {
@@ -1054,7 +1058,10 @@
       const body = $("#cm-body").value.trim(); if (!body) return;
       try { await S.addComment(l.id, body); $("#cm-body").value = ""; draw(); } catch (err) { toast(err.message); }
     });
-    $("#cm-list").addEventListener("click", async (e) => { const d = e.target.closest("[data-del-c]"); if (d) { await S.deleteComment(+d.dataset.delC); draw(); } });
+    $("#cm-list").addEventListener("click", async (e) => {
+      const d = e.target.closest("[data-del-c]"); if (d) { await S.deleteComment(+d.dataset.delC); draw(); }
+      const r = e.target.closest("[data-mod-remove^='comment:']"); if (r) { e.stopPropagation(); removePost("comment", r.dataset.modRemove.split(":")[1], draw); }
+    });
   }
 
   // ---------------------------------------------------------------- log dialog
@@ -1160,7 +1167,7 @@
     };
     return apCtx;
   }
-  const SUGG_STATUS = { pending: "Waiting for review", added: "Added, thank you", declined: "Not added" };
+  const SUGG_STATUS = { pending: "Waiting for review", approved: "Approved, coming soon", added: "Added, thank you", declined: "Not added" };
   function suggestionsHTML(list, heading) {
     return `<div class="sugg-box"><h3>${esc(heading)}</h3><ul>${list.map((x) => `<li>${x.play_title && heading.startsWith("Productions you suggested") && !heading.includes("this play") ? `<a href="${playUrl(x.play_id)}">${esc(x.play_title)}</a> · ` : ""}${esc([x.venue, x.city].filter(Boolean).join(", "))}${x.date_from ? `, ${esc(fmtPartial(x.date_from))}` : ""}
       <span class="badge${x.status === "added" ? " now" : ""}">${SUGG_STATUS[x.status] || x.status}</span>${x.review_note ? ` <small>${esc(x.review_note)}</small>` : ""} <small class="hint">sent ${ago(x.created_at)}</small></li>`).join("")}</ul>
@@ -1333,6 +1340,7 @@
         ${mine ? `<button class="btn ghost sm" type="button" id="edit-list">Edit list</button>` : ""}
         ${S.kind !== "local" && !mine ? `<button class="btn ghost sm" type="button" id="like-list" aria-pressed="${l.liked_by_me}">♥ ${l.liked_by_me ? "Liked" : "Like"} ${l.likes ? `· ${l.likes}` : ""}</button>` : ""}
         <button class="btn ghost sm" type="button" id="share-list">Share</button>
+        ${mine ? "" : modButton("list", l.id, l.user_id, "btn ghost sm")}
         <span class="count">${plural(l.count, "show")}</span>
       </div>
       <ul class="list-items${l.ranked ? " ranked" : ""}">${l.items.map((i) => byId[i.play_id] ? `<li>${cell(byId[i.play_id], i.note ? `<div class="cell-cap">${esc(i.note)}</div>` : "")}</li>` : "").join("") || `<li class="empty">This list is empty.</li>`}</ul></div>`;
@@ -1456,8 +1464,9 @@
     }
     pageEl().innerHTML = `<div class="wrap">
       <header class="prof">${avatar(p, "lg")}
-        <div class="prof-main"><h1>${who(p)}</h1><div class="handle">@${esc(p.username)}${S.kind === "local" ? " · saved on this device" : ""}</div>${p.bio ? `<p class="bio">${esc(p.bio)}</p>` : ""}
+        <div class="prof-main"><h1>${who(p)}</h1><div class="handle">@${esc(p.username)}${S.kind === "local" ? " · saved on this device" : ""} ${roleBadge(p.id)}</div>${p.bio ? `<p class="bio">${esc(p.bio)}</p>` : ""}
           <div style="margin-top:12px;display:flex;gap:8px;flex-wrap:wrap">${mine ? `<a class="btn ghost sm" href="#/settings">Edit profile</a>` : S.kind !== "local" ? `<button class="btn sm${fset.has(p.id) ? " on" : ""}" type="button" data-follow="${p.id}" data-on="${fset.has(p.id)}">${fset.has(p.id) ? "Following" : "Follow"}</button>` : ""}
+            ${!mine && me && S.kind !== "local" ? (outranks(p.id) ? `<button class="btn ghost sm" type="button" data-manage="${p.id}">Manage</button>` : `<button class="btn ghost sm" type="button" data-report="profile:${p.id}">Report</button>`) : ""}
             <button class="btn ghost sm" type="button" id="share-prof">Share</button></div></div>
         <div class="prof-stats"><a href="${base}/seen"><b>${seen.length.toLocaleString()}</b><span>Shows</span></a><a href="${base}/diary"><b>${year.toLocaleString()}</b><span>This year</span></a><a href="${base}/lists"><b>${lists.length}</b><span>Lists</span></a>
           ${S.kind !== "local" ? `<a href="${base}/following"><b>${following.length}</b><span>Following</span></a><a href="${base}/followers"><b>${followers.length}</b><span>Followers</span></a>` : ""}</div>
@@ -1543,6 +1552,7 @@
     const local = S.local && S.kind !== "local" && S.local.isLocalData();
     pageEl().innerHTML = `<div class="wrap" style="padding-top:30px;max-width:720px"><h1 class="h1">Settings</h1>
       ${me ? `<section class="sec"><div class="sec-head"><h2>Profile</h2></div><button class="btn ghost" type="button" id="st-prof">Edit profile and favourites</button></section>` : ""}
+      ${myRank() ? `<section class="sec"><div class="sec-head"><h2>Billd team</h2></div><p class="hint" style="margin-bottom:10px">You're ${myRank() === 1 ? "a moderator" : myRank() === 2 ? "an admin" : "the owner"}.</p><a class="btn ghost" href="#/admin">Open Admin</a></section>` : ""}
       ${canInstall() ? `<section class="sec"><div class="sec-head"><h2>The app</h2></div><p class="hint" style="margin-bottom:10px">Put Billd on your home screen and open it like an app.</p><button class="btn ghost" type="button" data-install>Install the app</button></section>` : ""}
       <section class="sec"><div class="sec-head"><h2>Appearance</h2></div>
         <div class="seg" role="radiogroup" aria-label="Theme">${[["dark", "Dark"], ["light", "Light"]].map(([k, n]) => `<button type="button" role="radio" data-theme-set="${k}" aria-selected="${theme === k}" aria-checked="${theme === k}">${n}</button>`).join("")}</div></section>
@@ -1690,6 +1700,271 @@
     });
   });
 
+  // ---------------------------------------------------------------- the Billd team
+  // Roles: owner, admin, mod. The buttons shown here follow the same rules the database enforces
+  // (supabase/schema.sql): a person acts only on people ranked below them, admins add and remove
+  // mods, only the owner adds and removes admins, and no one can act on the owner.
+  const RANK = { owner: 3, admin: 2, mod: 1 };
+  const ROLE_NAME = { owner: "Owner", admin: "Admin", mod: "Moderator" };
+  let team = {};  // user id -> role
+  const myRank = () => (me && S.kind !== "local" ? RANK[S.role()] || 0 : 0);
+  const rankOf = (uid) => RANK[team[uid]] || 0;
+  const outranks = (uid) => !!me && uid !== me.id && myRank() > rankOf(uid);
+  async function loadTeam() {
+    try { const t = {}; (await S.team()).forEach((r) => (t[r.user_id] = r.role)); team = t; } catch (e) { /* no team yet */ }
+  }
+  const roleBadge = (uid) => (team[uid] ? `<span class="badge role">${ROLE_NAME[team[uid]]}</span>` : "");
+  // under a post: Remove for the team (on posts by people ranked below them), Report for other members
+  function modButton(kind, id, uid, cls = "") {
+    if (!me || S.kind === "local" || uid === me.id) return "";
+    return outranks(uid) ? `<button type="button" class="${cls}" data-mod-remove="${kind}:${id}">Remove</button>`
+                         : `<button type="button" class="${cls}" data-report="${kind}:${id}">Report</button>`;
+  }
+  function renderStanding() {
+    const el = $("#standing");
+    const st = me && S.kind !== "local" ? S.standing() : null;
+    if (!st || st.status === "active") { el.hidden = true; el.innerHTML = ""; return; }
+    el.innerHTML = st.status === "pending"
+      ? `<b>Your account is waiting for approval.</b> Look around as much as you like; you can log, review and follow once the Billd team approves it.`
+      : `<b>Your account is suspended.</b> ${st.note ? `${esc(st.note)} ` : ""}You can still read Billd, but not post.`;
+    el.hidden = false;
+  }
+
+  // a confirmation with an optional or required note, for every team action
+  function teamAction({ title, body = "", go, why = "Note", required = false, danger = false, run }) {
+    const d = $("#modd");
+    $("#modd-title").textContent = title;
+    $("#modd-body").innerHTML = body;
+    $("#modd-why-f").hidden = !why;
+    $("#modd-why-l").innerHTML = why ? `${esc(why)}${required ? "" : ` <span class="opt">(optional)</span>`}` : "";
+    $("#modd-why").value = "";
+    note("#modd-note", "");
+    const b = $("#modd-go");
+    b.textContent = go; b.classList.toggle("danger", danger); b.disabled = false;
+    $("#modd-form").onsubmit = async (e) => {
+      e.preventDefault();
+      const w = $("#modd-why").value.trim();
+      if (required && !w) return note("#modd-note", "Add a note first.", true);
+      b.disabled = true;
+      try { await run(w); d.close(); } catch (err) { note("#modd-note", err.message, true); b.disabled = false; }
+    };
+    if (!d.open) d.showModal();
+  }
+  function removePost(kind, id, after) {
+    const what = { review: "the review's text (the diary entry and rating stay)", comment: "the comment", list: "the whole list" }[kind];
+    teamAction({ title: `Remove this ${kind}?`, body: `<p class="hint">This removes ${what}. It's recorded in the team log.</p>`,
+      go: "Remove", danger: true, why: "Reason, for the team log",
+      run: async (w) => { await S.removeContent(kind, id, w); toast("Removed"); after ? after() : route(); } });
+  }
+
+  const REPORT_REASONS = ["Spam or advertising", "Harassment or hate", "Spoilers without a warning", "Offensive or explicit", "Something else"];
+  const KIND_NAME = { review: "review", comment: "comment", list: "list", profile: "member" };
+  function openReport(kind, id) {
+    if (!requireMe("Log in to report something.")) return;
+    $("#rep-title").textContent = `Report this ${KIND_NAME[kind]}`;
+    $("#rep-what").textContent = "Reports go to the Billd team. Only the team sees them.";
+    $("#rep-reasons").innerHTML = REPORT_REASONS.map((r) => `<label><input type="radio" name="rep-r" value="${esc(r)}"> ${esc(r)}</label>`).join("");
+    $("#rep-more").value = "";
+    note("#rep-note", "");
+    $("#rep-form").onsubmit = async (e) => {
+      e.preventDefault();
+      const r = $("input[name=rep-r]:checked")?.value;
+      if (!r) return note("#rep-note", "Choose what's wrong.", true);
+      const more = $("#rep-more").value.trim();
+      try { await S.report(kind, id, more ? `${r}: ${more}` : r); $("#reportd").close(); toast("Reported. Thank you"); }
+      catch (err) { note("#rep-note", err.message, true); }
+    };
+    $("#reportd").showModal();
+  }
+
+  const STANDING_NAME = { active: "Active", pending: "Waiting for approval", suspended: "Suspended" };
+  // a member's standing and role, from their profile or the admin page
+  async function manageMember(p, after = route) {
+    const st = (await S.standingsFor([p.id]))[p.id] || { status: "active", note: null };
+    const role = team[p.id] || "", mr = myRank();
+    const roles = mr >= 2 && outranks(p.id) ? [["", "Member"], ["mod", "Moderator"]].concat(mr >= 3 ? [["admin", "Admin"]] : []) : [];
+    $("#edit-title").textContent = `Manage ${p.display_name || p.username}`;
+    $("#edit-form").innerHTML = `
+      <p style="margin:0">@${esc(p.username)} ${roleBadge(p.id)} · <b>${STANDING_NAME[st.status]}</b>${st.note ? ` <small class="hint">${esc(st.note)}</small>` : ""}</p>
+      <div class="mod-acts">
+        ${st.status === "pending" ? `<button class="btn sm" type="button" data-mm="approve">Approve</button>` : ""}
+        ${st.status === "suspended" ? `<button class="btn sm" type="button" data-mm="reinstate">Reinstate</button>` : `<button class="btn ghost sm danger" type="button" data-mm="suspend">Suspend</button>`}
+        <button class="btn ghost sm" type="button" data-mm="clear">Clear name and bio</button>
+      </div>
+      ${roles.length ? `<div class="field"><label for="mm-role">Role on the Billd team</label>
+        <div style="display:flex;gap:8px"><select id="mm-role">${roles.map(([k, n]) => `<option value="${k}"${k === role ? " selected" : ""}>${n}</option>`).join("")}</select>
+        <button class="btn ghost sm" type="button" data-mm="role">Save role</button></div>
+        <p class="hint" style="margin:6px 0 0">${mr >= 3 ? "Admins can approve, moderate and add moderators. Only you can add or remove admins." : "Admins add and remove moderators; only the owner adds admins."}</p></div>` : ""}
+      <p class="note err" id="mm-note" hidden></p>`;
+    const done = (msg) => { $("#editd").close(); toast(msg); after(); };
+    $("#edit-form").onsubmit = (e) => e.preventDefault();
+    $("#edit-form").onclick = async (e) => {
+      const b = e.target.closest("[data-mm]"); if (!b) return;
+      const k = b.dataset.mm;
+      try {
+        if (k === "approve") { await S.setStanding(p.id, "active", null); return done("Approved"); }
+        if (k === "reinstate") { await S.setStanding(p.id, "active", null); return done("Reinstated"); }
+        if (k === "role") { await S.setStaffRole(p.id, $("#mm-role").value); await loadTeam(); return done("Role saved"); }
+        $("#editd").close();
+        if (k === "suspend") teamAction({ title: `Suspend ${p.display_name || p.username}?`, go: "Suspend", danger: true, required: true,
+          body: `<p class="hint">They'll be able to read Billd but not post, comment, rate or follow. Their posts stay up; remove any that break the rules separately.</p>`,
+          why: "Reason (they'll see this)", run: async (w) => { await S.setStanding(p.id, "suspended", w); toast("Suspended"); after(); } });
+        if (k === "clear") teamAction({ title: "Clear their display name and bio?", go: "Clear", danger: true, why: "Reason, for the team log",
+          body: `<p class="hint">Their username stays. It's recorded in the team log.</p>`, run: async (w) => { await S.clearProfile(p.id, w); toast("Cleared"); after(); } });
+      } catch (err) { note("#mm-note", err.message, true); }
+    };
+    $("#editd").showModal();
+  }
+
+  // ---- the admin page: #/admin, #/admin/members, /team, /log, /settings
+  async function reportTarget(r) {
+    if (r.kind === "review") { const l = await S.getLog(r.target_id); return l && { who: l.profile, uid: l.user_id, title: l.play_title, text: l.review, link: `#/review/${l.id}` }; }
+    if (r.kind === "comment") { const c = await S.getComment(r.target_id); return c && { who: c.profile, uid: c.user_id, text: c.body, link: `#/review/${c.log_id}` }; }
+    if (r.kind === "list") { const l = await S.getList(r.target_id); return l && { who: l.profile, uid: l.user_id, title: l.title, text: l.description, link: `#/list/${l.id}` }; }
+    const p = await S.profileById(r.target_id);
+    return p && { who: p, uid: p.id, title: p.display_name, text: p.bio, link: `#/u/${encodeURIComponent(p.username)}` };
+  }
+  const nameLink = (p) => (p ? `<a href="#/u/${esc(p.username)}">${who(p)}</a>` : "a former member");
+  function admSection(title, n, items, empty) {
+    return `<section class="sec"><div class="sec-head"><h2>${esc(title)}${n ? ` <span class="badge now">${n}</span>` : ""}</h2></div>
+      ${items.length ? `<ul class="adm-list">${items.join("")}</ul>` : `<p class="hint">${esc(empty)}</p>`}</section>`;
+  }
+  function admMember(p, st) {
+    return `<li class="adm-item adm-row">${avatar(p, "sm")}<div class="adm-who">${nameLink(p)} <small>@${esc(p.username)}</small> ${roleBadge(p.id)}
+        ${st && st.status !== "active" ? `<span class="badge">${STANDING_NAME[st.status]}</span>` : ""}${p.created_at ? `<small class="hint"> · joined ${ago(p.created_at)}</small>` : ""}
+        ${st?.note && st.status === "suspended" ? `<div class="hint">${esc(st.note)}</div>` : ""}</div>
+      <div class="adm-acts">${st?.status === "pending" && outranks(p.id) ? `<button class="btn sm" type="button" data-adm="approve" data-uid="${p.id}">Approve</button>` : ""}
+        ${outranks(p.id) ? `<button class="btn ghost sm" type="button" data-adm="member" data-uid="${p.id}">Manage</button>` : ""}</div></li>`;
+  }
+  function logLine(x) {
+    const a = x.actor_p ? who(x.actor_p) : "A former team member", t = nameLink(x.target_p), d = x.detail || {};
+    const noteTxt = d.note ? ` <small class="hint">“${esc(d.note)}”</small>` : "";
+    let s;
+    if (x.action === "role") s = `${a} changed ${t}'s role from ${esc(d.from)} to ${esc(d.to)}`;
+    else if (x.action === "status") s = `${a} ${d.to === "suspended" ? "suspended" : d.to === "pending" ? "set back to waiting for approval:" : d.from === "pending" ? "approved" : "reinstated"} ${t}`;
+    else if (x.action.startsWith("remove ")) s = `${a} removed ${t}'s ${esc(x.action.slice(7))}${d.text || d.title ? ` <small class="hint">${esc(String(d.title || d.text).slice(0, 120))}</small>` : ""}`;
+    else if (x.action === "clear profile") s = `${a} cleared ${t}'s name and bio`;
+    else if (x.action.startsWith("report ")) s = `${a} marked report #${esc(d.id)} ${esc(x.action.slice(7))}`;
+    else if (x.action.startsWith("suggestion ")) s = `${a} ${esc(x.action.slice(11))} ${t}'s production suggestion #${esc(d.id)}`;
+    else if (x.action === "setting") s = `${a} ${d.require_approval ? "turned on" : "turned off"} approval for new members`;
+    else s = `${a}: ${esc(x.action)}`;
+    return `<li class="adm-log">${s}${noteTxt} <time class="hint" datetime="${esc(x.created_at)}">${ago(x.created_at)}</time></li>`;
+  }
+  async function renderAdmin(tab = "") {
+    const tok = routeSeq;
+    if (!me || !myRank()) return renderNotFound();
+    document.title = "Admin · Billd";
+    const tabs = [["", "Queue"], ["members", "Members"], ["team", "Team"], ["log", "Log"], ["settings", "Settings"]];
+    pageEl().innerHTML = `<div class="wrap admin" style="padding-top:30px;max-width:900px"><p class="kicker">Billd team · ${ROLE_NAME[S.role()]}</p><h1 class="h1">Admin</h1>
+      <nav class="tabs" aria-label="Admin">${tabs.map(([k, n]) => `<a href="#/admin${k ? "/" + k : ""}"${k === tab ? ' aria-current="page"' : ""}>${n}</a>`).join("")}</nav>
+      <div id="adm"><p class="hint">Loading…</p></div></div>`;
+    const el = $("#adm");
+    const people = {};  // user id -> profile, for Manage
+    const again = () => { if (!stale(tok)) renderAdmin(tab); };
+    await loadTeam();
+    if (stale(tok)) return;
+    if (!tab) {
+      const [pending, reports, suggs, approved] = await Promise.all([S.standings("pending"), S.reports("open"), S.suggestionsFor("pending"), S.suggestionsFor("approved")]);
+      const targets = await Promise.all(reports.map((r) => reportTarget(r).catch(() => null)));
+      if (stale(tok)) return;
+      pending.forEach((x) => x.profile && (people[x.user_id] = x.profile));
+      const rep = reports.map((r, i) => {
+        const t = targets[i];
+        if (t?.who) people[t.uid] = t.who;
+        return `<li class="adm-item"><div class="adm-meta"><span class="badge">${KIND_NAME[r.kind]}</span> reported by ${nameLink(r.reporter_p)} · ${ago(r.created_at)}</div>
+          <p class="adm-reason">${esc(r.reason)}</p>
+          ${t ? `<blockquote class="adm-quote">${t.title ? `<b>${esc(t.title)}</b> ` : ""}${t.text ? esc(String(t.text).slice(0, 600)) : `<i>${r.kind === "review" ? "The review's text has been removed." : "Nothing written."}</i>`}</blockquote>
+            <div class="hint">by ${nameLink(t.who)} ${roleBadge(t.uid)} · <a href="${t.link}">Open</a></div>` : `<p class="hint">It's already gone.</p>`}
+          <div class="adm-acts">
+            ${t && r.kind !== "profile" && (t.text || r.kind !== "review") && (outranks(t.uid) || t.uid === me.id) ? `<button class="btn sm danger" type="button" data-adm="remove" data-kind="${r.kind}" data-id="${esc(r.target_id)}" data-rep="${r.id}">Remove ${KIND_NAME[r.kind]}</button>` : ""}
+            ${t && outranks(t.uid) ? `<button class="btn ghost sm" type="button" data-adm="member" data-uid="${t.uid}">Manage member</button>` : ""}
+            <button class="btn ghost sm" type="button" data-adm="resolve" data-rep="${r.id}">Done</button>
+            <button class="btn ghost sm" type="button" data-adm="dismiss" data-rep="${r.id}">Dismiss</button></div></li>`;
+      });
+      const field = (k, v) => (v ? `<dt>${k}</dt><dd>${esc(v)}</dd>` : "");
+      const sug = suggs.map((x) => `<li class="adm-item"><div class="adm-meta"><a href="${playUrl(x.play_id)}"><b>${esc(x.play_title)}</b></a> · from ${nameLink(x.profile)} · ${ago(x.created_at)}</div>
+          <dl class="adm-dl">${field("Theatre", x.venue)}${field("City", x.city)}${field("Dates", [x.date_from, x.date_to].filter(Boolean).map(fmtPartial).join(" to "))}
+            ${field("Director", x.directors)}${field("Cast", x.cast_list)}${field("Adapter", x.adapters)}${field("Language", x.language)}${field("Notes", x.notes)}
+            ${x.url ? `<dt>Link</dt><dd><a href="${esc(/^https?:\/\//i.test(x.url) ? x.url : "https://" + x.url)}" target="_blank" rel="noopener nofollow">${esc(x.url)}</a></dd>` : ""}</dl>
+          <div class="adm-acts"><button class="btn sm" type="button" data-adm="approve-s" data-id="${x.id}">Approve</button><button class="btn ghost sm" type="button" data-adm="decline-s" data-id="${x.id}">Decline</button></div></li>`);
+      el.innerHTML = admSection("Members waiting for approval", pending.length, pending.filter((x) => x.profile).map((x) => admMember(x.profile, x)), "No one is waiting.")
+        + admSection("Reports", reports.length, rep, "No open reports.")
+        + admSection("Suggested productions", suggs.length, sug, "No suggestions waiting.")
+        + (approved.length ? `<p class="hint">${plural(approved.length, "approved production")} will be added to the plays' histories at the next data update.</p>` : "");
+    } else if (tab === "members") {
+      el.innerHTML = `<form id="adm-find" class="inline-new" role="search"><label class="vh" for="adm-q">Find a member</label><input id="adm-q" type="search" placeholder="Find a member by name or username" autocomplete="off"><button class="btn" type="submit">Find</button></form>
+        <ul class="adm-list" id="adm-res"></ul><div id="adm-susp"></div>`;
+      const find = async (q) => {
+        const ms = await S.members(q);
+        const st = await S.standingsFor(ms.map((m) => m.id));
+        if (stale(tok)) return;
+        ms.forEach((m) => (people[m.id] = m));
+        $("#adm-res").innerHTML = ms.length ? ms.map((m) => admMember(m, st[m.id])).join("") : `<li class="hint">No members found.</li>`;
+      };
+      $("#adm-find").addEventListener("submit", (e) => { e.preventDefault(); find($("#adm-q").value.trim()); });
+      const susp = await S.standings("suspended");
+      if (stale(tok)) return;
+      susp.forEach((x) => x.profile && (people[x.user_id] = x.profile));
+      $("#adm-susp").innerHTML = admSection("Suspended", 0, susp.filter((x) => x.profile).map((x) => admMember(x.profile, x)), "No one is suspended.");
+      find("");
+    } else if (tab === "team") {
+      const rows = await S.team();
+      if (stale(tok)) return;
+      rows.forEach((r) => r.profile && (people[r.user_id] = r.profile));
+      const order = rows.slice().sort((a, b) => RANK[b.role] - RANK[a.role]);
+      const mr = myRank();
+      el.innerHTML = `<p class="hint" style="max-width:62ch;margin-bottom:16px">Moderators approve members and suggested productions, handle reports, remove posts and suspend members.
+          Admins can also add and remove moderators and change site settings. Only the owner adds and removes admins, and no one can change the owner.</p>
+        <ul class="adm-list">${order.map((r) => `<li class="adm-item adm-row">${avatar(r.profile, "sm")}<div class="adm-who">${nameLink(r.profile)} <span class="badge role">${ROLE_NAME[r.role]}</span>
+            <small class="hint">${r.role === "owner" ? "" : `added ${ago(r.added_at)}${r.adder ? ` by @${esc(r.adder.username)}` : ""}`}</small></div>
+            <div class="adm-acts">${outranks(r.user_id) && mr >= 2 ? `<button class="btn ghost sm" type="button" data-adm="member" data-uid="${r.user_id}">Change</button>` : ""}</div></li>`).join("")}</ul>
+        ${mr >= 2 ? `<section class="sec"><div class="sec-head"><h2>Add to the team</h2></div>
+          <form id="adm-add" class="inline-new"><label class="vh" for="adm-user">Username</label><input id="adm-user" placeholder="Their username" autocapitalize="none" spellcheck="false" required>
+            <label class="vh" for="adm-role">Role</label><select id="adm-role"><option value="mod">Moderator</option>${mr >= 3 ? `<option value="admin">Admin</option>` : ""}</select>
+            <button class="btn" type="submit">Add</button></form><p class="note err" id="adm-add-note" hidden></p></section>` : ""}`;
+      $("#adm-add")?.addEventListener("submit", async (e) => {
+        e.preventDefault();
+        const u = $("#adm-user").value.trim().replace(/^@/, "").toLowerCase();
+        try {
+          const p = await S.getProfile(u);
+          if (!p) return note("#adm-add-note", `No member is called @${u}.`, true);
+          await S.setStaffRole(p.id, $("#adm-role").value);
+          toast(`@${p.username} is now ${$("#adm-role").value === "admin" ? "an admin" : "a moderator"}`);
+          again();
+        } catch (err) { note("#adm-add-note", err.message, true); }
+      });
+    } else if (tab === "log") {
+      const rows = await S.modLog(150);
+      if (stale(tok)) return;
+      el.innerHTML = rows.length ? `<ul class="adm-list">${rows.map(logLine).join("")}</ul>` : `<p class="hint">Nothing yet.</p>`;
+    } else if (tab === "settings") {
+      const cfg = await S.settings();
+      if (stale(tok)) return;
+      el.innerHTML = `<section class="sec"><div class="sec-head"><h2>New members</h2></div>
+        <label class="check"><input type="checkbox" id="adm-appr"${cfg.require_approval ? " checked" : ""}${myRank() >= 2 ? "" : " disabled"}> New members need approval before they can post</label>
+        <p class="hint" style="max-width:62ch;margin-top:8px">When this is on, new accounts can look around but can't log, review, comment or follow until a moderator approves them in the Queue. It doesn't affect members who joined earlier.${myRank() >= 2 ? "" : " Only admins can change this."}</p></section>`;
+      $("#adm-appr").addEventListener("change", async (e) => {
+        try { await S.setSetting("require_approval", e.target.checked); toast(e.target.checked ? "New members now need approval" : "New members can post straight away"); }
+        catch (err) { e.target.checked = !e.target.checked; toast(err.message); }
+      });
+    } else return renderNotFound();
+    el.onclick = async (e) => {
+      const b = e.target.closest("[data-adm]"); if (!b) return;
+      const k = b.dataset.adm, rid = b.dataset.rep ? +b.dataset.rep : null;
+      try {
+        if (k === "approve") { b.disabled = true; await S.setStanding(b.dataset.uid, "active", null); toast("Approved"); return again(); }
+        if (k === "member") { const p = people[b.dataset.uid] || (await S.profileById(b.dataset.uid)); if (p) manageMember(p, again); return; }
+        if (k === "resolve" || k === "dismiss") { b.disabled = true; await S.resolveReport(rid, k === "resolve" ? "resolved" : "dismissed"); toast(k === "resolve" ? "Marked done" : "Dismissed"); return again(); }
+        if (k === "remove") return removePost(b.dataset.kind, b.dataset.id, async () => { await S.resolveReport(rid, "resolved"); again(); });
+        if (k === "approve-s") return teamAction({ title: "Approve this production?", go: "Approve", why: "Note for the member",
+          body: `<p class="hint">Check it against its link first. It's added to the play's history at the next data update.</p>`,
+          run: async (w) => { await S.reviewSuggestion(+b.dataset.id, "approved", w || "Approved. It'll appear at the next update. Thank you!"); toast("Approved"); again(); } });
+        if (k === "decline-s") return teamAction({ title: "Decline this production?", go: "Decline", danger: true, required: true, why: "Reason (the member sees this)",
+          run: async (w) => { await S.reviewSuggestion(+b.dataset.id, "declined", w); toast("Declined"); again(); } });
+      } catch (err) { toast(err.message); b.disabled = false; }
+    };
+  }
+
   // ---------------------------------------------------------------- feedback
   const fb = { ctx: null, busy: false };
   const web = CFG.feedback?.endpoint ? CFG.feedback : null;
@@ -1783,13 +2058,14 @@
   async function loadSocial() {
     try { await S.ready; } catch (e) { console.warn(e); toast(e.message); }
     me = S.me();
-    renderAcct();
+    await loadTeam();
+    renderAcct(); renderStanding();
     try { myStatus = me ? await S.myStatuses() : {}; } catch (e) { myStatus = {}; }
     try { (await S.popular(60)).forEach((r, i) => (popular[r.play_id] = 1000 - i)); } catch (e) { /* none yet */ }
     try { (await S.ratedPlays()).forEach((r) => (rated[r.play_id] = { avg: r.avg_rating != null ? Number(r.avg_rating) : null, n: r.ratings, seen: r.seen })); } catch (e) { /* none yet */ }
   }
   S.onAuth(async (p) => {
-    me = p; followingSet = null; renderAcct();
+    me = p; followingSet = null; await loadTeam(); renderAcct(); renderStanding();
     try { myStatus = me ? await S.myStatuses() : {}; } catch (e) { myStatus = {}; }
     if (D) { if (FACETS.length) totals(); route(); }
   });

@@ -116,6 +116,12 @@
       async fetchProductionPage() { throw err("Adding productions needs Billd's server.", "no_server"); },
       async suggestProduction() { throw err("Adding productions needs Billd's server.", "no_server"); },
       async mySuggestions() { return []; },
+      // the Billd team and moderation need the server
+      role: () => null,
+      standing: () => ({ status: "active", note: null }),
+      async team() { return []; },
+      async settings() { return { require_approval: false }; },
+      async report() { throw err("Reporting needs Billd's server.", "no_server"); },
       exportLocal: () => JSON.parse(JSON.stringify(db)),
       clearLocal() { db = empty(); save(); emit(me()); },
       onAuth(f) { listeners.add(f); return () => listeners.delete(f); },
@@ -133,6 +139,7 @@
   function supabaseBackend() {
     const { listeners, emit } = bus();
     let sb = null, profile = null, uid = null;
+    let role = null, standing = { status: "active", note: null };  // the signed-in member's team role and standing
     const PROFILE = "profile:profiles!user_id(id,username,display_name)";
     const check = ({ data, error }) => { if (error) throw friendly(error); return data; };
     function friendly(e) {
@@ -143,6 +150,7 @@
       if (/Password should be/i.test(m)) return err("Choose a password of at least 8 characters.", "weak_password");
       if (/rate limit/i.test(m)) return err("Too many tries. Wait a few minutes and try again.", "rate_limited");
       if (/profiles_username_key|duplicate key.*username/i.test(m)) return err("That username is taken.", "username_taken");
+      if (/row-level security|row level security/i.test(m)) return err(standing.status === "suspended" ? "Your account is suspended, so it can't post." : standing.status === "pending" ? "Your account is waiting for approval. You can post once the Billd team approves it." : "You can't change that.", "forbidden");
       if (/Failed to fetch|NetworkError|Load failed/i.test(m)) return err("Could not reach the Billd server. Check your connection.", "unavailable");
       return err(m, e?.code || "error");
     }
@@ -157,11 +165,16 @@
     }
     const needMe = () => { if (!uid) throw err("Log in to do that.", "signed_out"); return uid; };
     async function loadProfile() {
-      if (!uid) { profile = null; return null; }
-      const { data } = await sb.from("profiles").select("*").eq("id", uid).maybeSingle();
+      if (!uid) { profile = null; role = null; standing = { status: "active", note: null }; return null; }
+      const [{ data }, st, ms] = await Promise.all([sb.from("profiles").select("*").eq("id", uid).maybeSingle(),
+        sb.from("staff").select("role").eq("user_id", uid).maybeSingle(),
+        sb.from("member_status").select("status,note").eq("user_id", uid).maybeSingle()]);
       profile = data || null;
+      role = st.data?.role || null;  // the tables are missing on a project not yet updated: no role
+      standing = ms.data ? { status: ms.data.status, note: ms.data.note } : { status: "active", note: null };
       return profile;
     }
+    const rpc = async (fn, args) => { needMe(); check(await sb.rpc(fn, args)); };
     const ready = loadScript(SUPABASE_JS).then(async () => {
       sb = window.supabase.createClient(cfg.url, cfg.anonKey, { auth: { persistSession: true, autoRefreshToken: true, detectSessionInUrl: true } });
       const { data } = await sb.auth.getSession();
@@ -384,6 +397,53 @@
         if (playId) q = q.eq("play_id", playId);
         return check(await q);
       },
+      // ---- the Billd team and moderation (supabase/schema.sql checks every rule on the server)
+      role: () => role,
+      standing: () => standing,
+      async team() {
+        const { data, error } = await sb.from("staff").select("user_id,role,added_at,profile:profiles!user_id(id,username,display_name),adder:profiles!added_by(username)").order("added_at");
+        return error ? [] : data;
+      },
+      async settings() {
+        const { data } = await sb.from("site_settings").select("key,value");
+        const out = { require_approval: false };
+        (data || []).forEach((r) => (out[r.key] = r.value));
+        return out;
+      },
+      setSetting: (key, value) => rpc("set_site_setting", { setting: key, val: value }),
+      setStaffRole: (userId, r) => rpc("set_staff_role", { target: userId, new_role: r || null }),
+      setStanding: (userId, status, why) => rpc("set_member_status", { target: userId, new_status: status, why: why || null }),
+      removeContent: (kind, id, why) => rpc("moderate_remove", { kind, target_id: Number(id), why: why || null }),
+      clearProfile: (userId, why) => rpc("moderate_profile", { target: userId, why: why || null }),
+      resolveReport: (id, status) => rpc("resolve_report", { report_id: id, new_status: status }),
+      reviewSuggestion: (id, status, why) => rpc("review_suggestion", { suggestion_id: id, new_status: status, why: why || null }),
+      async report(kind, targetId, reason) {
+        needMe();
+        check(await sb.from("reports").insert({ reporter: uid, kind, target_id: String(targetId), reason }));
+      },
+      async reports(status = "open") {
+        return check(await sb.from("reports").select("*,reporter_p:profiles!reporter(id,username,display_name)").eq("status", status)
+          .order("created_at", { ascending: status === "open" }).limit(100));
+      },
+      async suggestionsFor(status = "pending") {
+        return check(await sb.from("production_suggestions").select(`*,${PROFILE}`).eq("status", status).order("created_at", { ascending: status === "pending" }).limit(100));
+      },
+      async standings(status) {
+        return check(await sb.from("member_status").select("user_id,status,note,changed_at,profile:profiles!user_id(id,username,display_name,created_at)")
+          .eq("status", status).order("changed_at", { ascending: false }).limit(200));
+      },
+      async standingsFor(ids) {
+        if (!ids.length) return {};
+        const out = {};
+        check(await sb.from("member_status").select("user_id,status,note").in("user_id", ids)).forEach((r) => (out[r.user_id] = r));
+        return out;
+      },
+      async modLog(limit = 100) {
+        return check(await sb.from("mod_log").select("*,actor_p:profiles!actor(username,display_name),target_p:profiles!target_user(username,display_name)")
+          .order("created_at", { ascending: false }).limit(limit));
+      },
+      async getComment(id) { return check(await sb.from("log_comments").select(`*,${PROFILE}`).eq("id", id).maybeSingle()); },
+      async profileById(id) { return check(await sb.from("profiles").select("*").eq("id", id).maybeSingle()); },
       async importLocal(data) {
         needMe();
         const st = Object.entries(data.status || {}).map(([play_id, s]) => ({ user_id: uid, play_id, seen: !!s.seen, liked: !!s.liked, want: !!s.want, rating: s.rating || null }));
