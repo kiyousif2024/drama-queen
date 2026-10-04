@@ -79,7 +79,8 @@
   // ---------------------------------------------------------------- data
   function load() {
     if (window.PLAYS_DATA) return Promise.resolve(window.PLAYS_DATA);
-    const get = (url) => fetch(url).then((r) => { if (!r.ok) throw new Error(r.status); return r.json(); });
+    // ask the server each time (GitHub Pages lets browsers reuse the index for 10 minutes), so a new publish shows at once
+    const get = (url) => fetch(url, { cache: "no-cache" }).then((r) => { if (!r.ok) throw new Error(r.status); return r.json(); });
     return get("data/index.json").catch(() => get("plays.json"));
   }
   // The split site (build_db.py --site) ships a compact index and loads each play's

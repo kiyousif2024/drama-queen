@@ -1,6 +1,6 @@
 // Billd service worker: makes the public website work offline and installable.
 // build_db.py --site replaces BUILD with the build time, so each publish gets fresh caches.
-const BUILD = "2026-10-04T17:18:23Z";
+const BUILD = "2026-10-04T17:24:15Z";
 const SHELL = `billd-shell-${BUILD}`;
 const DATA = `billd-data-${BUILD}`;
 const SHELL_FILES = ["./", "index.html", "app.css", "app.js", "social.js", "config.js", "plays.js", "manifest.webmanifest",
@@ -22,7 +22,9 @@ self.addEventListener("fetch", (event) => {
   if (req.method !== "GET" || url.origin !== self.location.origin) return;
   if (url.pathname.endsWith("/data/index.json") || url.pathname.endsWith("plays.json")) {
     // The index: the network first, so a new publish shows at once; the cache when offline.
-    event.respondWith(fetch(req).then((res) => {
+    // GitHub Pages lets browsers reuse files for 10 minutes; "no-cache" asks the server each time
+    // (a quick "not modified" when nothing changed).
+    event.respondWith(fetch(req, { cache: "no-cache" }).then((res) => {
       if (res.ok) { const copy = res.clone(); event.waitUntil(caches.open(DATA).then((c) => c.put(req, copy))); }
       return res;
     }).catch(() => caches.match(req)));
@@ -40,7 +42,7 @@ self.addEventListener("fetch", (event) => {
     return;
   }
   // Pages, scripts and icons: the network first, so a new version shows at once; the cache when offline.
-  event.respondWith(fetch(req).then((res) => {
+  event.respondWith(fetch(req.mode === "navigate" ? req : new Request(req, { cache: "no-cache" })).then((res) => {
     if (res.ok) caches.open(SHELL).then((c) => c.put(req, res.clone()));
     return res;
   }).catch(() => caches.match(req).then((hit) => hit || caches.match("index.html"))));
