@@ -1178,7 +1178,8 @@
     set("#ap-dir", (x.directors || []).join(", "), "directors"); set("#ap-cast", (x.cast || []).join(", "), "cast");
     set("#ap-adapt", (x.adapters || []).join(", "), "adapters"); set("#ap-lang", x.language_name, "language");
     $("#ap-link").value = x.url || $("#ap-url").value.trim();
-    $("#ap-notes").value = "";
+    $("#ap-notes").value = x.creatives?.length ? `Creative team: ${x.creatives.join("; ")}` : "";
+    $("#ap-notes").classList.toggle("auto", !!x.creatives?.length);
     $("#ap-people").innerHTML = (x.people || []).map((n) => `<button type="button" class="chip" data-person-add="${esc(n)}">+ ${esc(n)}</button>`).join("");
     $("#ap-people-f").hidden = !(x.people || []).length;
     const filled = ["date_from", "venue", "city", "directors", "cast"].some((k) => x[k] && (!Array.isArray(x[k]) || x[k].length));
