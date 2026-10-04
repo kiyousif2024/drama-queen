@@ -203,7 +203,41 @@
   function imageCredit(w) {
     const im = w.image; if (!im) return "";
     const [, , credit, license, page] = im;
-    return `<p class="img-credit">Image: ${credit ? `${esc(credit)}, ` : ""}${license ? `${esc(license)}, ` : ""}<a href="${esc(page)}" target="_blank" rel="noopener">Wikimedia Commons</a></p>`;
+    return `<p class="img-credit">Image: ${creditHTML(credit, license, page)}</p>`;
+  }
+  // Credit for a Commons picture: author (or "author unknown"), licence linked to its text, and the file's page
+  function licenseLink(l) {
+    const m = /^CC (BY(?:-SA)?) (\d\.\d)(?: ([a-z]{2}))?$/i.exec(l || "");
+    if (m) return `https://creativecommons.org/licenses/${m[1].toLowerCase()}/${m[2]}/${m[3] ? m[3].toLowerCase() + "/" : ""}`;
+    if (/^CC0$/i.test(l || "")) return "https://creativecommons.org/publicdomain/zero/1.0/";
+    if (/^FAL$/i.test(l || "")) return "https://artlibre.org/licence/lal/en/";
+    return "";
+  }
+  function creditHTML(credit, license, page) {
+    const lic = license ? (licenseLink(license) ? `<a href="${esc(licenseLink(license))}" target="_blank" rel="noopener license">${esc(license)}</a>` : esc(license)) : "";
+    return `${credit ? esc(credit) : "author unknown"}${lic ? `, ${lic}` : ""}, via <a href="${esc(page)}" target="_blank" rel="noopener">Wikimedia Commons</a>`;
+  }
+  // #/credits: every picture on Billd with its author and licence (a poster in a grid has no room for one)
+  function renderCredits() {
+    document.title = "Image credits · Billd";
+    const rows = works.filter((w) => w.image && w.image[1] === "commons").sort((a, b) => a.title.localeCompare(b.title));
+    pageEl().innerHTML = `<div class="wrap prose" style="padding-top:30px"><h1 class="h1">Image credits</h1>
+      <p>Billd's posters use free pictures from <a href="https://commons.wikimedia.org" target="_blank" rel="noopener">Wikimedia Commons</a>: premiere posters, title pages, programmes and production photos. Here is each one with its author and licence; each play's page shows the same credit. Artwork for shows on stage now comes from Ticketmaster and appears only beside their ticket links.</p>
+      <p class="hint">${plural(rows.length, "picture")}.</p>
+      <ul class="credits">${rows.map((w) => `<li><a href="${playUrl(w.id)}">${esc(w.title)}</a>: ${creditHTML(w.image[2], w.image[3], w.image[4])}</li>`).join("")}</ul></div>`;
+  }
+  // #/copyright: how to report material on Billd that infringes your rights
+  function renderCopyright() {
+    document.title = "Copyright · Billd";
+    pageEl().innerHTML = `<div class="wrap prose" style="padding-top:30px"><h1 class="h1">Copyright</h1>
+      <p>Billd respects the rights of writers, photographers, designers and producers. Pictures on Billd are free-licensed images from Wikimedia Commons, credited on each play and on the <a href="#/credits">image credits</a> page, or artwork supplied by Ticketmaster for shows on sale. Facts about plays come from open data, listed on <a href="#/about">About the data</a>. Members' reviews, comments and lists are their own.</p>
+      <h2>Reporting a problem</h2>
+      <p>If something on Billd uses your work without permission, tell us and we'll look at it promptly and take it down where it infringes. Please include:</p>
+      <ul><li>the page on Billd (its address) and what on it is yours;</li>
+        <li>the original work, or where it can be seen;</li>
+        <li>your name and how to reach you, and that you own the rights or act for the owner.</li></ul>
+      <p>${CFG.contact?.copyright ? `Write to <a href="mailto:${esc(CFG.contact.copyright)}">${esc(CFG.contact.copyright)}</a>, or` : ""} <button class="linkbtn" type="button" id="cr-fb">send a copyright report</button>. Members can also use <b>Report</b> on any review, comment, list or profile and choose “Copyright infringement”.</p></div>`;
+    $("#cr-fb").addEventListener("click", () => openFeedback({ id: "copyright", title: "Copyright report" }));
   }
   // a poster with the viewer's own marks under it (seen, rating, like)
   function cell(w, extra = "") {
@@ -257,6 +291,7 @@
       "": renderHome, onstage: () => renderOnStage(b), play: () => renderPlay(b), u: () => renderProfile(b, c), me: renderMe,
       lists: renderLists, list: () => renderList(b), review: () => renderReview(b), members: renderMembers,
       activity: () => renderActivity(b), settings: renderSettings, about: renderAbout, admin: () => renderAdmin(b),
+      credits: renderCredits, copyright: renderCopyright,
     }[a || ""] || renderNotFound;
     Promise.resolve(go()).catch((e) => { console.error(e); if (stale(tok)) return; pageEl().innerHTML = `<div class="wrap"><p class="empty">Something went wrong: ${esc(e.message)}</p></div>`; });
   }
@@ -1705,6 +1740,7 @@
         <li><a href="https://www.kunsten.be" target="_blank" rel="noopener">Kunstenpunt – Flanders Arts Institute</a> open data.</li>
         <li>What's on now: Wikipedia's Broadway and West End theatre lists, with ticket links to each theatre's own site, and the <a href="https://developer.ticketmaster.com" target="_blank" rel="noopener">Ticketmaster Discovery API</a>.</li></ul>
       <h2>On stage now</h2><p>A show counts as on now or coming soon only if a listing confirmed it in the last ${STALE_DAYS} days and its closing date hasn't passed. Ticket links go to the theatre's own box office or to ticket sellers (Ticketmaster, TodayTix, Broadway Direct). Billd doesn't sell tickets${Object.keys(CFG.affiliates || {}).length ? "; it may earn a commission when you buy through these links, at no extra cost to you" : " and isn't paid for links"}.</p>
+      <h2>Reusing Billd's data</h2><p>Facts from Wikidata are CC0; play summaries drawn from Wikipedia stay under <a href="https://creativecommons.org/licenses/by-sa/4.0/" target="_blank" rel="noopener license">CC BY-SA 4.0</a>, credited on each play; Czech productions are CC BY 4.0 (Institut umění – Divadelní ústav). Pictures keep their own licences: see <a href="#/credits">image credits</a>. Reviews and lists belong to the members who wrote them. To report a copyright problem, see <a href="#/copyright">Copyright</a>.</p>
       <h2>Found a mistake?</h2><p>Use “Suggest a correction” on any show, or <button class="linkbtn" type="button" id="ab-fb">send feedback</button>.</p></div>`;
     $("#ab-fb").addEventListener("click", () => openFeedback(null));
   }
@@ -2067,9 +2103,11 @@
   const web = CFG.feedback?.endpoint ? CFG.feedback : null;
   function openFeedback(ctx) {
     fb.ctx = ctx || null;
-    $("#fb-title").textContent = ctx ? "Suggest a correction" : "Feedback";
-    $("#fb-about").textContent = ctx ? ctx.title : "Tell us what works, what is missing, or what looks wrong.";
-    $("#fb-text").placeholder = ctx ? "What is wrong or missing? A date, a playwright, a production…" : "";
+    const cr = ctx?.id === "copyright";
+    $("#fb-title").textContent = cr ? "Copyright report" : ctx ? "Suggest a correction" : "Feedback";
+    $("#fb-about").textContent = cr ? "Tell us what on Billd uses your work. We'll look at it promptly." : ctx ? ctx.title : "Tell us what works, what is missing, or what looks wrong.";
+    $("#fb-text").placeholder = cr ? "The Billd page's address, what on it is yours, where the original is, and how to reach you (email). Say that you own the rights or act for the owner."
+      : ctx ? "What is wrong or missing? A date, a playwright, a production…" : "";
     $("#fb-rate").hidden = !!ctx;
     $("#fb-form").hidden = false; $("#fb-done").hidden = true;
     note("#fb-note", web ? "" : "Feedback can't be sent from this copy of Billd. Copy your text and send it to the owner another way.", !web);

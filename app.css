@@ -656,3 +656,4 @@ fieldset.field { border: 0; padding: 0; margin: 0; }
 .np-art img { display: block; width: 100%; border-radius: 8px; }
 .np-art figcaption { margin-top: 6px; font-size: 11.5px; color: var(--faint); }
 .np-art figcaption a { color: inherit; }
+.credits { padding-left: 1.1em; font-size: 14px; line-height: 1.55; } .credits li { margin: 3px 0; overflow-wrap: anywhere; }
