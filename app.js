@@ -691,7 +691,7 @@
             <div id="play-desc">${w._lazy && !w._loaded ? `<p class="src">Loading…</p>` : descHTML(w)}</div>
             <section class="sec" id="play-reviews"><div class="sec-head"><h2>Reviews</h2><button type="button" data-log-play>Write a review</button></div><ul class="reviews" id="play-rev-list"><li class="empty">Loading reviews…</li></ul></section>
             <section class="sec" id="play-prods">${w._lazy && !w._loaded ? "" : productionsHTML(w)}</section>
-            <div class="suggested" id="play-suggest"><p>Seen a production that isn't listed? <button class="linkbtn" type="button" data-addprod>Add it</button></p></div>
+            <div class="suggested" id="play-suggest"></div>
             <section class="sec"><div class="sec-head"><h2>Details</h2></div><div id="play-facts">${w._lazy && !w._loaded ? "" : factsHTML(w)}</div></section>
           </div>
         </div>
@@ -762,41 +762,103 @@
       ${links.length ? `<dt>Links</dt><dd>${links.join(" · ")}</dd>` : ""}
     </dl><p class="src" style="margin-top:14px">Something wrong or missing? <button class="linkbtn" type="button" data-fix>Suggest a correction</button></p>`;
   }
+  // Production history: filters (when, city, a search over theatres and people) and a sort,
+  // for plays staged dozens of times; the list shows 10 at a time.
+  const pv = { play: null, sort: "newest", city: "", period: "", q: "", shown: 10 };
+  const prodYear = (p) => Math.max(...p.runs.map((r) => (r.from ? parseInt(r.from, 10) : -99999)));
+  const prodNow = (p) => p.runs.some((r) => listingStatus(r.checked, r.from, r.to));
+  function periodOf(p) {
+    if (prodNow(p)) return "now";
+    const y = prodYear(p);
+    if (y < -9999) return "undated";
+    if (y >= 1950) return `${Math.floor(y / 10) * 10}s`;
+    if (y >= 1800) return `${Math.floor(y / 50) * 50}–${Math.floor(y / 50) * 50 + 49}`;
+    return y < 0 ? "Antiquity" : `${Math.floor(y / 100) + 1}th century`.replace(/^(\d*1)th/, "$1st").replace(/^(\d*2)th/, "$1nd").replace(/^(\d*3)th/, "$1rd").replace(/^1([123])(st|nd|rd)/, "1$1th");
+  }
+  function periodRank(k) {
+    if (k === "now") return 1e9;
+    if (k === "undated") return -1e9;
+    if (k === "Antiquity") return -1e6;
+    const n = parseInt(k, 10);
+    return /century/.test(k) ? (n - 1) * 100 : n;
+  }
+  const prodCity = (p) => places[p.runs.find((r) => r.place)?.place]?.name || "";
+  const prodHay = (p) => fold([p.title, p.notes, ...p.runs.map((r) => `${venues[r.venue]?.name || ""} ${places[r.place]?.name || ""} ${r.district || ""}`),
+    ...p.credits.map((c) => (c.person ? ppl[c.person]?.name : orgs[c.org]?.name) || "")].join(" "));
   function productionsHTML(w) {
-    if (!w.productions.length) return "";
+    if (pv.play !== w.id) Object.assign(pv, { play: w.id, sort: "newest", city: "", period: "", q: "", shown: 10 });
+    const n = w.productions.length;
+    const addBtn = `<button class="btn ghost sm" type="button" data-addprod>+ Add a production</button>`;
+    if (!n) return `<div class="sec-head"><h2>Production history</h2>${addBtn}</div><p class="empty">No productions recorded yet. Seen one? Add it with its web page.</p>`;
+    const nPlaces = new Set(w.productions.flatMap((p) => p.runs.map((r) => r.place).filter(Boolean))).size;
+    // the filter choices, with counts
+    const cities = {}, periods = {};
+    w.productions.forEach((p) => { const c = prodCity(p); if (c) cities[c] = (cities[c] || 0) + 1; const k = periodOf(p); periods[k] = (periods[k] || 0) + 1; });
+    const cityKeys = Object.keys(cities).sort((a, b) => cities[b] - cities[a] || a.localeCompare(b));
+    const periodKeys = Object.keys(periods).sort((a, b) => periodRank(b) - periodRank(a));
+    const periodName = (k) => ({ now: "On now", undated: "Undated" }[k] || k);
+    const controls = n < 4 ? "" : `
+      <div class="prod-tools">
+        <label class="vh" for="pv-q">Search productions</label>
+        <input id="pv-q" type="search" placeholder="Search theatres, directors, cast…" value="${esc(pv.q)}" autocomplete="off">
+        <label class="sort">Sort
+          <select id="pv-sort">${[["newest", "Newest first"], ["oldest", "Oldest first"], ["city", "City"], ["cast", "Most cast listed"]].map(([k, l]) => `<option value="${k}"${pv.sort === k ? " selected" : ""}>${l}</option>`).join("")}</select>
+        </label>
+      </div>
+      ${periodKeys.length > 1 ? `<div class="chips prod-chips" role="group" aria-label="When">${periodKeys.map((k) => `<button class="chip" type="button" data-pv-period="${esc(k)}" aria-pressed="${pv.period === k}">${esc(periodName(k))} <small>${periods[k]}</small></button>`).join("")}</div>` : ""}
+      ${cityKeys.length > 1 ? `<div class="chips prod-chips" role="group" aria-label="City">${cityKeys.slice(0, 8).map((c) => `<button class="chip" type="button" data-pv-city="${esc(c)}" aria-pressed="${pv.city === c}">${esc(c)} <small>${cities[c]}</small></button>`).join("")}
+        ${cityKeys.length > 8 ? `<label class="vh" for="pv-city">More cities</label><select id="pv-city"><option value="">More cities…</option>${cityKeys.slice(8).map((c) => `<option value="${esc(c)}"${pv.city === c ? " selected" : ""}>${esc(c)} (${cities[c]})</option>`).join("")}</select>` : ""}</div>` : ""}`;
+    return `<div class="sec-head"><h2>Production history</h2>${addBtn}</div>
+      <p class="count" style="margin:-6px 0 10px">${plural(n, "production")}${nPlaces ? ` in ${plural(nPlaces, "city", "cities")}` : ""}</p>
+      ${stagingStrip(w)}${controls}
+      <div id="prod-list">${prodListHTML(w)}</div>`;
+  }
+  function prodListHTML(w) {
+    const q = fold(pv.q).split(/\s+/).filter(Boolean);
+    let list = w.productions.filter((p) => (!pv.city || prodCity(p) === pv.city) && (!pv.period || periodOf(p) === pv.period) && (!q.length || q.every((t) => prodHay(p).includes(t))));
+    const cmp = {
+      newest: (a, b) => (prodNow(b) - prodNow(a)) || prodYear(b) - prodYear(a),
+      oldest: (a, b) => { const ya = prodYear(a), yb = prodYear(b); return (ya < -9999) - (yb < -9999) || ya - yb; },
+      city: (a, b) => prodCity(a).localeCompare(prodCity(b)) || prodYear(b) - prodYear(a),
+      cast: (a, b) => b.credits.filter((c) => c.role === "cast").length - a.credits.filter((c) => c.role === "cast").length || prodYear(b) - prodYear(a),
+    }[pv.sort];
+    list = list.sort(cmp);
+    const filtered = pv.city || pv.period || q.length;
+    if (!list.length) return `<p class="empty">No productions match. <button class="linkbtn" type="button" data-pv-clear>Clear the filters</button></p>`;
+    const shown = list.slice(0, pv.shown);
+    return `${filtered ? `<p class="count">${plural(list.length, "production")} match · <button class="linkbtn" type="button" data-pv-clear>Clear</button></p>` : ""}
+      <ol class="prods">${shown.map((p) => prodItemHTML(w, p)).join("")}</ol>
+      ${list.length > shown.length ? `<button class="btn ghost sm more" type="button" data-pv-more>Show ${Math.min(list.length - shown.length, 20)} more (${list.length - shown.length} left)</button>` : ""}`;
+  }
+  function prodItemHTML(w, p) {
     const kindLabel = { premiere: "World premiere", revival: "Revival", tour: "Tour", transfer: "Transfer" };
     const srcName = { wikipedia: "Wikipedia", idu: "IDU open data (CC BY 4.0)", web: "Source page", ticketmaster: "Ticketmaster", kunstenpunt: "Kunstenpunt", theaterencyclopedie: "TheaterEncyclopedie (CC0)", member: "Suggested by a member, checked against this page" };
-    const prodYear = (p) => Math.max(...p.runs.map((r) => (r.from ? parseInt(r.from, 10) : -99999)));
-    // newest first: what a theatregoer could have seen comes before the history
-    const prods = [...w.productions].sort((a, b) => prodYear(b) - prodYear(a));
-    const item = (p) => {
-      const by = (role) => p.credits.filter((c) => c.role === role);
-      const name = (c) => esc(c.person ? (ppl[c.person]?.name || c.person) : (orgs[c.org]?.name || c.org));
-      const line = (label, list) => list.length ? `<div class="pc"><span class="pc-l">${label}</span> ${list.map(name).join(", ")}</div>` : "";
-      const cast = by("cast");
-      const shownCast = cast.slice(0, 8).map((c) => name(c) + (c.character ? ` <small>as ${esc(c.character)}</small>` : ""));
-      const others = ["designer", "composer", "choreographer", "translator", "adapter"].flatMap((r) => by(r).map((c) => `${name(c)} <small>(${r})</small>`));
-      const pl = p.language && p.language !== w.languages[0] ? (lang[p.language]?.name || p.language) : "";
-      return `<li class="prod">
-        <div class="prod-head">${kindLabel[p.kind] ? `<span class="badge">${kindLabel[p.kind]}</span>` : ""}${p.title ? `<em>${esc(p.title)}</em>` : ""}${pl ? ` <small>in ${esc(pl)}</small>` : ""}</div>
-        <ul class="runs">${p.runs.map((r) => {
-          const date = r.from ? fmtPartial(r.from) + (r.to && r.to !== r.from ? ` – ${fmtPartial(r.to)}` : "") : "date unknown";
-          const where = [venues[r.venue]?.name, places[r.place]?.name].filter(Boolean).map(esc).join(", ");
-          return `<li class="run"><span class="run-date">${r.certain === false ? "c. " : ""}${esc(date)}</span><span>${where}${r.district ? ` <span class="badge dist">${esc(r.district)}</span>` : ""}</span></li>`;
-        }).join("")}</ul>
-        ${line("Company", by("company"))}${line("Producer", by("producer"))}${line("Director", by("director"))}
-        ${cast.length ? `<div class="pc"><span class="pc-l">Cast</span> ${shownCast.join(", ")}${cast.length > 8 ? `, and ${cast.length - 8} more` : ""}</div>` : ""}
-        ${others.length ? `<div class="pc"><span class="pc-l">Also</span> ${others.join(", ")}</div>` : ""}
-        ${p.notes ? `<p class="prod-notes">${esc(p.notes)}</p>` : ""}
-        <div class="prod-src">${p.citation ? `<a href="${esc(p.citation)}" target="_blank" rel="noopener">${srcName[p.source] || "Source"}</a>` : esc(srcName[p.source] || p.source)}${p.ids?.wikidata ? ` · <a href="https://www.wikidata.org/wiki/${esc(p.ids.wikidata)}" target="_blank" rel="noopener">Wikidata</a>` : ""}</div>
-      </li>`;
-    };
-    const nPlaces = new Set(w.productions.flatMap((p) => p.runs.map((r) => r.place).filter(Boolean))).size;
-    const FIRST = 4;
-    return `<div class="sec-head"><h2>Production history</h2><span class="count">${plural(w.productions.length, "production")}${nPlaces ? ` in ${plural(nPlaces, "city", "cities")}` : ""}</span></div>
-      ${stagingStrip(w)}
-      <ol class="prods">${prods.slice(0, FIRST).map(item).join("")}</ol>
-      ${prods.length > FIRST ? `<details class="more-prods"><summary>Show ${prods.length - FIRST} earlier productions</summary><ol class="prods" style="margin-top:14px">${prods.slice(FIRST).map(item).join("")}</ol></details>` : ""}`;
+    const by = (role) => p.credits.filter((c) => c.role === role);
+    const name = (c) => esc(c.person ? (ppl[c.person]?.name || c.person) : (orgs[c.org]?.name || c.org));
+    const line = (label, list) => list.length ? `<div class="pc"><span class="pc-l">${label}</span> ${list.map(name).join(", ")}</div>` : "";
+    const cast = by("cast");
+    const shownCast = cast.slice(0, 8).map((c) => name(c) + (c.character ? ` <small>as ${esc(c.character)}</small>` : ""));
+    const others = ["designer", "composer", "choreographer", "translator", "adapter"].flatMap((r) => by(r).map((c) => `${name(c)} <small>(${r})</small>`));
+    const pl = p.language && p.language !== w.languages[0] ? (lang[p.language]?.name || p.language) : "";
+    return `<li class="prod">
+      <div class="prod-head">${prodNow(p) ? `<span class="badge now">On now</span>` : ""}${kindLabel[p.kind] ? `<span class="badge">${kindLabel[p.kind]}</span>` : ""}${p.title ? `<em>${esc(p.title)}</em>` : ""}${pl ? ` <small>in ${esc(pl)}</small>` : ""}</div>
+      <ul class="runs">${p.runs.map((r) => {
+        const date = r.from ? fmtPartial(r.from) + (r.to && r.to !== r.from ? ` – ${fmtPartial(r.to)}` : "") : "date unknown";
+        const where = [venues[r.venue]?.name, places[r.place]?.name].filter(Boolean).map(esc).join(", ");
+        return `<li class="run"><span class="run-date">${r.certain === false ? "c. " : ""}${esc(date)}</span><span>${where}${r.district ? ` <span class="badge dist">${esc(r.district)}</span>` : ""}</span></li>`;
+      }).join("")}</ul>
+      ${line("Company", by("company"))}${line("Producer", by("producer"))}${line("Director", by("director"))}
+      ${cast.length ? `<div class="pc"><span class="pc-l">Cast</span> ${shownCast.join(", ")}${cast.length > 8 ? `, and ${cast.length - 8} more` : ""}</div>` : ""}
+      ${others.length ? `<div class="pc"><span class="pc-l">Also</span> ${others.join(", ")}</div>` : ""}
+      ${p.notes ? `<p class="prod-notes">${esc(p.notes)}</p>` : ""}
+      <div class="prod-src">${p.citation ? `<a href="${esc(p.citation)}" target="_blank" rel="noopener">${srcName[p.source] || "Source"}</a>` : esc(srcName[p.source] || p.source)}${p.ids?.wikidata ? ` · <a href="https://www.wikidata.org/wiki/${esc(p.ids.wikidata)}" target="_blank" rel="noopener">Wikidata</a>` : ""}</div>
+    </li>`;
+  }
+  function refreshProds(w, keepFocus) {
+    const f = keepFocus && document.activeElement?.id;
+    const box = $("#play-prods"); if (!box) return;
+    box.innerHTML = productionsHTML(w);
+    if (f) { const el = $("#" + f); if (el) { el.focus(); if (el.setSelectionRange && el.value) el.setSelectionRange(el.value.length, el.value.length); } }
   }
   function stagingStrip(w) {
     const pts = w.productions.map((p) => { const r = p.runs.find((x) => x.from); return r ? { y: parseInt(r.from, 10), kind: p.kind, d: r.district, where: places[r.place]?.name || "" } : null; }).filter((x) => x && !isNaN(x.y));
@@ -847,6 +909,7 @@
         <div class="act-rate"><span class="label" id="rate-l">${s.rating ? "Rated" : "Rate"}</span>${rateHTML("prate", s.rating || 0)}</div>
         <button type="button" class="act-line" data-log-play>${(s.seen ? "Log again or review…" : "Log or review…")}</button>
         <button type="button" class="act-line" data-addlist>Add to lists…</button>
+        <button type="button" class="act-line" data-addprod>Add a production…</button>
         <button type="button" class="act-line" data-share>Share</button>
       </div>`;
     const box = matchMedia("(max-width: 860px)").matches ? $("#play-actions-sm") : $("#play-actions");
@@ -901,6 +964,18 @@
         ${S.kind !== "local" ? `<div class="stats"><span><b>${st.seen.toLocaleString()}</b> seen</span><span><b>${st.likes.toLocaleString()}</b> likes</span><span><b>${st.wants.toLocaleString()}</b> want to see</span></div>` : ""}`;
     } catch (e) { /* the stats are a nicety */ }
   }
+  // production history: search and sort
+  let pvT;
+  pageEl().addEventListener("input", (e) => {
+    if (e.target.id !== "pv-q") return;
+    const w = location.hash.startsWith("#/play/") ? byId[decodeURIComponent(location.hash.slice(7))] : null; if (!w) return;
+    clearTimeout(pvT); pvT = setTimeout(() => { pv.q = e.target.value; pv.shown = 10; $("#prod-list").innerHTML = prodListHTML(w); }, 150);
+  });
+  pageEl().addEventListener("change", (e) => {
+    const w = location.hash.startsWith("#/play/") ? byId[decodeURIComponent(location.hash.slice(7))] : null; if (!w) return;
+    if (e.target.id === "pv-sort") { pv.sort = e.target.value; pv.shown = 10; $("#prod-list").innerHTML = prodListHTML(w); }
+    if (e.target.id === "pv-city") { pv.city = e.target.value; pv.shown = 10; refreshProds(w, true); }
+  });
   pageEl().addEventListener("click", async (e) => {
     const t = e.target;
     const w = location.hash.startsWith("#/play/") ? byId[decodeURIComponent(location.hash.slice(7))] : null;
@@ -908,6 +983,10 @@
     if (act && w) { const k = act.dataset.act; return setStatus(w, { [k]: act.getAttribute("aria-pressed") !== "true" }); }
     if (t.closest("[data-log-play]") && w) return openLog(w.id);
     if (t.closest("[data-addprod]") && w) return openAddProduction(w.id);
+    const pc = t.closest("[data-pv-city]"); if (pc && w) { pv.city = pv.city === pc.dataset.pvCity ? "" : pc.dataset.pvCity; pv.shown = 10; return refreshProds(w); }
+    const pp = t.closest("[data-pv-period]"); if (pp && w) { pv.period = pv.period === pp.dataset.pvPeriod ? "" : pp.dataset.pvPeriod; pv.shown = 10; return refreshProds(w); }
+    if (t.closest("[data-pv-more]") && w) { pv.shown += 20; $("#prod-list").innerHTML = prodListHTML(w); return; }
+    if (t.closest("[data-pv-clear]") && w) { Object.assign(pv, { city: "", period: "", q: "", shown: 10 }); return refreshProds(w); }
     if (t.closest("[data-addlist]") && w) return openListPicker(w.id);
     if (t.closest("[data-share]") && w) return share(`${w.title} on Billd`, location.href);
     if (t.closest("[data-fix]") && w) return openFeedback({ id: w.id, title: w.title });

@@ -296,6 +296,10 @@ select { width: auto; padding: 6px 10px; background: var(--surface); }
 .st-tick.dist { background: var(--gold); }
 .st-tick.prem { height: 20px; width: 3px; background: var(--gold); }
 .st-ends { display: flex; justify-content: space-between; font-size: 12px; color: var(--muted); margin-top: 3px; }
+.prod-tools { display: flex; gap: 10px; flex-wrap: wrap; align-items: center; margin: 4px 0 10px; }
+.prod-tools input { flex: 1 1 220px; }
+.prod-chips { margin: 0 0 10px; }
+.prod-chips select { min-height: 32px; padding: 4px 10px; border-radius: 999px; }
 details.more-prods summary { cursor: pointer; color: var(--gold); font-weight: 600; margin-top: 14px; }
 .side h3 { margin: 0 0 10px; font: 700 12.5px/1.2 var(--font-ui); letter-spacing: 0.14em; text-transform: uppercase; color: var(--muted); }
 .side .box { padding: 16px 0; border-top: 1px solid var(--line-soft); }
@@ -510,6 +514,9 @@ legend { padding: 0; margin-bottom: 8px; }
   .wrap { padding: 0 16px; }
   .browse { grid-template-columns: minmax(0, 1fr); padding-top: 18px; }
   /* the filters open under the toolbar, not above it */
+  .prod-chips { flex-wrap: nowrap; overflow-x: auto; scrollbar-width: none; padding-bottom: 2px; margin-right: -16px; padding-right: 16px; }
+  .prod-chips .chip, .prod-chips select { flex: none; white-space: nowrap; }
+  .sec-head .btn { white-space: nowrap; flex: none; }
   .results { display: contents; }
   .results-head, #rail-toggle, .sec { scroll-margin-top: 124px; }
   .lrow { grid-template-columns: 44px minmax(0, 1fr); }
