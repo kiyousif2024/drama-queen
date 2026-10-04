@@ -236,7 +236,14 @@
       <ul><li>the page on Billd (its address) and what on it is yours;</li>
         <li>the original work, or where it can be seen;</li>
         <li>your name and how to reach you, and that you own the rights or act for the owner.</li></ul>
-      <p>${CFG.contact?.copyright ? `Write to <a href="mailto:${esc(CFG.contact.copyright)}">${esc(CFG.contact.copyright)}</a>, or` : ""} <button class="linkbtn" type="button" id="cr-fb">send a copyright report</button>. Members can also use <b>Report</b> on any review, comment, list or profile and choose “Copyright infringement”.</p></div>`;
+      <p>${CFG.contact?.copyright ? `Write to <a href="mailto:${esc(CFG.contact.copyright)}">${esc(CFG.contact.copyright)}</a>, or` : ""} <button class="linkbtn" type="button" id="cr-fb">send a copyright report</button>. Members can also use <b>Report</b> on any review, comment, list or profile and choose “Copyright infringement”.</p>
+      ${CFG.contact?.agent ? `<h2>Designated agent</h2><p>Formal notices under the US Digital Millennium Copyright Act go to Billd's designated agent:<br>${["name", "address", "phone", "email"].map((k) => CFG.contact.agent[k]).filter(Boolean).map(esc).join("<br>")}</p>` : ""}
+      <h2>What a formal notice needs</h2>
+      <p>Under 17 U.S.C. § 512(c)(3), a notice must include: your physical or electronic signature; the copyrighted work you say is infringed; the material on Billd and where it is (its address), precisely enough for us to find it; your address, phone number and email; a statement that you believe in good faith that the use isn't authorised by the owner, its agent or the law; and a statement, under penalty of perjury, that the notice is accurate and that you own the right or may act for the owner.</p>
+      <h2>If your post was removed</h2>
+      <p>If you believe something you posted was removed by mistake, you can send a counter-notice through the same route; we'll restore it unless the person who complained tells us they've started court proceedings.</p>
+      <h2>Repeat infringers</h2>
+      <p>Billd closes the accounts of members who repeatedly post material that infringes others' copyright.</p></div>`;
     $("#cr-fb").addEventListener("click", () => openFeedback({ id: "copyright", title: "Copyright report" }));
   }
   // a poster with the viewer's own marks under it (seen, rating, like)
@@ -768,7 +775,7 @@
   function descHTML(w) {
     const ids = w.ids || {};
     if (!w.notes) return "";
-    const src = w.notes_source === "wikipedia" ? `From the English Wikipedia article${ids.enwiki ? ` <a href="https://en.wikipedia.org/wiki/${encodeURIComponent(ids.enwiki.replace(/ /g, "_"))}" target="_blank" rel="noopener">${esc(ids.enwiki)}</a>` : ""}, CC BY-SA 4.0.`
+    const src = w.notes_source === "wikipedia" ? `From the English Wikipedia article${ids.enwiki ? ` <a href="https://en.wikipedia.org/wiki/${encodeURIComponent(ids.enwiki.replace(/ /g, "_"))}" target="_blank" rel="noopener">${esc(ids.enwiki)}</a>` : ""}, lightly edited; <a href="https://creativecommons.org/licenses/by-sa/4.0/" target="_blank" rel="noopener license">CC BY-SA 4.0</a>.`
       : w.notes_source === "wikidata" ? "Description from Wikidata." : w.notes_source === "generated" ? "Summary written from the records below." : "";
     // Wikipedia leads lose their pronunciation guides in extraction, leaving "Hamlet (), is"
     const text = w.notes.replace(/\s*\(\s*[;,]?\s*\)/g, "").replace(/\(\s*[;,]\s*/g, "(");
