@@ -1534,7 +1534,10 @@
     if (D) { if (FACETS.length) totals(); route(); }
   });
   renderAcct();
-  Promise.all([load(), loadSocial()]).then(([data]) => init(data)).catch((err) => {
+  // The plays never wait more than a few seconds for members' data: if Supabase is slow or its
+  // free project is paused, the site opens anyway and fills in accounts when they arrive.
+  const social = loadSocial().then(() => { if (D) { renderAcct(); totals(); route(); } });
+  Promise.all([load(), Promise.race([social, new Promise((ok) => setTimeout(ok, 5000))])]).then(([data]) => init(data)).catch((err) => {
     $("#loading").innerHTML = `Could not load the plays (${esc(err.message)}). Run <code>python3 build_db.py</code>, or serve the <code>web/</code> folder with <code>python3 -m http.server</code>.`;
   });
 })();
