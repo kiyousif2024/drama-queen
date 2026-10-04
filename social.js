@@ -380,7 +380,7 @@
       },
       async mySuggestions(playId) {
         if (!uid) return [];
-        let q = sb.from("production_suggestions").select("id,play_id,venue,city,date_from,date_to,status,review_note,created_at").eq("user_id", uid).order("created_at", { ascending: false }).limit(50);
+        let q = sb.from("production_suggestions").select("id,play_id,play_title,venue,city,date_from,date_to,status,review_note,created_at").eq("user_id", uid).order("created_at", { ascending: false }).limit(50);
         if (playId) q = q.eq("play_id", playId);
         return check(await q);
       },

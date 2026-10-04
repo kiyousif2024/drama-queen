@@ -690,8 +690,8 @@
           <div class="play-body">
             <div id="play-desc">${w._lazy && !w._loaded ? `<p class="src">Loading…</p>` : descHTML(w)}</div>
             <section class="sec" id="play-reviews"><div class="sec-head"><h2>Reviews</h2><button type="button" data-log-play>Write a review</button></div><ul class="reviews" id="play-rev-list"><li class="empty">Loading reviews…</li></ul></section>
-            <section class="sec" id="play-prods">${w._lazy && !w._loaded ? "" : productionsHTML(w)}</section>
             <div class="suggested" id="play-suggest"></div>
+            <section class="sec" id="play-prods">${w._lazy && !w._loaded ? "" : productionsHTML(w)}</section>
             <section class="sec"><div class="sec-head"><h2>Details</h2></div><div id="play-facts">${w._lazy && !w._loaded ? "" : factsHTML(w)}</div></section>
           </div>
         </div>
@@ -943,7 +943,7 @@
         : `<li class="empty">No reviews yet. ${signedIn() ? `<button class="linkbtn" type="button" data-log-play>Be the first to write one.</button>` : ""}</li>`;
       const mine = await S.mySuggestions(w.id).catch(() => []);
       if (stale(tok)) return;
-      if (mine.length && $("#play-suggest")) $("#play-suggest").insertAdjacentHTML("beforeend", `<ul>${mine.map((x) => `<li>Your suggestion: ${esc([x.venue, x.city].filter(Boolean).join(", "))}${x.date_from ? `, ${esc(fmtPartial(x.date_from))}` : ""} · <b>${{ pending: "waiting for review", added: "added, thank you", declined: "not added" }[x.status]}</b>${x.review_note ? ` (${esc(x.review_note)})` : ""}</li>`).join("")}</ul>`);
+      if (mine.length && $("#play-suggest")) $("#play-suggest").innerHTML = suggestionsHTML(mine, "Productions you suggested for this play");
       const lists = await S.listsWithPlay(w.id);
       if (stale(tok)) return;
       if (lists.length && $("#play-lists")) {
@@ -1160,6 +1160,12 @@
     };
     return apCtx;
   }
+  const SUGG_STATUS = { pending: "Waiting for review", added: "Added, thank you", declined: "Not added" };
+  function suggestionsHTML(list, heading) {
+    return `<div class="sugg-box"><h3>${esc(heading)}</h3><ul>${list.map((x) => `<li>${x.play_title && heading.startsWith("Productions you suggested") && !heading.includes("this play") ? `<a href="${playUrl(x.play_id)}">${esc(x.play_title)}</a> · ` : ""}${esc([x.venue, x.city].filter(Boolean).join(", "))}${x.date_from ? `, ${esc(fmtPartial(x.date_from))}` : ""}
+      <span class="badge${x.status === "added" ? " now" : ""}">${SUGG_STATUS[x.status] || x.status}</span>${x.review_note ? ` <small>${esc(x.review_note)}</small>` : ""} <small class="hint">sent ${ago(x.created_at)}</small></li>`).join("")}</ul>
+      <p class="hint">Each suggestion is checked against its link before it's added to the production history.</p></div>`;
+  }
   function openAddProduction(playId) {
     if (S.kind === "local") { toast("Adding productions needs Billd's server, which isn't connected on this copy."); return; }
     if (!requireMe("Log in to add a production.")) return;
@@ -1240,15 +1246,27 @@
       date_from: v("#ap-from") || null, date_to: v("#ap-to") || null, directors: v("#ap-dir"), cast_list: v("#ap-cast"), adapters: v("#ap-adapt"),
       language: lang ? lang.id : v("#ap-lang"), notes: v("#ap-notes"),
       extracted: ap.extracted ? { ...ap.extracted, plays: (ap.extracted.plays || []).slice(0, 3) } : null };
-    $("#ap-send").disabled = true;
+    if (ap.sending) return;  // a second tap while the first is on its way
+    ap.sending = true; $("#ap-send").disabled = true;
     try {
       await S.suggestProduction(row);
+      notifyOwner(row);
       $("#addprod").close();
-      toast("Thanks! It will be checked against the link and added.");
+      toast("Sent for review. Its status shows on this play's page and in Settings.");
       if (location.hash === playUrl(ap.play.id)) route();
     } catch (err) { note("#ap-note2", err.message, true); }
-    finally { $("#ap-send").disabled = false; }
+    finally { ap.sending = false; $("#ap-send").disabled = false; }
   });
+  // the owner hears about each suggestion by email, through the same form service as feedback
+  function notifyOwner(row) {
+    if (!web) return;
+    const body = { ...(web.fields || {}), from_name: "Billd", subject: `Billd: production suggested for ${row.play_title}`,
+      message: [`${row.play_title} at ${row.venue}, ${row.city}`, [row.date_from, row.date_to].filter(Boolean).join(" to "),
+        row.directors && `Director: ${row.directors}`, row.cast_list && `Cast: ${row.cast_list}`, row.adapters && `Adapted by: ${row.adapters}`,
+        row.notes, row.url && `Link: ${row.url}`, "", "Review it with: python3 scripts/production_suggestions.py"].filter((x) => x !== null && x !== undefined && x !== false).join("\n"),
+      name: me ? `${me.display_name || ""} @${me.username}`.trim() : "", play_link: location.origin + location.pathname + playUrl(row.play_id) };
+    fetch(web.endpoint, { method: "POST", headers: { "Content-Type": "application/json", Accept: "application/json" }, body: JSON.stringify(body) }).catch(() => { /* the suggestion is saved either way */ });
+  }
   $("#log-addprod").addEventListener("click", () => {
     if (!logState.play) return;
     const id = logState.play.id;
@@ -1528,12 +1546,14 @@
       <section class="sec"><div class="sec-head"><h2>Appearance</h2></div>
         <div class="seg" role="radiogroup" aria-label="Theme">${[["dark", "Dark"], ["light", "Light"]].map(([k, n]) => `<button type="button" role="radio" data-theme-set="${k}" aria-selected="${theme === k}" aria-checked="${theme === k}">${n}</button>`).join("")}</div></section>
       ${local && me ? `<section class="sec"><div class="sec-head"><h2>Diary saved on this device</h2></div><p>This device has shows you logged before you had an account. <button class="btn sm" type="button" id="st-import">Move them to my account</button></p></section>` : ""}
+      ${me && S.kind !== "local" ? `<section class="sec" id="st-sugg" hidden></section>` : ""}
       <section class="sec"><div class="sec-head"><h2>Your data</h2></div><p class="hint" style="margin-bottom:10px">Download everything you've logged, rated, reviewed and listed, as a JSON file.</p><button class="btn ghost" type="button" id="st-export"${me ? "" : " disabled"}>Download my data</button></section>
       ${me && S.kind !== "local" ? `<section class="sec"><div class="sec-head"><h2>Account</h2></div><form id="st-pw" style="display:flex;gap:8px;flex-wrap:wrap;max-width:460px"><label class="vh" for="st-pass">New password</label><input id="st-pass" type="password" minlength="8" placeholder="New password" autocomplete="new-password" style="flex:1"><button class="btn ghost" type="submit">Change password</button></form>
         <p style="margin-top:18px"><button class="btn ghost" type="button" id="st-out">Log out</button></p></section>` : ""}
       ${S.kind === "local" ? `<section class="sec"><div class="sec-head"><h2>Preview mode</h2></div><p class="hint">Billd isn't connected to its server yet, so your diary lives in this browser. Clearing your browser data would erase it; download it above to keep a copy.</p><p><button class="linkbtn danger" type="button" id="st-clear">Erase the diary on this device</button></p></section>` : ""}
     </div>`;
     $("#st-prof")?.addEventListener("click", editProfile);
+    if ($("#st-sugg")) S.mySuggestions().then((list) => { if (list.length && $("#st-sugg")) { $("#st-sugg").innerHTML = suggestionsHTML(list, "Productions you suggested"); $("#st-sugg").hidden = false; } }).catch(() => {});
     $$("[data-theme-set]").forEach((b) => b.addEventListener("click", () => {
       const t = b.dataset.themeSet; document.documentElement.dataset.theme = t;
       try { localStorage.setItem("billd-theme", t); } catch (e) { /* not kept */ }
