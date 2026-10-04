@@ -121,6 +121,7 @@
       async suggestProduction() { throw err("Adding productions needs Billd's server.", "no_server"); },
       async mySuggestions() { return []; },
       async suggestPlay() { throw err("Suggesting plays needs Billd's server.", "no_server"); },
+      async saveFeedback() { throw err("No server.", "no_server"); },
       async myPlaySuggestions() { return []; },
       // the Billd team and moderation need the server
       role: () => null,
@@ -408,6 +409,19 @@
         for (const k of keep) if (row[k] != null && row[k] !== "") out[k] = row[k];
         return check(await sb.from("production_suggestions").insert(out).select().single());
       },
+      // feedback, corrections and copyright reports: anyone may send (no account needed); the team reads them
+      async saveFeedback(row) {
+        await ready;
+        const out = { user_id: uid || null };
+        for (const k of ["kind", "play_id", "play_title", "body", "name", "rating", "page"]) if (row[k] != null && row[k] !== "") out[k] = row[k];
+        check(await sb.from("feedback").insert(out));
+      },
+      async feedbackFor(status = "open") {
+        let q = sb.from("feedback").select(`*,${PROFILE}`).order("created_at", { ascending: status === "open" }).limit(200);
+        if (status !== "all") q = q.eq("status", status);
+        return check(await q);
+      },
+      resolveFeedback: (id, status) => rpc("resolve_feedback", { feedback_id: id, new_status: status }),
       async suggestPlay(row) {
         needMe();
         const out = { user_id: uid };
@@ -419,7 +433,9 @@
         return check(await sb.from("play_suggestions").select("id,title,playwright,status,review_note,created_at").eq("user_id", uid).order("created_at", { ascending: false }).limit(50));
       },
       async playSuggestionsFor(status = "pending") {
-        return check(await sb.from("play_suggestions").select(`*,${PROFILE}`).eq("status", status).order("created_at", { ascending: status === "pending" }).limit(100));
+        let q = sb.from("play_suggestions").select(`*,${PROFILE}`).order("created_at", { ascending: status === "pending" }).limit(200);
+        if (status !== "all") q = q.eq("status", status);
+        return check(await q);
       },
       reviewPlaySuggestion: (id, status, why) => rpc("review_play_suggestion", { suggestion_id: id, new_status: status, why: why || null }),
       async mySuggestions(playId) {
@@ -457,7 +473,9 @@
           .order("created_at", { ascending: status === "open" }).limit(100));
       },
       async suggestionsFor(status = "pending") {
-        return check(await sb.from("production_suggestions").select(`*,${PROFILE}`).eq("status", status).order("created_at", { ascending: status === "pending" }).limit(100));
+        let q = sb.from("production_suggestions").select(`*,${PROFILE}`).order("created_at", { ascending: status === "pending" }).limit(200);
+        if (status !== "all") q = q.eq("status", status);
+        return check(await q);
       },
       async standings(status) {
         return check(await sb.from("member_status").select("user_id,status,note,changed_at,profile:profiles!user_id(id,username,display_name,created_at)")

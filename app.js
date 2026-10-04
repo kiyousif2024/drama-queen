@@ -1974,17 +1974,27 @@
     else if (x.action.startsWith("remove ")) s = `${a} removed ${t}'s ${esc(x.action.slice(7))}${d.text || d.title ? ` <small class="hint">${esc(String(d.title || d.text).slice(0, 120))}</small>` : ""}`;
     else if (x.action === "clear profile") s = `${a} cleared ${t}'s name and bio`;
     else if (x.action.startsWith("report ")) s = `${a} marked report #${esc(d.id)} ${esc(x.action.slice(7))}`;
+    else if (x.action.startsWith("feedback ")) s = `${a} marked feedback #${esc(d.id)} ${esc(x.action.slice(9))}`;
     else if (x.action.startsWith("play ")) s = `${a} ${esc(x.action.slice(5))} ${t}'s suggested play #${esc(d.id)}`;
     else if (x.action.startsWith("suggestion ")) s = `${a} ${esc(x.action.slice(11))} ${t}'s production suggestion #${esc(d.id)}`;
     else if (x.action === "setting") s = `${a} ${d.require_approval ? "turned on" : "turned off"} approval for new members`;
     else s = `${a}: ${esc(x.action)}`;
     return `<li class="adm-log">${s}${noteTxt} <time class="hint" datetime="${esc(x.created_at)}">${ago(x.created_at)}</time></li>`;
   }
+  const admSugg = { status: "pending" };
+  const FB_KIND = { feedback: "Feedback", correction: "Correction", copyright: "Copyright report" };
+  function feedbackItem(x) {
+    return `<li class="adm-item"><div class="adm-meta"><span class="badge">${FB_KIND[x.kind] || esc(x.kind)}</span>${x.play_id ? ` <a href="${playUrl(x.play_id)}"><b>${esc(x.play_title || x.play_id)}</b></a>` : ""}
+        · ${x.profile ? nameLink(x.profile) : esc(x.name || "someone without an account")} · ${ago(x.created_at)}${x.status !== "open" ? ` <span class="badge">${esc(x.status)}</span>` : ""}</div>
+      <p class="adm-quote">${esc(x.body)}</p>${x.rating ? `<div class="hint">Rated Billd ${x.rating}/5</div>` : ""}
+      <div class="adm-acts">${x.status === "open" ? `<button class="btn sm" type="button" data-adm="fb-done" data-id="${x.id}">Done</button><button class="btn ghost sm" type="button" data-adm="fb-dismiss" data-id="${x.id}">Dismiss</button>`
+        : `<button class="btn ghost sm" type="button" data-adm="fb-open" data-id="${x.id}">Reopen</button>`}</div></li>`;
+  }
   async function renderAdmin(tab = "") {
     const tok = routeSeq;
     if (!me || !myRank()) return renderNotFound();
     document.title = "Admin · Billd";
-    const tabs = [["", "Queue"], ["members", "Members"], ["team", "Team"], ["log", "Log"], ["settings", "Settings"]];
+    const tabs = [["", "Queue"], ["suggestions", "Suggestions"], ["members", "Members"], ["team", "Team"], ["log", "Log"], ["settings", "Settings"]];
     pageEl().innerHTML = `<div class="wrap admin" style="padding-top:30px;max-width:900px"><p class="kicker">Billd team · ${ROLE_NAME[S.role()]}</p><h1 class="h1">Admin</h1>
       <nav class="tabs" aria-label="Admin">${tabs.map(([k, n]) => `<a href="#/admin${k ? "/" + k : ""}"${k === tab ? ' aria-current="page"' : ""}>${n}</a>`).join("")}</nav>
       <div id="adm"><p class="hint">Loading…</p></div></div>`;
@@ -1994,8 +2004,8 @@
     await loadTeam();
     if (stale(tok)) return;
     if (!tab) {
-      const [pending, reports, suggs, approved, plays] = await Promise.all([S.standings("pending"), S.reports("open"), S.suggestionsFor("pending"), S.suggestionsFor("approved"),
-        S.playSuggestionsFor("pending").catch(() => [])]);
+      const [pending, reports, suggs, approved, plays, notes] = await Promise.all([S.standings("pending"), S.reports("open"), S.suggestionsFor("pending"), S.suggestionsFor("approved"),
+        S.playSuggestionsFor("pending").catch(() => []), S.feedbackFor("open").catch(() => [])]);
       const targets = await Promise.all(reports.map((r) => reportTarget(r).catch(() => null)));
       if (stale(tok)) return;
       pending.forEach((x) => x.profile && (people[x.user_id] = x.profile));
@@ -2020,12 +2030,33 @@
           <div class="adm-acts"><button class="btn sm" type="button" data-adm="approve-s" data-id="${x.id}">Approve</button><button class="btn ghost sm" type="button" data-adm="decline-s" data-id="${x.id}">Decline</button></div></li>`);
       el.innerHTML = admSection("Members waiting for approval", pending.length, pending.filter((x) => x.profile).map((x) => admMember(x.profile, x)), "No one is waiting.")
         + admSection("Reports", reports.length, rep, "No open reports.")
+        + admSection("Feedback and corrections", notes.length, notes.map(feedbackItem), "Nothing new.")
         + admSection("Suggested plays", plays.length, plays.map((x) => `<li class="adm-item"><div class="adm-meta"><b>${esc(x.title)}</b> · from ${nameLink(x.profile)} · ${ago(x.created_at)}</div>
             <dl class="adm-dl">${field("Playwright", x.playwright)}${field("Year", x.year)}${field("Notes", x.notes)}
               ${x.url ? `<dt>Link</dt><dd><a href="${esc(/^https?:\/\//i.test(x.url) ? x.url : "https://" + x.url)}" target="_blank" rel="noopener nofollow">${esc(x.url)}</a></dd>` : ""}</dl>
             <div class="adm-acts"><button class="btn sm" type="button" data-adm="approve-p" data-id="${x.id}">Approve</button><button class="btn ghost sm" type="button" data-adm="decline-p" data-id="${x.id}">Decline</button></div></li>`), "No plays waiting.")
         + admSection("Suggested productions", suggs.length, sug, "No suggestions waiting.")
         + (approved.length ? `<p class="hint">${plural(approved.length, "approved production")} will be added to the plays' histories at the next data update.</p>` : "");
+    } else if (tab === "suggestions") {
+      // every suggestion and message, whatever its status
+      const status = admSugg.status;
+      const map = { pending: ["pending", "open"], approved: ["approved", null], added: ["added", "done"], declined: ["declined", "dismissed"], all: ["all", "all"] };
+      const [ss, fs] = map[status];
+      const [prods, plays, notes] = await Promise.all([S.suggestionsFor(ss), S.playSuggestionsFor(ss).catch(() => []), fs ? S.feedbackFor(fs).catch(() => []) : []]);
+      if (stale(tok)) return;
+      const badge = (st) => `<span class="badge${st === "added" || st === "done" ? " now" : ""}">${esc(st)}</span>`;
+      const field = (k, v) => (v ? `<dt>${k}</dt><dd>${esc(v)}</dd>` : "");
+      const link = (u) => (u ? `<dt>Link</dt><dd><a href="${esc(/^https?:\/\//i.test(u) ? u : "https://" + u)}" target="_blank" rel="noopener nofollow">${esc(u)}</a></dd>` : "");
+      const acts = (k, x) => x.status === "pending" ? `<div class="adm-acts"><button class="btn sm" type="button" data-adm="approve-${k}" data-id="${x.id}">Approve</button><button class="btn ghost sm" type="button" data-adm="decline-${k}" data-id="${x.id}">Decline</button></div>`
+        : x.status === "added" ? "" : `<div class="adm-acts"><button class="btn ghost sm" type="button" data-adm="reopen-${k}" data-id="${x.id}">Back to waiting</button></div>`;
+      el.innerHTML = `<div class="seg" role="radiogroup" aria-label="Status" style="margin-bottom:6px">${["pending", "approved", "added", "declined", "all"].map((k) =>
+          `<button type="button" role="radio" data-sugg-status="${k}" aria-checked="${k === status}" aria-selected="${k === status}">${{ pending: "Waiting", approved: "Approved", added: "Added", declined: "Declined", all: "All" }[k]}</button>`).join("")}</div>
+        ${admSection("Plays", plays.length, plays.map((x) => `<li class="adm-item"><div class="adm-meta"><b>${esc(x.title)}</b> ${badge(x.status)} · from ${nameLink(x.profile)} · ${ago(x.created_at)}</div>
+            <dl class="adm-dl">${field("Playwright", x.playwright)}${field("Year", x.year)}${field("Notes", x.notes)}${link(x.url)}${field("Team note", x.review_note)}</dl>${acts("p", x)}</li>`), "None.")}
+        ${admSection("Productions", prods.length, prods.map((x) => `<li class="adm-item"><div class="adm-meta"><a href="${playUrl(x.play_id)}"><b>${esc(x.play_title)}</b></a> ${badge(x.status)} · from ${nameLink(x.profile)} · ${ago(x.created_at)}</div>
+            <dl class="adm-dl">${field("Theatre", x.venue)}${field("City", x.city)}${field("Dates", [x.date_from, x.date_to].filter(Boolean).map(fmtPartial).join(" to "))}${field("Director", x.directors)}${field("Cast", x.cast_list)}${link(x.url)}${field("Team note", x.review_note)}</dl>${acts("s", x)}</li>`), "None.")}
+        ${fs ? admSection("Feedback and corrections", notes.length, notes.map(feedbackItem), "None.") : ""}`;
+      el.querySelectorAll("[data-sugg-status]").forEach((b) => b.addEventListener("click", () => { admSugg.status = b.dataset.suggStatus; again(); }));
     } else if (tab === "members") {
       el.innerHTML = `<form id="adm-find" class="inline-new" role="search"><label class="vh" for="adm-q">Find a member</label><input id="adm-q" type="search" placeholder="Find a member by name or username" autocomplete="off"><button class="btn" type="submit">Find</button></form>
         <ul class="adm-list" id="adm-res"></ul><div id="adm-susp"></div>`;
@@ -2099,6 +2130,8 @@
           run: async (w) => { await S.reviewPlaySuggestion(+b.dataset.id, "approved", w || "Approved. It'll be on Billd after the next update. Thank you!"); toast("Approved"); again(); } });
         if (k === "decline-p") return teamAction({ title: "Decline this play?", go: "Decline", danger: true, required: true, why: "Reason (the member sees this)",
           run: async (w) => { await S.reviewPlaySuggestion(+b.dataset.id, "declined", w); toast("Declined"); again(); } });
+        if (k === "reopen-s" || k === "reopen-p") { b.disabled = true; await (k === "reopen-s" ? S.reviewSuggestion(+b.dataset.id, "pending", null) : S.reviewPlaySuggestion(+b.dataset.id, "pending", null)); toast("Back to waiting"); return again(); }
+        if (k === "fb-done" || k === "fb-dismiss" || k === "fb-open") { b.disabled = true; await S.resolveFeedback(+b.dataset.id, { "fb-done": "done", "fb-dismiss": "dismissed", "fb-open": "open" }[k]); toast("Saved"); return again(); }
         if (k === "decline-s") return teamAction({ title: "Decline this production?", go: "Decline", danger: true, required: true, why: "Reason (the member sees this)",
           run: async (w) => { await S.reviewSuggestion(+b.dataset.id, "declined", w); toast("Declined"); again(); } });
       } catch (err) { toast(err.message); b.disabled = false; }
@@ -2117,8 +2150,9 @@
       : ctx ? "What is wrong or missing? A date, a playwright, a production…" : "";
     $("#fb-rate").hidden = !!ctx;
     $("#fb-form").hidden = false; $("#fb-done").hidden = true;
-    note("#fb-note", web ? "" : "Feedback can't be sent from this copy of Billd. Copy your text and send it to the owner another way.", !web);
-    $("#fb-send").disabled = !web; $("#fb-copy").hidden = !!web;
+    const canSend = !!web || S.kind === "supabase";
+    note("#fb-note", canSend ? "" : "Feedback can't be sent from this copy of Billd. Copy your text and send it to the owner another way.", !canSend);
+    $("#fb-send").disabled = !canSend; $("#fb-copy").hidden = canSend;
     $("#fb").showModal(); $("#fb-text").focus();
   }
   $("#fb-open").addEventListener("click", () => openFeedback(null));
@@ -2128,20 +2162,27 @@
   });
   $("#fb-form").addEventListener("submit", async (e) => {
     e.preventDefault();
-    if (fb.busy || !web) return;
+    if (fb.busy || !(web || S.kind === "supabase")) return;
     const comment = $("#fb-text").value.trim();
     if (!comment) { note("#fb-note", "Write a comment before sending.", true); return; }
     const rating = document.querySelector('input[name="fb-rating"]:checked')?.value;
     // a form service (Web3Forms, Formspree) that emails each submission to the owner
-    const body = { ...(web.fields || {}), from_name: "Billd", subject: fb.ctx ? `Billd correction: ${fb.ctx.title}` : "Billd feedback", message: comment };
+    const body = { ...(web?.fields || {}), from_name: "Billd", subject: fb.ctx ? `Billd correction: ${fb.ctx.title}` : "Billd feedback", message: comment };
     const name = $("#fb-name").value.trim() || (me ? `${me.display_name || ""} @${me.username}`.trim() : "");
     if (name) body.name = name;
     if (!fb.ctx && rating) body.rating = rating;
     if (fb.ctx) { body.play = fb.ctx.title; body.play_link = location.origin + location.pathname + playUrl(fb.ctx.id); }
     fb.busy = true; $("#fb-send").disabled = true; note("#fb-note", "Sending…");
     try {
-      const res = await fetch(web.endpoint, { method: "POST", headers: { "Content-Type": "application/json", Accept: "application/json" }, body: JSON.stringify(body) });
-      if (!res.ok) throw new Error(res.status === 429 ? "Too many messages at once. Wait a minute, then send again." : "Your feedback was not sent. Try again in a moment.");
+      // kept for the Billd team's Admin page, and emailed to the owner; sent if either works
+      const kind = fb.ctx?.id === "copyright" ? "copyright" : fb.ctx ? "correction" : "feedback";
+      const saved = S.kind === "supabase" ? S.saveFeedback({ kind, body: comment, name: $("#fb-name").value.trim(), rating: !fb.ctx && rating ? +rating : null,
+        play_id: kind === "correction" ? fb.ctx.id : null, play_title: kind === "correction" ? fb.ctx.title : null, page: location.hash.slice(0, 500) })
+        .then(() => true, () => false) : Promise.resolve(false);
+      const mailed = web ? fetch(web.endpoint, { method: "POST", headers: { "Content-Type": "application/json", Accept: "application/json" }, body: JSON.stringify(body) })
+        .then((r) => (r.ok ? true : r.status === 429 ? "busy" : false), () => false) : Promise.resolve(false);
+      const [db, mail] = await Promise.all([saved, mailed]);
+      if (db !== true && mail !== true) throw new Error(mail === "busy" ? "Too many messages at once. Wait a minute, then send again." : "Your feedback was not sent. Try again in a moment.");
       $("#fb-text").value = ""; $("#fb-r0").checked = true; note("#fb-note", "");
       $("#fb-form").hidden = true; $("#fb-done").hidden = false; $("#fb-thanks").focus();
     } catch (err) { note("#fb-note", err.message.startsWith("Too") || err.message.startsWith("Your") ? err.message : "Your feedback was not sent because the connection failed. Try again in a moment.", true); }
