@@ -111,6 +111,24 @@ button, input, select, textarea { font: inherit; color: inherit; }
 .chip[aria-pressed="true"] { background: var(--accent); border-color: var(--accent); color: var(--on-accent); }
 .chip[aria-pressed="true"] small { color: inherit; opacity: 0.8; }
 .check { display: flex; gap: 8px; align-items: center; font-size: 14px; cursor: pointer; }
+.facet-head { display: flex; justify-content: space-between; align-items: baseline; gap: 8px; }
+.facet-head h2 { margin-bottom: 6px; }
+.facet-clear, .facet-more { border: 0; background: none; padding: 0; color: var(--accent); cursor: pointer; font-size: 12.5px;
+  text-decoration: underline; text-underline-offset: 3px; }
+.facet-more { margin-top: 8px; }
+.facet-find { width: 100%; margin: 0 0 8px; padding: 6px 10px; border: 1px solid var(--line); border-radius: var(--radius);
+  background: var(--surface); color: var(--ink); font: inherit; font-size: 13px; }
+.chip.dim { opacity: 0.45; }
+.vh { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
+.chip:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+.chip { min-height: 30px; align-items: center; text-align: left; }
+.active { display: flex; flex-wrap: wrap; gap: 6px; align-items: center; margin: 0 0 12px; }
+.active .pill { display: inline-flex; gap: 6px; align-items: center; border: 1px solid var(--accent); background: var(--accent-soft);
+  color: var(--ink); border-radius: 999px; padding: 4px 6px 4px 12px; font-size: 13px; cursor: pointer; min-height: 30px; }
+.active .pill .x { display: inline-grid; place-items: center; width: 20px; height: 20px; border-radius: 50%;
+  background: var(--accent); color: var(--on-accent); font-size: 13px; line-height: 1; }
+.active .clear-all { border: 0; background: none; color: var(--accent); cursor: pointer; font-size: 13px; padding: 4px 6px;
+  text-decoration: underline; text-underline-offset: 3px; }
 .reset {
   align-self: flex-start; border: 0; background: none; color: var(--accent); cursor: pointer; padding: 0;
   font-weight: 500; text-decoration: underline; text-underline-offset: 3px;
@@ -340,34 +358,7 @@ button, input, select, textarea { font: inherit; color: inherit; }
   <div class="main">
     <button class="rail-toggle" id="rail-toggle" type="button" aria-expanded="false" aria-controls="rail">Filters</button>
     <aside class="rail" id="rail" aria-label="Filters">
-      <div>
-        <h2>Era</h2>
-        <div class="chips" id="eras"></div>
-      </div>
-      <div class="field">
-        <label class="label" for="f-tradition">Tradition</label>
-        <select id="f-tradition"></select>
-      </div>
-      <div class="field">
-        <label class="label" for="f-region">Region</label>
-        <select id="f-region"></select>
-      </div>
-      <div class="field">
-        <label class="label" for="f-language">Language</label>
-        <select id="f-language"></select>
-      </div>
-      <div class="field">
-        <label class="label" for="f-place">Performed in</label>
-        <select id="f-place"></select>
-      </div>
-      <div class="field" hidden>
-        <label class="label" for="f-district">Theatre district</label>
-        <select id="f-district"></select>
-      </div>
-      <label class="check" hidden><input type="checkbox" id="f-now"> Now playing or coming soon</label>
-      <label class="check"><input type="checkbox" id="f-staged"> With production history</label>
-      <label class="check"><input type="checkbox" id="f-disputed"> Disputed attribution only</label>
-      <label class="check" id="curated-wrap" hidden><input type="checkbox" id="f-curated"> Curated entries only (hide Wikidata imports)</label>
+      <div id="facets"></div>
       <button class="reset" id="reset" type="button">Clear all filters</button>
       <div class="about">
         <p>Dates are year ranges; BCE years are shown as such. <b>c.</b> marks a conjectural date. Hollow dots on the timeline are conjectural too.</p>
@@ -377,6 +368,7 @@ button, input, select, textarea { font: inherit; color: inherit; }
 
     <main class="pane" id="pane">
       <div class="loading" id="loading">Loading plays…</div>
+      <div class="active" id="active" hidden aria-label="Active filters"></div>
 
       <section id="view-list" hidden>
         <div class="status">
@@ -461,7 +453,7 @@ button, input, select, textarea { font: inherit; color: inherit; }
   const esc = (s) => String(s ?? "").replace(/[&<>"']/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]));
   const fold = (s) => String(s ?? "").normalize("NFKD").replace(/[̀-ͯ]/g, "").toLowerCase();
 
-  const state = { q: "", era: null, tradition: "", region: "", language: "", place: "", district: "", now: false, staged: false, disputed: false, curated: false,
+  const state = { q: [], sel: {},
                   sort: "year", view: "list", shown: 120, current: null };
   let D, works = [], byId = {}, trad = {}, reg = {}, lang = {}, ppl = {}, genre = {}, filtered = [];
   let places = {}, venues = {}, orgs = {};
@@ -597,9 +589,7 @@ button, input, select, textarea { font: inherit; color: inherit; }
     const nProd = works.reduce((a, w) => a + w._n, 0);
     $("#gen").textContent = `${nCur.toLocaleString()} curated entries` + (nAll > nCur ? ` and ${(nAll - nCur).toLocaleString()} imported from Wikidata and Wikipedia` : "") +
       (nProd ? `, with ${nProd.toLocaleString()} productions` : "") + `. Data built ${data.meta.generated.slice(0, 10)}.`;
-    if (nAll > nCur) $("#curated-wrap").hidden = false;
-    buildControls();
-    buildPlaceFilter();
+    buildFacets();
     restore();
     $("#loading").hidden = true;
     apply();
@@ -608,68 +598,100 @@ button, input, select, textarea { font: inherit; color: inherit; }
 
   function count(fn) { const m = {}; works.forEach((w) => fn(w).forEach((k) => { if (k) m[k] = (m[k] || 0) + 1; })); return m; }
 
-  function buildControls() {
-    const ec = count((w) => [w.era]);
-    $("#eras").innerHTML = D.meta.eras.concat([{ id: "undated", label: "Undated" }])
-      .filter((e) => ec[e.id]).map((e) => `<button class="chip" type="button" aria-pressed="false" data-era="${e.id}">${esc(e.label)} <small>${ec[e.id]}</small></button>`).join("");
-
-    const macros = macroList();
-    const tc = count((w) => [w.tradition]);
-    let h = `<option value="">All traditions</option>`;
-    macros.forEach((m) => {
-      const ts = D.traditions.filter((t) => macroOf(t.region) === m.id && tc[t.id]);
-      if (ts.length) h += `<optgroup label="${esc(m.name)}">` + ts.map((t) => `<option value="${t.id}">${esc(t.name)} (${tc[t.id]})</option>`).join("") + `</optgroup>`;
-    });
-    if (works.some((w) => !w.tradition)) h += `<option value="__none">Unclassified (${works.filter((w) => !w.tradition).length})</option>`;
-    $("#f-tradition").innerHTML = h;
-
-    const rc = count((w) => [w.region]);
-    const mc = count((w) => [w._macro]);
-    h = `<option value="">All regions</option>`;
-    macros.forEach((m) => {
-      if (!mc[m.id]) return;
-      h += `<option value="m:${m.id}">${esc(m.name)} — all (${mc[m.id]})</option>`;
-      D.regions.filter((r) => r.parent === m.id && rc[r.id]).forEach((r) => (h += `<option value="${r.id}"> ${esc(r.name)} (${rc[r.id]})</option>`));
-    });
-    const orphan = D.regions.filter((r) => r.kind !== "macro" && !r.parent && rc[r.id]);
-    if (orphan.length) h += `<optgroup label="Other">` + orphan.map((r) => `<option value="${r.id}">${esc(r.name)} (${rc[r.id]})</option>`).join("") + `</optgroup>`;
-    $("#f-region").innerHTML = h;
-
-    const lc = count((w) => w.languages);
-    $("#f-language").innerHTML = `<option value="">All languages</option>` +
-      D.languages.filter((l) => lc[l.id]).map((l) => `<option value="${l.id}">${esc(l.name)}${l.native_name && l.native_name !== l.name ? " · " + esc(l.native_name) : ""} (${lc[l.id]})</option>`).join("");
+  // ---------- filters ----------
+  // Every filter is a group of chips: tap to select, tap again to unselect. Within a
+  // group the choices widen the result (English OR Russian); across groups they narrow
+  // it. Groups are listed by how many plays each choice has (eras stay in date order),
+  // with the most common shown first and a "Show all" / search for long lists.
+  const TOP = 10;
+  const FLAG_NAMES = { now: "Now playing or coming soon", staged: "With production history",
+                       disputed: "Disputed attribution", curated: "Curated entries only" };
+  let FACETS = [];
+  const facetUI = {};  // key -> { expanded, find }
+  function buildFacets() {
+    const eraLabel = Object.fromEntries(D.meta.eras.map((e) => [e.id, e.label]).concat([["undated", "Undated"]]));
+    const eraOrder = D.meta.eras.map((e) => e.id).concat(["undated"]);
+    FACETS = [
+      { key: "flags", label: "Show only", all: true, values: (w) => [w._now && "now", w._n && "staged", w.attribution_disputed && "disputed",
+          w.source === "curated" && "curated"].filter(Boolean), name: (v) => FLAG_NAMES[v], order: ["now", "staged", "disputed", "curated"] },
+      { key: "era", label: "Era", values: (w) => [w.era], name: (v) => eraLabel[v] || v, order: eraOrder },
+      { key: "tradition", label: "Tradition", values: (w) => [w.tradition || "__none"], name: (v) => v === "__none" ? "Unclassified" : (trad[v]?.name || v) },
+      { key: "macro", label: "Part of the world", values: (w) => [w._macro], name: (v) => reg[v]?.name || "Other" },
+      { key: "region", label: "Country or region", values: (w) => w.region ? [w.region] : [], name: (v) => regionName(v) },
+      { key: "language", label: "Language", values: (w) => w.languages, name: (v) => lang[v]?.name || v },
+      { key: "place", label: "Performed in", values: (w) => [...w._places], name: (v) => places[v]?.name || v },
+      { key: "district", label: "Theatre district", values: (w) => w._ds, name: (v) => v },
+    ];
+    for (const f of FACETS) {
+      state.sel[f.key] = state.sel[f.key] || new Set();
+      const total = {};
+      works.forEach((w) => f.values(w).forEach((v) => { if (v) total[v] = (total[v] || 0) + 1; }));
+      f.total = total;
+      f.keys = f.order ? f.order.filter((v) => total[v]) : Object.keys(total).sort((a, b) => total[b] - total[a] || f.name(a).localeCompare(f.name(b)));
+      // a flag that every play has (or none) filters nothing
+      if (f.key === "flags") f.keys = f.keys.filter((v) => total[v] < works.length);
+      facetUI[f.key] = facetUI[f.key] || { expanded: false, find: "" };
+    }
+    FACETS = FACETS.filter((f) => f.keys.length > (f.key === "flags" ? 0 : 1));
+    $("#facets").innerHTML = FACETS.map((f) => `<section class="facet" data-facet="${f.key}">
+        <div class="facet-head"><h2 id="fh-${f.key}">${esc(f.label)}</h2><button class="facet-clear" type="button" data-clear="${f.key}" hidden>Clear</button></div>
+        ${f.keys.length > 15 ? `<input class="facet-find" type="search" data-find="${f.key}" placeholder="Find ${esc(f.label.toLowerCase())}…" aria-label="Find ${esc(f.label.toLowerCase())}">` : ""}
+        <div class="chips" role="group" aria-labelledby="fh-${f.key}" data-chips="${f.key}"></div>
+        <button class="facet-more" type="button" data-more="${f.key}" hidden></button>
+      </section>`).join("");
   }
-
-  function buildPlaceFilter() {
-    const pc = count((w) => [...w._places]);
-    const opts = Object.keys(pc).sort((a, b) => (places[a]?.name || a).localeCompare(places[b]?.name || b));
-    $("#f-place").innerHTML = `<option value="">Any city</option>` +
-      opts.map((id) => `<option value="${esc(id)}">${esc(places[id]?.name || id)} (${pc[id]})</option>`).join("");
-    const dc = count((w) => w._ds);
-    const DIST = ["Broadway", "Off-Broadway", "Off-Off-Broadway", "West End"].filter((d) => dc[d]);
-    $("#f-district").innerHTML = `<option value="">Any</option>` + DIST.map((d) => `<option value="${d}">${d} (${dc[d]})</option>`).join("");
-    $("#f-district").parentElement.hidden = !DIST.length;
-    $("#f-now").parentElement.hidden = !works.some((w) => w._now);
-    const staged = works.filter((w) => w._n).length;
-    $("#f-staged").parentElement.hidden = !staged;
-    $("#f-place").parentElement.hidden = !opts.length;
+  function facetMatch(f, w) {
+    const sel = state.sel[f.key];
+    if (!sel || !sel.size) return true;
+    const vals = f.values(w);
+    return f.all ? [...sel].every((v) => vals.includes(v)) : vals.some((v) => sel.has(v));
+  }
+  function renderFacets() {
+    const focused = document.activeElement?.closest?.(".chip[data-f]");
+    const keep = focused ? [focused.dataset.f, focused.dataset.v] : null;
+    for (const f of FACETS) {
+      // counts for this group reflect every other active filter (and the search)
+      const live = {};
+      for (const w of works) if (matches(w, f.key)) f.values(w).forEach((v) => { if (v) live[v] = (live[v] || 0) + 1; });
+      const sel = state.sel[f.key], ui = facetUI[f.key];
+      const find = fold(ui.find || "");
+      let keys = f.keys.filter((v) => !find || fold(f.name(v)).includes(find));
+      const order = f.order ? keys : keys.filter((v) => live[v] || sel.has(v));
+      let shown = order;
+      const limit = find || ui.expanded || f.order ? Infinity : TOP;
+      if (shown.length > limit) shown = shown.slice(0, limit).concat(order.slice(limit).filter((v) => sel.has(v)));
+      $(`[data-chips="${f.key}"]`).innerHTML = shown.map((v) => `<button class="chip${live[v] ? "" : " dim"}" type="button" aria-pressed="${sel.has(v)}" data-f="${f.key}" data-v="${esc(v)}">${esc(f.name(v))} <small>${(live[v] || 0).toLocaleString()}</small></button>`).join("")
+        || `<small class="person">No match</small>`;
+      const more = $(`[data-more="${f.key}"]`);
+      const hiddenCount = order.length - shown.length;
+      more.hidden = !(hiddenCount > 0 || (ui.expanded && order.length > TOP && !find));
+      more.textContent = ui.expanded ? "Show fewer" : `Show all ${order.length.toLocaleString()}`;
+      $(`[data-clear="${f.key}"]`).hidden = !sel.size;
+    }
+    if (keep) document.querySelector(`.chip[data-f="${keep[0]}"][data-v="${CSS.escape(keep[1])}"]`)?.focus({ preventScroll: true });
+    // the bar of active filters above the results, each removable
+    const pills = [];
+    if (state.q.length) pills.push(`<button class="pill" type="button" data-unq="1">“${esc(state.q.join(" "))}” <span class="x" aria-hidden="true">×</span><span class="vh"> remove search</span></button>`);
+    for (const f of FACETS) for (const v of state.sel[f.key]) pills.push(`<button class="pill" type="button" data-f="${f.key}" data-v="${esc(v)}" aria-label="Remove filter ${esc(f.name(v))}">${esc(f.name(v))} <span class="x" aria-hidden="true">×</span></button>`);
+    $("#active").innerHTML = pills.length ? pills.join("") + (pills.length > 1 ? `<button class="clear-all" type="button" data-clearall="1">Clear all</button>` : "") : "";
+    $("#active").hidden = !pills.length;
+  }
+  function toggleFilter(key, value) {
+    const sel = state.sel[key]; if (!sel) return;
+    if (sel.has(value)) sel.delete(value); else sel.add(value);
+    state.shown = 120; apply();
+  }
+  function clearFilters() {
+    for (const k in state.sel) state.sel[k].clear();
+    state.q = []; $("#q").value = ""; state.shown = 120;
+    for (const k in facetUI) { facetUI[k].find = ""; }
+    document.querySelectorAll(".facet-find").forEach((i) => (i.value = ""));
+    apply();
   }
 
   // ---------- filtering ----------
   function matches(w, skip) {
-    if (state.era && skip !== "era" && w.era !== state.era) return false;
-    if (state.tradition && (state.tradition === "__none" ? w.tradition : w.tradition !== state.tradition)) return false;
-    if (state.region) {
-      if (state.region.startsWith("m:")) { if (w._macro !== state.region.slice(2)) return false; }
-      else if (w.region !== state.region) return false;
-    }
-    if (state.language && !w.languages.includes(state.language)) return false;
-    if (state.place && !w._places.has(state.place)) return false;
-    if (state.district && !w._ds.includes(state.district)) return false;
-    if (state.staged && !w._n) return false;
-    if (state.now && !w._now) return false;
-    if (state.disputed && !w.attribution_disputed) return false;
-    if (state.curated && w.source !== "curated") return false;
+    for (const f of FACETS) if (f.key !== skip && !facetMatch(f, w)) return false;
     if (state.q) {
       for (const tok of state.q) if (!w._hay.includes(tok)) return false;
     }
@@ -678,8 +700,7 @@ button, input, select, textarea { font: inherit; color: inherit; }
 
   function apply() {
     filtered = works.filter((w) => matches(w));
-    const nActive = ["era", "tradition", "region", "language", "place", "district", "now", "staged", "disputed", "curated"]
-      .filter((k) => state[k]).length;
+    const nActive = Object.values(state.sel).reduce((a, x) => a + x.size, 0);
     $("#rail-toggle").textContent = nActive ? `Filters (${nActive})` : "Filters";
     const cmp = {
       year: (a, b) => sortYear(a) - sortYear(b) || a.title.localeCompare(b.title),
@@ -687,12 +708,7 @@ button, input, select, textarea { font: inherit; color: inherit; }
       tradition: (a, b) => (trad[a.tradition]?.name || "~").localeCompare(trad[b.tradition]?.name || "~") || sortYear(a) - sortYear(b),
     }[state.sort];
     filtered.sort(cmp);
-    // era chip counts reflect the other active filters
-    const ec = {}; works.forEach((w) => { if (matches(w, "era")) ec[w.era] = (ec[w.era] || 0) + 1; });
-    document.querySelectorAll("#eras .chip").forEach((b) => {
-      b.setAttribute("aria-pressed", String(b.dataset.era === state.era));
-      b.querySelector("small").textContent = ec[b.dataset.era] || 0;
-    });
+    renderFacets();
     render();
     save();
   }
@@ -999,29 +1015,36 @@ button, input, select, textarea { font: inherit; color: inherit; }
   // ---------- events ----------
   let qt;
   $("#q").addEventListener("input", (e) => { clearTimeout(qt); qt = setTimeout(() => { state.q = fold(e.target.value).split(/\s+/).filter(Boolean); state.shown = 120; apply(); }, 120); });
-  $("#eras").addEventListener("click", (e) => { const b = e.target.closest(".chip"); if (!b) return; state.era = state.era === b.dataset.era ? null : b.dataset.era; state.shown = 120; apply(); });
-  for (const k of ["tradition", "region", "language", "place", "district"]) $("#f-" + k).addEventListener("change", (e) => { state[k] = e.target.value; state.shown = 120; apply(); });
-  $("#f-disputed").addEventListener("change", (e) => { state.disputed = e.target.checked; apply(); });
-  $("#f-staged").addEventListener("change", (e) => { state.staged = e.target.checked; apply(); });
   $("#rail-toggle").addEventListener("click", (e) => {
     const open = $("#rail").classList.toggle("open");
     e.currentTarget.setAttribute("aria-expanded", String(open));
   });
-  $("#f-now").addEventListener("change", (e) => { state.now = e.target.checked; apply(); });
-  $("#f-curated").addEventListener("change", (e) => { state.curated = e.target.checked; apply(); });
-  $("#sort").addEventListener("change", (e) => { state.sort = e.target.value; apply(); });
-  $("#reset").addEventListener("click", () => {
-    Object.assign(state, { q: "", era: null, tradition: "", region: "", language: "", place: "", district: "", now: false, staged: false,
-                           disputed: false, curated: false, shown: 120 });
-    $("#q").value = ""; ["tradition", "region", "language", "place", "district"].forEach((k) => ($("#f-" + k).value = ""));
-    $("#f-disputed").checked = false; $("#f-curated").checked = false; $("#f-staged").checked = false; apply();
+  $("#facets").addEventListener("click", (e) => {
+    const chip = e.target.closest(".chip[data-f]");
+    if (chip) return toggleFilter(chip.dataset.f, chip.dataset.v);
+    const clear = e.target.closest("[data-clear]");
+    if (clear) { state.sel[clear.dataset.clear].clear(); state.shown = 120; return apply(); }
+    const more = e.target.closest("[data-more]");
+    if (more) { const ui = facetUI[more.dataset.more]; ui.expanded = !ui.expanded; renderFacets(); }
   });
+  $("#facets").addEventListener("input", (e) => {
+    const k = e.target.dataset?.find; if (!k) return;
+    facetUI[k].find = e.target.value; renderFacets();
+  });
+  $("#active").addEventListener("click", (e) => {
+    const p = e.target.closest("button"); if (!p) return;
+    if (p.dataset.clearall) return clearFilters();
+    if (p.dataset.unq) { state.q = []; $("#q").value = ""; return apply(); }
+    if (p.dataset.f) toggleFilter(p.dataset.f, p.dataset.v);
+  });
+  $("#sort").addEventListener("change", (e) => { state.sort = e.target.value; apply(); });
+  $("#reset").addEventListener("click", clearFilters);
   document.querySelector(".tabs").addEventListener("click", (e) => { const b = e.target.closest("button"); if (!b) return; state.view = b.dataset.view; render(); save(); });
   $("#more").addEventListener("click", () => { state.shown += 200; renderList(); });
   $("#list").addEventListener("click", (e) => { const r = e.target.closest(".row"); if (r) open(r.dataset.id); });
   $("#list").addEventListener("keydown", (e) => { const r = e.target.closest(".row"); if (r && (e.key === "Enter" || e.key === " ")) { e.preventDefault(); open(r.dataset.id); } });
   function filterTradition(id) {
-    state.tradition = id; $("#f-tradition").value = id; state.view = "list"; state.shown = 120; apply();
+    state.sel.tradition = new Set([id]); state.view = "list"; state.shown = 120; apply();
   }
   $("#view-traditions").addEventListener("click", (e) => { const c = e.target.closest(".tcard"); if (c) filterTradition(c.dataset.trad); });
   $("#drawer").addEventListener("click", (e) => {
