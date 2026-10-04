@@ -1,8 +1,10 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512">
-  <rect width="512" height="512" fill="#8b1d5e"/>
-  <path d="M0 0h512v70H0z" fill="#5e1240"/>
-  <path d="M0 70c40 0 70 40 92 120s28 190 10 322H0z" fill="#a92a73"/>
-  <path d="M512 70c-40 0-70 40-92 120s-28 190-10 322h102z" fill="#a92a73"/>
-  <path d="M0 70c60 4 120 30 256 30S452 74 512 70v26c-70 10-150 34-256 34S70 106 0 96z" fill="#5e1240"/>
-  <text x="256" y="345" text-anchor="middle" font-family="Georgia, 'DejaVu Serif', serif" font-weight="700" font-size="190" fill="#f6d77a" letter-spacing="-6">DQ</text>
+  <rect width="512" height="512" rx="112" fill="#131015"/>
+  <g fill="#f0b93f">
+    <circle cx="96" cy="96" r="14"/><circle cx="176" cy="96" r="14"/><circle cx="256" cy="96" r="14"/><circle cx="336" cy="96" r="14"/><circle cx="416" cy="96" r="14"/>
+    <circle cx="96" cy="416" r="14"/><circle cx="176" cy="416" r="14"/><circle cx="256" cy="416" r="14"/><circle cx="336" cy="416" r="14"/><circle cx="416" cy="416" r="14"/>
+    <circle cx="96" cy="176" r="14"/><circle cx="96" cy="256" r="14"/><circle cx="96" cy="336" r="14"/>
+    <circle cx="416" cy="176" r="14"/><circle cx="416" cy="256" r="14"/><circle cx="416" cy="336" r="14"/>
+  </g>
+  <text x="258" y="338" text-anchor="middle" font-family="Fraunces, Georgia, 'Times New Roman', serif" font-style="italic" font-weight="800" font-size="250" fill="#f0b93f">B</text>
 </svg>

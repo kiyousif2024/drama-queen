@@ -1,7 +1,8 @@
-# Drama Queen
+# Billd
 
-A browsable database of plays from every culture and era, with where and when
-they were staged. This repository holds only the published website; open it
+A diary for theatregoers: log, rate and review the plays and musicals you see,
+find what's on stage now, and follow friends. Its archive covers plays from
+every culture and era, with where and when they were staged. This repository holds only the published website; open it
 at the GitHub Pages address in this repository's settings. On a phone, use
 "Add to Home Screen" to install it as an app.
 

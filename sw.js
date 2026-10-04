@@ -1,9 +1,9 @@
-// Drama Queen service worker: makes the public website work offline and installable.
+// Billd service worker: makes the public website work offline and installable.
 // build_db.py --site replaces BUILD with the build time, so each publish gets fresh caches.
-const BUILD = "2026-10-04T13:12:55Z";
-const SHELL = `dq-shell-${BUILD}`;
-const DATA = `dq-data-${BUILD}`;
-const SHELL_FILES = ["./", "index.html", "config.js", "plays.js", "manifest.webmanifest",
+const BUILD = "2026-10-04T14:07:18Z";
+const SHELL = `billd-shell-${BUILD}`;
+const DATA = `billd-data-${BUILD}`;
+const SHELL_FILES = ["./", "index.html", "app.css", "app.js", "social.js", "config.js", "plays.js", "manifest.webmanifest",
                      "icons/icon.svg", "icons/icon-192.png", "icons/icon-512.png", "icons/apple-touch-icon.png"];
 
 self.addEventListener("install", (event) => {
