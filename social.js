@@ -113,6 +113,9 @@
                  avg: s?.rating ? s.rating / 2 : null, hist, reviews: db.logs.filter((l) => l.play_id === playId && l.review).length };
       },
       async popular() { return []; },
+      async fetchProductionPage() { throw err("Adding productions needs Billd's server.", "no_server"); },
+      async suggestProduction() { throw err("Adding productions needs Billd's server.", "no_server"); },
+      async mySuggestions() { return []; },
       exportLocal: () => JSON.parse(JSON.stringify(db)),
       clearLocal() { db = empty(); save(); emit(me()); },
       onAuth(f) { listeners.add(f); return () => listeners.delete(f); },
@@ -357,6 +360,30 @@
                  avg: r?.avg_rating != null ? Number(r.avg_rating) : null, hist, reviews: r?.reviews || 0 };
       },
       async popular(limit = 24) { return check(await sb.from("popular_week").select("*").limit(limit)); },
+      // "Add a production": the server function reads the page (browsers can't, across sites)
+      async fetchProductionPage(url) {
+        needMe();
+        const { data, error } = await sb.functions.invoke("fetch-production", { body: { url } });
+        if (error) {
+          let msg = "Billd couldn't read that page. Paste its text instead.";
+          try { const b = await error.context?.json?.(); if (b?.error) msg = b.error; } catch (e) { /* keep the general message */ }
+          throw err(msg, "fetch_failed");
+        }
+        return data;
+      },
+      async suggestProduction(row) {
+        needMe();
+        const keep = ["play_id", "play_title", "url", "venue", "city", "date_from", "date_to", "directors", "cast_list", "adapters", "language", "notes", "extracted"];
+        const out = { user_id: uid };
+        for (const k of keep) if (row[k] != null && row[k] !== "") out[k] = row[k];
+        return check(await sb.from("production_suggestions").insert(out).select().single());
+      },
+      async mySuggestions(playId) {
+        if (!uid) return [];
+        let q = sb.from("production_suggestions").select("id,play_id,venue,city,date_from,date_to,status,review_note,created_at").eq("user_id", uid).order("created_at", { ascending: false }).limit(50);
+        if (playId) q = q.eq("play_id", playId);
+        return check(await q);
+      },
       async importLocal(data) {
         needMe();
         const st = Object.entries(data.status || {}).map(([play_id, s]) => ({ user_id: uid, play_id, seen: !!s.seen, liked: !!s.liked, want: !!s.want, rating: s.rating || null }));

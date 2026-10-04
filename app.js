@@ -691,6 +691,7 @@
             <div id="play-desc">${w._lazy && !w._loaded ? `<p class="src">Loading…</p>` : descHTML(w)}</div>
             <section class="sec" id="play-reviews"><div class="sec-head"><h2>Reviews</h2><button type="button" data-log-play>Write a review</button></div><ul class="reviews" id="play-rev-list"><li class="empty">Loading reviews…</li></ul></section>
             <section class="sec" id="play-prods">${w._lazy && !w._loaded ? "" : productionsHTML(w)}</section>
+            <div class="suggested" id="play-suggest"><p>Seen a production that isn't listed? <button class="linkbtn" type="button" data-addprod>Add it</button></p></div>
             <section class="sec"><div class="sec-head"><h2>Details</h2></div><div id="play-facts">${w._lazy && !w._loaded ? "" : factsHTML(w)}</div></section>
           </div>
         </div>
@@ -764,7 +765,7 @@
   function productionsHTML(w) {
     if (!w.productions.length) return "";
     const kindLabel = { premiere: "World premiere", revival: "Revival", tour: "Tour", transfer: "Transfer" };
-    const srcName = { wikipedia: "Wikipedia", idu: "IDU open data (CC BY 4.0)", web: "Source page", ticketmaster: "Ticketmaster", kunstenpunt: "Kunstenpunt", theaterencyclopedie: "TheaterEncyclopedie (CC0)" };
+    const srcName = { wikipedia: "Wikipedia", idu: "IDU open data (CC BY 4.0)", web: "Source page", ticketmaster: "Ticketmaster", kunstenpunt: "Kunstenpunt", theaterencyclopedie: "TheaterEncyclopedie (CC0)", member: "Suggested by a member, checked against this page" };
     const prodYear = (p) => Math.max(...p.runs.map((r) => (r.from ? parseInt(r.from, 10) : -99999)));
     // newest first: what a theatregoer could have seen comes before the history
     const prods = [...w.productions].sort((a, b) => prodYear(b) - prodYear(a));
@@ -877,6 +878,9 @@
       const withText = logs.filter((l) => l.review);
       el.innerHTML = withText.length ? withText.map((l) => reviewHTML(l, { poster: false })).join("")
         : `<li class="empty">No reviews yet. ${signedIn() ? `<button class="linkbtn" type="button" data-log-play>Be the first to write one.</button>` : ""}</li>`;
+      const mine = await S.mySuggestions(w.id).catch(() => []);
+      if (stale(tok)) return;
+      if (mine.length && $("#play-suggest")) $("#play-suggest").insertAdjacentHTML("beforeend", `<ul>${mine.map((x) => `<li>Your suggestion: ${esc([x.venue, x.city].filter(Boolean).join(", "))}${x.date_from ? `, ${esc(fmtPartial(x.date_from))}` : ""} · <b>${{ pending: "waiting for review", added: "added, thank you", declined: "not added" }[x.status]}</b>${x.review_note ? ` (${esc(x.review_note)})` : ""}</li>`).join("")}</ul>`);
       const lists = await S.listsWithPlay(w.id);
       if (stale(tok)) return;
       if (lists.length && $("#play-lists")) {
@@ -903,6 +907,7 @@
     const act = t.closest("[data-act]");
     if (act && w) { const k = act.dataset.act; return setStatus(w, { [k]: act.getAttribute("aria-pressed") !== "true" }); }
     if (t.closest("[data-log-play]") && w) return openLog(w.id);
+    if (t.closest("[data-addprod]") && w) return openAddProduction(w.id);
     if (t.closest("[data-addlist]") && w) return openListPicker(w.id);
     if (t.closest("[data-share]") && w) return share(`${w.title} on Billd`, location.href);
     if (t.closest("[data-fix]") && w) return openFeedback({ id: w.id, title: w.title });
@@ -1057,6 +1062,118 @@
     try { await S.deleteLog(logState.edit.id); $("#logd").close(); toast("Entry deleted"); route(); } catch (e) { note("#log-note", e.message, true); }
   });
   function note(sel, msg, isErr, ok) { const n = $(sel); n.textContent = msg || ""; n.hidden = !msg; n.classList.toggle("err", !!isErr); n.classList.toggle("ok", !!ok); }
+
+  // ---------------------------------------------------------------- add a production
+  // A member pastes a production's page; the server function fetches it and web/extract.js
+  // fills in the form. The member checks it, and it goes to a review queue, not onto the site.
+  let apCtx = null;
+  const ap = { play: null, page: null, extracted: null };
+  function extractCtx() {
+    if (apCtx) return apCtx;
+    const weight = {};
+    works.forEach((w) => w._runs.forEach((r) => { if (r.place) weight[r.place] = (weight[r.place] || 0) + 1; }));
+    apCtx = {
+      works: works.map((w) => ({ id: w.id, title: w.title, alt_titles: w.alt_titles, pop: w._pop, writers: writers(w).map((p) => ppl[p.person]?.name).filter(Boolean) })),
+      venues: Object.values(venues).map((v) => ({ id: v.id, name: v.name, place: v.place })),
+      places: Object.values(places).map((p) => ({ id: p.id, name: p.name, weight: Math.min(weight[p.id] || 0, 500) })),
+      languages: D.languages,
+      writersOf: (id) => (byId[id] ? byId[id].people.map((p) => ppl[p.person]?.name).filter(Boolean) : []),
+    };
+    return apCtx;
+  }
+  function openAddProduction(playId) {
+    if (S.kind === "local") { toast("Adding productions needs Billd's server, which isn't connected on this copy."); return; }
+    if (!requireMe("Log in to add a production.")) return;
+    ap.play = byId[playId]; ap.page = null; ap.extracted = null;
+    $("#ap-title").textContent = ap.play.title + (byText(ap.play) ? ` · ${byText(ap.play)}` : "");
+    $("#ap-step1").hidden = false; $("#ap-form").hidden = true;
+    $("#ap-url").value = ""; $("#ap-paste").value = ""; $("#ap-paste-box").open = false;
+    note("#ap-note", "");
+    if (!$("#addprod").open) $("#addprod").showModal();
+    $("#ap-url").focus();
+  }
+  function apFill(x) {
+    const set = (sel, val, key) => { const el = $(sel); el.value = val || ""; el.classList.toggle("auto", !!val); el.title = val && x.found?.[key] ? `From the page: “${x.found[key]}”` : ""; };
+    set("#ap-from", x.date_from, "dates"); set("#ap-to", x.date_to, "dates");
+    set("#ap-venue", x.venue, "venue"); set("#ap-city", x.city, "city");
+    set("#ap-dir", (x.directors || []).join(", "), "directors"); set("#ap-cast", (x.cast || []).join(", "), "cast");
+    set("#ap-adapt", (x.adapters || []).join(", "), "adapters"); set("#ap-lang", x.language_name, "language");
+    $("#ap-link").value = x.url || $("#ap-url").value.trim();
+    $("#ap-notes").value = "";
+    $("#ap-people").innerHTML = (x.people || []).map((n) => `<button type="button" class="chip" data-person-add="${esc(n)}">+ ${esc(n)}</button>`).join("");
+    $("#ap-people-f").hidden = !(x.people || []).length;
+    const filled = ["date_from", "venue", "city", "directors", "cast"].some((k) => x[k] && (!Array.isArray(x[k]) || x[k].length));
+    $("#ap-filled").hidden = !filled;
+    const other = x.plays?.length && !x.plays.includes(ap.play.id) ? byId[x.plays[0]] : null;
+    $("#ap-mismatch").hidden = !other;
+    if (other) $("#ap-mismatch").innerHTML = `This page looks like it's about <b>${esc(other.title)}</b>${byText(other) ? ` by ${esc(byText(other))}` : ""}, not ${esc(ap.play.title)}. <button class="linkbtn" type="button" data-ap-switch="${esc(other.id)}">Add it to ${esc(other.title)} instead</button>`;
+    // what members may pick from: theatres and cities Billd knows
+    const city = places[x.place_id]?.id;
+    $("#ap-venues").innerHTML = Object.values(venues).filter((v) => !city || v.place === city).slice(0, 400).map((v) => `<option value="${esc(v.name)}">${esc(places[v.place]?.name || "")}</option>`).join("");
+    if (!$("#ap-cities").options.length) $("#ap-cities").innerHTML = Object.values(places).map((p) => `<option value="${esc(p.name)}">`).join("");
+    if (!$("#ap-langs").options.length) $("#ap-langs").innerHTML = D.languages.map((l) => `<option value="${esc(l.name)}">`).join("");
+    $("#ap-step1").hidden = true; $("#ap-form").hidden = false; note("#ap-note2", "");
+    (x.venue ? $("#ap-from") : $("#ap-venue")).focus();
+  }
+  $("#ap-fetch").addEventListener("submit", async (e) => {
+    e.preventDefault();
+    const url = $("#ap-url").value.trim();
+    if (!url) return note("#ap-note", "Paste the production's web address, or paste its text below.", true);
+    $("#ap-go").disabled = true; note("#ap-note", "Reading the page…");
+    try {
+      const page = await S.fetchProductionPage(url);
+      if (!page.ok) {
+        note("#ap-note", page.error || "Billd couldn't read that page.", true);
+        if (page.blocked) { $("#ap-paste-box").open = true; $("#ap-paste").focus(); }
+        return;
+      }
+      ap.page = page;
+      ap.extracted = BilldExtract.extract(page, { ...extractCtx(), playId: ap.play.id });
+      apFill(ap.extracted);
+    } catch (err) { note("#ap-note", err.message, true); $("#ap-paste-box").open = true; }
+    finally { $("#ap-go").disabled = false; }
+  });
+  $("#ap-read").addEventListener("click", () => {
+    const text = BilldExtract.pageTextFromPaste($("#ap-paste").value);
+    if (text.length < 40) return note("#ap-note", "Paste the page's text first.", true);
+    ap.page = { url: $("#ap-url").value.trim(), text };
+    ap.extracted = BilldExtract.extract(ap.page, { ...extractCtx(), playId: ap.play.id });
+    apFill(ap.extracted);
+  });
+  $("#ap-manual").addEventListener("click", () => { ap.extracted = null; apFill({ url: $("#ap-url").value.trim() }); });
+  $("#ap-back").addEventListener("click", () => { $("#ap-form").hidden = true; $("#ap-step1").hidden = false; });
+  $("#addprod").addEventListener("click", (e) => {
+    const p = e.target.closest("[data-person-add]");
+    if (p) { const c = $("#ap-cast"); c.value = [c.value.trim(), p.dataset.personAdd].filter(Boolean).join(", "); p.remove(); if (!$("#ap-people").children.length) $("#ap-people-f").hidden = true; return; }
+    const sw = e.target.closest("[data-ap-switch]");
+    if (sw) { ap.play = byId[sw.dataset.apSwitch]; $("#ap-title").textContent = ap.play.title + (byText(ap.play) ? ` · ${byText(ap.play)}` : ""); $("#ap-mismatch").hidden = true; }
+  });
+  $("#addprod").addEventListener("input", (e) => e.target.classList?.remove("auto"));
+  $("#ap-form").addEventListener("submit", async (e) => {
+    e.preventDefault();
+    const v = (id) => $(id).value.trim();
+    if (!v("#ap-venue") || !v("#ap-city")) return note("#ap-note2", "Say which theatre and city, at least.", true);
+    if (!v("#ap-from") && !v("#ap-to")) return note("#ap-note2", "Add the opening date, or roughly when you saw it.", true);
+    if (v("#ap-from") && v("#ap-to") && v("#ap-to") < v("#ap-from")) return note("#ap-note2", "The closing date is before the opening.", true);
+    const lang = D.languages.find((l) => fold(l.name) === fold(v("#ap-lang")));
+    const row = { play_id: ap.play.id, play_title: ap.play.title, url: v("#ap-link") || null, venue: v("#ap-venue"), city: v("#ap-city"),
+      date_from: v("#ap-from") || null, date_to: v("#ap-to") || null, directors: v("#ap-dir"), cast_list: v("#ap-cast"), adapters: v("#ap-adapt"),
+      language: lang ? lang.id : v("#ap-lang"), notes: v("#ap-notes"),
+      extracted: ap.extracted ? { ...ap.extracted, plays: (ap.extracted.plays || []).slice(0, 3) } : null };
+    $("#ap-send").disabled = true;
+    try {
+      await S.suggestProduction(row);
+      $("#addprod").close();
+      toast("Thanks! It will be checked against the link and added.");
+      if (location.hash === playUrl(ap.play.id)) route();
+    } catch (err) { note("#ap-note2", err.message, true); }
+    finally { $("#ap-send").disabled = false; }
+  });
+  $("#log-addprod").addEventListener("click", () => {
+    if (!logState.play) return;
+    const id = logState.play.id;
+    $("#logd").close(); openAddProduction(id);
+  });
 
   // ---------------------------------------------------------------- lists
   let listPlay = null;

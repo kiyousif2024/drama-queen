@@ -463,6 +463,10 @@ details.more-prods summary { cursor: pointer; color: var(--gold); font-weight: 6
 .like-toggle { display: inline-flex; gap: 8px; align-items: center; border: 1px solid var(--line); background: none; border-radius: 999px; padding: 8px 16px; cursor: pointer; font-weight: 600; color: var(--muted); }
 .like-toggle .heart { font-size: 18px; line-height: 1; }
 .like-toggle[aria-pressed="true"] { color: var(--red); border-color: var(--red); }
+#addprod input.auto, #addprod textarea.auto { border-color: color-mix(in srgb, var(--gold) 70%, var(--line)); background: color-mix(in srgb, var(--gold) 7%, var(--bg)); }
+#addprod details summary { cursor: pointer; display: inline-block; }
+.suggested { margin: 14px 0 0; font-size: 14px; color: var(--muted); }
+.suggested li { margin: 4px 0; }
 .checks { display: flex; gap: 18px; flex-wrap: wrap; }
 .pills { display: flex; flex-wrap: wrap; gap: 6px; }
 .pills input { position: absolute; opacity: 0; width: 1px; height: 1px; }

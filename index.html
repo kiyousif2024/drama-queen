@@ -167,6 +167,7 @@
         <label for="log-venue">Theatre <span class="opt">(optional)</span></label>
         <input id="log-venue" list="log-venues" maxlength="160" autocomplete="off">
         <datalist id="log-venues"></datalist>
+        <p class="hint">Production not listed? <button class="linkbtn" type="button" id="log-addprod">Add it</button></p>
       </div>
       <div class="field">
         <label for="log-city">City <span class="opt">(optional)</span></label>
@@ -216,6 +217,50 @@
   <form id="edit-form" novalidate></form>
 </dialog>
 
+<!-- Add a production Billd is missing, filled in from its web page -->
+<dialog class="dlg wide" id="addprod" aria-labelledby="ap-title">
+  <button class="close" type="button" data-close aria-label="Close">×</button>
+  <p class="kicker">Add a production</p>
+  <h2 id="ap-title"></h2>
+  <div id="ap-step1">
+    <p class="hint" style="margin-top:10px">Paste the production's page: the theatre's show page, a programme or a review. Billd reads the dates, theatre and cast from it, and you check them before sending.</p>
+    <form id="ap-fetch" class="inline-new" style="margin-top:14px">
+      <label class="vh" for="ap-url">Production's web address</label>
+      <input id="ap-url" type="url" inputmode="url" placeholder="https://www.theatre.org/the-show" autocomplete="off">
+      <button class="btn" type="submit" id="ap-go">Get details</button>
+    </form>
+    <p class="note" id="ap-note" role="status" aria-live="polite" hidden></p>
+    <details id="ap-paste-box" style="margin-top:12px">
+      <summary class="linkbtn">Or paste the page's text</summary>
+      <p class="hint" style="margin:8px 0">Some websites don't let Billd read them. Open the page, select everything (Ctrl+A or ⌘A, or press and hold on a phone), copy, and paste it here.</p>
+      <textarea id="ap-paste" placeholder="Paste the page here"></textarea>
+      <button class="btn ghost sm" type="button" id="ap-read" style="margin-top:8px">Read the text</button>
+    </details>
+    <p style="margin-top:14px"><button class="linkbtn" type="button" id="ap-manual">Skip: fill it in myself</button></p>
+  </div>
+  <form id="ap-form" hidden novalidate>
+    <p class="note ok" id="ap-filled" hidden>Filled in from the page. Check each field: fix anything wrong, and leave blank what the page doesn't say.</p>
+    <p class="note err" id="ap-mismatch" hidden></p>
+    <div class="log-grid">
+      <div class="field"><label for="ap-from">Opening</label><input id="ap-from" type="date"></div>
+      <div class="field"><label for="ap-venue">Theatre</label><input id="ap-venue" list="ap-venues" maxlength="160" autocomplete="off" required><datalist id="ap-venues"></datalist></div>
+      <div class="field"><label for="ap-city">City</label><input id="ap-city" list="ap-cities" maxlength="120" autocomplete="off" required><datalist id="ap-cities"></datalist></div>
+    </div>
+    <div class="log-grid">
+      <div class="field"><label for="ap-to">Closing <span class="opt">(optional)</span></label><input id="ap-to" type="date"></div>
+      <div class="field"><label for="ap-dir">Director <span class="opt">(optional)</span></label><input id="ap-dir" maxlength="500" autocomplete="off"></div>
+      <div class="field"><label for="ap-lang">Language <span class="opt">(optional)</span></label><input id="ap-lang" list="ap-langs" maxlength="40" autocomplete="off"><datalist id="ap-langs"></datalist></div>
+    </div>
+    <div class="field"><label for="ap-cast">Cast <span class="opt">(optional, separated by commas)</span></label><input id="ap-cast" maxlength="2000" autocomplete="off"></div>
+    <div class="field" id="ap-people-f" hidden><span class="label">Also named on the page <span class="opt">(tap to add to the cast)</span></span><div class="chips" id="ap-people"></div></div>
+    <div class="field"><label for="ap-adapt">Adapted or translated by <span class="opt">(optional)</span></label><input id="ap-adapt" maxlength="500" autocomplete="off"></div>
+    <div class="field"><label for="ap-link">Link</label><input id="ap-link" type="url" maxlength="1000" placeholder="Where this information comes from"></div>
+    <div class="field"><label for="ap-notes">Anything else? <span class="opt">(optional)</span></label><textarea id="ap-notes" maxlength="2000" style="min-height:4em" placeholder="A transfer, a tour, a new adaptation…"></textarea></div>
+    <p class="note" id="ap-note2" role="status" aria-live="polite" hidden></p>
+    <div class="acts"><button class="linkbtn" type="button" id="ap-back">Back</button><button class="btn" type="submit" id="ap-send">Send for review</button></div>
+  </form>
+</dialog>
+
 <!-- Feedback for the owner of the site -->
 <dialog class="dlg" id="fb" aria-labelledby="fb-title" aria-describedby="fb-about">
   <button class="close" type="button" data-close aria-label="Close">×</button>
@@ -255,6 +300,7 @@
 
 <script src="config.js"></script>
 <script src="social.js"></script>
+<script src="extract.js"></script>
 <script src="app.js"></script>
 </body>
 </html>
