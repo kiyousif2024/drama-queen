@@ -95,7 +95,7 @@
       tradition: c.tr || null, tradition_rule: c.tl || null, languages: c.l || [], region: c.r || null,
       year_from: c.a ?? null, year_to: c.b ?? null, date_basis: c.db || null, era: c.e || "undated",
       genres: c.g || [], date_certain: !!c.c, attribution_disputed: !!c.d, source: c.s || "wikidata",
-      ids: {}, notes: null, productions: [], _lazy: true, _shard: i % data.shards,
+      ids: {}, notes: null, productions: [], _lazy: true, _shard: i % data.shards, image: c.im || null,
       _n: c.n || 0, _ds: c.ds || [],
       _runs: (c.ru || []).map((r) => ({ place: r[0] != null ? data.places[r[0]].id : null, district: r[1] || null, yf: r[2] ?? null, yt: r[3] ?? null,
                                          checked: r[4] || null, from: r[5] || null, to: r[6] || null })),
@@ -182,12 +182,28 @@
     const size = len > 46 ? " xlong" : len > 26 ? " long" : "";
     const top = trad[w.tradition]?.name || regionName(w.region) || "";
     const nb = badge && w._now ? `<span class="p-badge${w._now === "soon" ? " soon" : ""}">${w._now === "now" ? "On now" : "Soon"}</span>` : "";
-    return `<${tag} class="poster ${layout} ${cls}"${tag === "a" ? ` href="${playUrl(w.id)}"` : ""} style="--bg1:${bg};--fg:${fg};--acc:${acc}" aria-label="${esc(t)}${yearOf(w) != null ? ` (${esc(fmtDate(w))})` : ""}">${nb}
+    // a real picture when there is one (a free Commons image, never a production's artwork); the designed
+    // cover stays underneath and shows again if the picture can't load
+    const img = w.image && w.image[1] === "commons" ? `<img class="p-img" src="${esc(w.image[0])}" alt="" loading="lazy" decoding="async" referrerpolicy="no-referrer" onload="billdImg(this)" onerror="this.remove()">` : "";
+    return `<${tag} class="poster ${layout} ${cls}"${tag === "a" ? ` href="${playUrl(w.id)}"` : ""} style="--bg1:${bg};--fg:${fg};--acc:${acc}" aria-label="${esc(t)}${yearOf(w) != null ? ` (${esc(fmtDate(w))})` : ""}">${img}${nb}
       <span class="p-top" aria-hidden="true">${esc(top)}</span>
       <span class="p-title${size}" aria-hidden="true" lang="en">${esc(t)}</span>
       <span class="p-rule" aria-hidden="true"></span>
       <span class="p-by" aria-hidden="true">${esc(byText(w) || "Anonymous")}</span>
       <span class="p-yr" aria-hidden="true">${esc(fmtDate(w))}</span></${tag}>`;
+  }
+  // A picture replaces the designed cover once it has loaded. A wide one (Ticketmaster's artwork,
+  // a landscape photo) sits whole across the top, like a playbill, so its own lettering isn't cut off.
+  window.billdImg = (img) => {
+    const p = img.parentNode; if (!p) return;
+    p.classList.add("has-img");
+    if (img.naturalWidth > img.naturalHeight * 1.05) p.classList.add("wide");
+  };
+  // who made the picture: Commons images need their author and licence; Ticketmaster's are its own
+  function imageCredit(w) {
+    const im = w.image; if (!im) return "";
+    const [, , credit, license, page] = im;
+    return `<p class="img-credit">Image: ${credit ? `${esc(credit)}, ` : ""}${license ? `${esc(license)}, ` : ""}<a href="${esc(page)}" target="_blank" rel="noopener">Wikimedia Commons</a></p>`;
   }
   // a poster with the viewer's own marks under it (seen, rating, like)
   function cell(w, extra = "") {
@@ -300,17 +316,15 @@
     const now = onNow();
     const intro = !me || S.kind === "local" ? `
       <section class="hero">
-        <h1>Track every show you've <em>seen.</em></h1>
-        <p>Billd is a diary for theatregoers. Log the plays and musicals you see, rate and review them, find what's on stage near you, and see what your friends thought.</p>
-        <div class="acts">${S.kind === "local" ? `<button class="btn" type="button" data-log>Log a show</button>` : `<button class="btn" type="button" data-auth-open="up">Get started, it's free</button>`}
+        <h1>Your life in the <em>stalls.</em></h1>
+        <p>Every play you've watched, from your first school trip to last night's preview, kept in one place, with the plays of every culture and era to browse between curtains.</p>
+        <div class="acts">${S.kind === "local" ? `<button class="btn" type="button" data-log>Log a show</button>` : `<button class="btn" type="button" data-auth-open="up">Join Billd</button>`}
           <a class="btn ghost" href="#/onstage">What's on now</a></div>
-        <div class="lets" aria-label="Billd lets you">
-          <div class="let">${ICONS.eye}<p>Keep track of every show you've ever seen, or just start from the day you join</p></div>
-          <div class="let">${ICONS.heart}<p>Show some love for your favourite shows, lists and reviews with a like</p></div>
-          <div class="let">${ICONS.lines}<p>Write and share reviews, and follow friends and other members to read theirs</p></div>
-          <div class="let">${ICONS.star}<p>Rate each show on a five-star scale, with halves, to record your reaction</p></div>
-          <div class="let">${ICONS.cal}<p>Keep a diary of your theatregoing: when, where, and who you saw it with</p></div>
-          <div class="let">${ICONS.ticket}<p>See what's on stage now in your city, and get tickets from the theatre</p></div>
+        <div class="lets" aria-label="What you can do on Billd">
+          <div class="let">${ICONS.ticket}<p>Find out what's playing tonight in your city, with links to buy seats</p></div>
+          <div class="let">${ICONS.cal}<p>Note the date, the theatre and the company for each performance, so your theatregoing history is never lost</p></div>
+          <div class="let">${ICONS.lines}<p>Say what you thought, from one line to a full notice, and read what the people you follow made of it</p></div>
+          <div class="let">${ICONS.grid}<p>Look up any play, from Sophocles to this season, and see where and when it's been staged</p></div>
         </div>
         ${S.kind === "local" ? `<p class="banner"><b>Preview mode.</b> Your diary is saved on this device. Member accounts, following and shared reviews switch on when Billd's server is connected.</p>` : ""}
       </section>` : `<section class="welcome">${avatar(me)}<h1>Welcome back, ${who(me)}.</h1></section>`;
@@ -681,7 +695,7 @@
     document.title = `${w.title} · Billd`;
     const draw = () => {
       pageEl().innerHTML = `<div class="wrap"><article class="play">
-        <div class="play-poster">${poster(w)}</div>
+        <div class="play-poster">${poster(w)}${imageCredit(w)}</div>
         <div class="play-main">
           <header class="play-head">
             <h1>${esc(w.title)}${fmtDate(w) ? ` <span class="yr">${esc(fmtDate(w))}</span>` : ""}</h1>
@@ -725,6 +739,13 @@
     const text = w.notes.replace(/\s*\(\s*[;,]?\s*\)/g, "").replace(/\(\s*[;,]\s*/g, "(");
     return `<p class="synopsis">${esc(text)}</p>${src ? `<p class="src">${src}</p>` : ""}`;
   }
+  const SELLER = { todaytix: "TodayTix", broadway_direct: "Broadway Direct" };
+  // A ticket link with the affiliate tracking set at publish (CFG.affiliates: seller -> template with {url})
+  function aff(url, seller) {
+    seller = seller || (/ticketmaster\./.test(url) ? "ticketmaster" : /todaytix\.com/.test(url) ? "todaytix" : /broadwaydirect\.com/.test(url) ? "broadway_direct" : "");
+    const t = (CFG.affiliates || {})[seller];
+    return t ? t.replace("{url}", encodeURIComponent(url)) : url;
+  }
   // Current and upcoming runs with where to buy tickets. Links come only from the listing
   // sources (the theatre's own site, Ticketmaster); none are made up.
   function nowPlayingHTML(w) {
@@ -735,12 +756,18 @@
       const v = venues[r.venue], where = [v?.name, places[r.place]?.name].filter(Boolean).map(esc).join(", ");
       const when = st === "soon" ? `Opens ${fmtPartial(r.from)}` : (r.from && r.from.length >= 7 ? `Since ${fmtPartial(r.from)}` : "Playing now");
       const until = r.to ? ` · until ${fmtPartial(r.to)}` : (st === "now" ? " · open-ended" : "");
-      const tickets = r.ticket_url ? `<a class="btn sm" href="${esc(r.ticket_url)}" target="_blank" rel="noopener nofollow">Tickets${p.source === "ticketmaster" ? " · Ticketmaster" : ""}</a>`
+      const main = r.ticket_url ? `<a class="btn sm" href="${esc(aff(r.ticket_url))}" target="_blank" rel="noopener nofollow sponsored">Tickets${/ticketmaster\./.test(r.ticket_url) ? " · Ticketmaster" : ""}</a>`
         : (v?.website ? `<a class="btn sm" href="${esc(v.website)}" target="_blank" rel="noopener nofollow">Tickets · box office</a>` : "");
+      const more = (r.links || []).map(([seller, url]) => `<a class="btn ghost sm" href="${esc(aff(url, seller))}" target="_blank" rel="noopener nofollow sponsored">${SELLER[seller] || "Tickets"}</a>`).join("");
+      const tickets = main || more ? `<div class="np-buy">${main}${more}</div>` : "";
       return `<li><div><div class="np-where"><strong>${where || "Venue to be announced"}</strong>${r.district ? ` <span class="badge dist">${esc(r.district)}</span>` : ""}</div>
         <div class="np-when">${esc(when + until)}</div></div>${tickets}<small class="np-src">Listing checked ${esc(fmtPartial(r.checked))}. Check with the seller for dates and prices.</small></li>`;
     });
-    return `<section class="nowp" aria-label="On stage now"><h2>${rows.some((x) => x.st === "now") ? "On stage now" : "Coming soon"}</h2><ul>${items.join("")}</ul>
+    // the current production's artwork, from Ticketmaster: shown here, beside its tickets, and nowhere else
+    const art = w.artwork ? `<figure class="np-art"><img src="${esc(w.artwork[0])}" alt="Artwork for this production of ${esc(w.title)}" loading="lazy" referrerpolicy="no-referrer" onerror="this.parentNode.remove()">
+      <figcaption>Artwork via <a href="${esc(aff(w.artwork[1] || "https://www.ticketmaster.com/"))}" target="_blank" rel="noopener nofollow sponsored">Ticketmaster</a></figcaption></figure>` : "";
+    return `<section class="nowp" aria-label="On stage now"><h2>${rows.some((x) => x.st === "now") ? "On stage now" : "Coming soon"}</h2>${art}<ul>${items.join("")}</ul>
+      ${Object.keys(CFG.affiliates || {}).length ? `<p class="src">Billd may earn a commission when you buy tickets through these links.</p>` : ""}
       ${w.ids?.website ? `<p class="src"><a href="${esc(w.ids.website)}" target="_blank" rel="noopener nofollow">Official website</a></p>` : ""}</section>`;
   }
   function factsHTML(w) {
@@ -1677,7 +1704,7 @@
         <li><a href="https://theaterencyclopedie.nl" target="_blank" rel="noopener">TheaterEncyclopedie</a>: Dutch and Flemish productions, CC0.</li>
         <li><a href="https://www.kunsten.be" target="_blank" rel="noopener">Kunstenpunt – Flanders Arts Institute</a> open data.</li>
         <li>What's on now: Wikipedia's Broadway and West End theatre lists, with ticket links to each theatre's own site, and the <a href="https://developer.ticketmaster.com" target="_blank" rel="noopener">Ticketmaster Discovery API</a>.</li></ul>
-      <h2>On stage now</h2><p>A show counts as on now or coming soon only if a listing confirmed it in the last ${STALE_DAYS} days and its closing date hasn't passed. Ticket links go to the theatre's own box office or to Ticketmaster; Billd doesn't sell tickets and isn't paid for links.</p>
+      <h2>On stage now</h2><p>A show counts as on now or coming soon only if a listing confirmed it in the last ${STALE_DAYS} days and its closing date hasn't passed. Ticket links go to the theatre's own box office or to ticket sellers (Ticketmaster, TodayTix, Broadway Direct). Billd doesn't sell tickets${Object.keys(CFG.affiliates || {}).length ? "; it may earn a commission when you buy through these links, at no extra cost to you" : " and isn't paid for links"}.</p>
       <h2>Found a mistake?</h2><p>Use “Suggest a correction” on any show, or <button class="linkbtn" type="button" id="ab-fb">send feedback</button>.</p></div>`;
     $("#ab-fb").addEventListener("click", () => openFeedback(null));
   }
@@ -1816,7 +1843,7 @@
       run: async (w) => { await S.removeContent(kind, id, w); toast("Removed"); after ? after() : route(); } });
   }
 
-  const REPORT_REASONS = ["Spam or advertising", "Harassment or hate", "Spoilers without a warning", "Offensive or explicit", "Something else"];
+  const REPORT_REASONS = ["Spam or advertising", "Harassment or hate", "Spoilers without a warning", "Offensive or explicit", "Copyright infringement", "Something else"];
   const KIND_NAME = { review: "review", comment: "comment", list: "list", profile: "member" };
   function openReport(kind, id) {
     if (!requireMe("Log in to report something.")) return;

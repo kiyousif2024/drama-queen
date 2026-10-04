@@ -629,3 +629,30 @@ fieldset.field { border: 0; padding: 0; margin: 0; }
 /* small posters beside reviews keep a readable title */
 .review .poster.sm .p-title, .review .poster.sm.b .p-title { font-size: max(13cqi, 9px); }
 .review .poster.sm .p-title.long, .review .poster.sm .p-title.xlong { font-size: max(10cqi, 8px); }
+
+/* posters with a real picture: the picture fills the card, the title sits on a dark band below */
+.poster.has-img { padding: 0 7% 7%; justify-content: flex-end; }
+.poster .p-img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; z-index: -2; opacity: 0; }
+.poster.has-img .p-img { opacity: 1; }
+.poster.has-img::after { z-index: -1; opacity: 1; background: linear-gradient(to bottom, transparent 52%, rgb(8 6 10 / 0.88) 100%); }
+.poster.has-img::before { display: none; }
+.poster.has-img .p-top, .poster.has-img .p-rule, .poster.has-img .p-yr { display: none; }
+.poster.has-img .p-title, .poster.has-img.b .p-title { margin: 0; color: #fff; font: 800 11cqi/1.05 var(--font-display); text-transform: none; font-style: normal; text-align: left;
+  -webkit-line-clamp: 3; text-shadow: 0 1px 3px rgb(0 0 0 / 0.6); }
+.poster.has-img .p-by { color: rgb(255 255 255 / 0.85); text-align: left; font-size: 6.6cqi; margin-top: 3%; }
+.feed li .poster.has-img .p-title, .review .poster.sm.has-img .p-title { font-size: 16cqi; }
+.feed li .poster.has-img .p-by, .review .poster.sm.has-img .p-by { display: none; }
+.img-credit { margin: 8px 0 0; font-size: 11.5px; line-height: 1.4; color: var(--faint); overflow-wrap: anywhere; }
+.img-credit a { color: inherit; }
+/* a wide picture: whole, across the top; the title on the poster's colour below */
+.poster.has-img.wide { justify-content: flex-end; padding: 0 8% 9%; }
+.poster.has-img.wide .p-img { inset: 0 0 auto 0; height: auto; object-fit: contain; }
+.poster.has-img.wide::after { opacity: 0.18; background: radial-gradient(120% 70% at 50% 100%, rgb(255 255 255 / 0.35), transparent 60%); }
+.poster.has-img.wide .p-title { color: var(--fg); text-shadow: none; font-size: 12.5cqi; -webkit-line-clamp: 3; }
+.poster.has-img.wide .p-by { color: var(--fg); opacity: 0.85; }
+.feed li .poster.has-img.wide .p-title, .review .poster.sm.has-img.wide .p-title { font-size: 17cqi; }
+.np-buy { display: flex; flex-wrap: wrap; gap: 8px; }
+.np-art { margin: 0 0 14px; max-width: 420px; }
+.np-art img { display: block; width: 100%; border-radius: 8px; }
+.np-art figcaption { margin-top: 6px; font-size: 11.5px; color: var(--faint); }
+.np-art figcaption a { color: inherit; }
