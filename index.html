@@ -1,0 +1,1205 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Drama Queen</title>
+<meta name="description" content="A database of plays from every culture and era, with where and when they were staged.">
+<meta name="theme-color" content="#8b1d5e">
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="icon" href="icons/icon.svg" type="image/svg+xml">
+<link rel="apple-touch-icon" href="icons/apple-touch-icon.png">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="Drama Queen">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Big+Shoulders+Display:wght@700;800&family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans:wght@400;500;600&family=Source+Serif+4:ital,opsz,wght@0,8..60,400;0,8..60,600;1,8..60,400&display=swap">
+<style>
+/* Layout: marquee masthead with search; filter rail on the left; one working pane
+   (Plays list / Timeline / Traditions); a detail drawer that slides in on the right. */
+:root {
+  --bg: #f2f1f5;        /* cool stone, faint violet bias */
+  --surface: #ffffff;
+  --sunk: #e8e6ee;
+  --ink: #1c1922;
+  --muted: #625d6e;
+  --line: #d8d4e0;
+  --accent: #8b1d5e;    /* curtain magenta */
+  --accent-soft: #f3dcea;
+  --on-accent: #ffffff;
+  --warn: #8a5a00;
+  --font-display: "Big Shoulders Display", "Arial Narrow", Impact, sans-serif;
+  --font-body: "IBM Plex Sans", system-ui, -apple-system, "Segoe UI", "Noto Sans", sans-serif;
+  --font-read: "Source Serif 4", Georgia, "Noto Serif", serif;
+  --font-data: "IBM Plex Mono", ui-monospace, "SF Mono", Menlo, monospace;
+  --radius: 6px;
+  color-scheme: light;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --bg: #141218; --surface: #1d1a23; --sunk: #26222e; --ink: #ece9f3; --muted: #a49eb2;
+    --line: #353040; --accent: #ec86c4; --accent-soft: #3a2232; --on-accent: #1a0f16; --warn: #e3b25c;
+    color-scheme: dark;
+  }
+}
+:root[data-theme="dark"] {
+  --bg: #141218; --surface: #1d1a23; --sunk: #26222e; --ink: #ece9f3; --muted: #a49eb2;
+  --line: #353040; --accent: #ec86c4; --accent-soft: #3a2232; --on-accent: #1a0f16; --warn: #e3b25c;
+  color-scheme: dark;
+}
+
+* { box-sizing: border-box; }
+html, body { height: 100%; }
+body {
+  margin: 0; background: var(--bg); color: var(--ink);
+  font: 15px/1.5 var(--font-body);
+  -webkit-font-smoothing: antialiased;
+}
+button, input, select, textarea { font: inherit; color: inherit; }
+:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+[hidden] { display: none !important; }
+
+.app { display: grid; grid-template-rows: auto 1fr; height: 100%; }
+
+/* ---- masthead ---- */
+.mast {
+  display: flex; flex-wrap: wrap; align-items: center; gap: 12px 24px;
+  padding: 14px 20px; background: var(--surface); border-bottom: 1px solid var(--line);
+}
+.brand { display: flex; align-items: baseline; gap: 12px; min-width: 0; }
+.brand h1 {
+  margin: 0; font: 800 34px/1 var(--font-display); letter-spacing: 0.04em; text-transform: uppercase;
+  color: var(--accent);
+}
+.brand p { margin: 0; color: var(--muted); font-size: 13px; }
+.search { flex: 1 1 240px; display: flex; min-width: 0; }
+.search input {
+  width: 100%; padding: 10px 14px; border: 1px solid var(--line); border-radius: var(--radius);
+  background: var(--bg); font-size: 15px;
+}
+.search input::placeholder { color: var(--muted); }
+.tabs { display: flex; gap: 4px; background: var(--sunk); padding: 3px; border-radius: 8px; }
+.tabs button {
+  border: 0; background: transparent; padding: 7px 14px; border-radius: 6px; cursor: pointer;
+  font-weight: 500; color: var(--muted);
+}
+.tabs button[aria-selected="true"] { background: var(--surface); color: var(--ink); box-shadow: 0 1px 2px rgb(0 0 0 / 0.12); }
+
+/* ---- body grid ---- */
+.main { display: grid; grid-template-columns: 260px minmax(0, 1fr); min-height: 0; }
+.rail-toggle { display: none; }
+.rail {
+  padding: 18px 18px 40px; border-right: 1px solid var(--line); overflow-y: auto;
+  display: flex; flex-direction: column; gap: 18px;
+}
+.rail h2, .label {
+  margin: 0 0 6px; font: 600 11px/1.2 var(--font-body); letter-spacing: 0.08em; text-transform: uppercase;
+  color: var(--muted);
+}
+.field { display: flex; flex-direction: column; }
+.field select {
+  width: 100%; padding: 8px 10px; border: 1px solid var(--line); border-radius: var(--radius);
+  background: var(--surface);
+}
+.chips { display: flex; flex-wrap: wrap; gap: 6px; }
+.chip {
+  border: 1px solid var(--line); background: var(--surface); border-radius: 999px; padding: 4px 10px;
+  font-size: 13px; cursor: pointer; display: inline-flex; gap: 6px; align-items: baseline;
+}
+.chip small { color: var(--muted); font: 12px var(--font-data); }
+.chip[aria-pressed="true"] { background: var(--accent); border-color: var(--accent); color: var(--on-accent); }
+.chip[aria-pressed="true"] small { color: inherit; opacity: 0.8; }
+.check { display: flex; gap: 8px; align-items: center; font-size: 14px; cursor: pointer; }
+.reset {
+  align-self: flex-start; border: 0; background: none; color: var(--accent); cursor: pointer; padding: 0;
+  font-weight: 500; text-decoration: underline; text-underline-offset: 3px;
+}
+.about { font-size: 12.5px; color: var(--muted); line-height: 1.5; }
+.about p { margin: 0 0 8px; }
+
+.pane { min-width: 0; min-height: 0; overflow-y: auto; padding: 16px 24px 48px; }
+.status {
+  display: flex; flex-wrap: wrap; gap: 8px 16px; align-items: baseline; justify-content: space-between;
+  margin-bottom: 12px;
+}
+.count { font: 500 14px var(--font-body); }
+.count b { font: 600 18px var(--font-data); font-variant-numeric: tabular-nums; }
+.sort { display: flex; gap: 8px; align-items: center; font-size: 13px; color: var(--muted); }
+.sort select { padding: 4px 8px; border: 1px solid var(--line); border-radius: var(--radius); background: var(--surface); }
+
+/* ---- list ---- */
+.list { list-style: none; margin: 0; padding: 0; border-top: 1px solid var(--line); }
+.row {
+  display: grid; grid-template-columns: 120px minmax(0, 1fr) minmax(0, 220px); gap: 4px 18px;
+  padding: 11px 8px; border-bottom: 1px solid var(--line); cursor: pointer;
+}
+.row:hover, .row:focus-visible { background: var(--surface); }
+.row.active { background: var(--accent-soft); }
+.yr { font: 14px/1.4 var(--font-data); font-variant-numeric: tabular-nums; color: var(--ink); }
+.yr .q { color: var(--muted); }
+.ttl { min-width: 0; overflow-wrap: anywhere; }
+.ttl strong { font: 600 16px/1.3 var(--font-read); }
+.ttl .orig { color: var(--muted); margin-left: 8px; font-size: 14px; }
+.ttl .by { display: block; color: var(--muted); font-size: 13.5px; margin-top: 2px; }
+.trad { font-size: 13px; color: var(--muted); min-width: 0; }
+.trad span { display: block; }
+.badge {
+  display: inline-block; font: 500 10.5px/1.6 var(--font-body); letter-spacing: 0.06em; text-transform: uppercase;
+  border: 1px solid currentColor; border-radius: 3px; padding: 0 5px; margin-left: 6px; vertical-align: 2px;
+  color: var(--warn);
+}
+.more {
+  display: block; margin: 18px auto 0; padding: 9px 18px; border: 1px solid var(--line); background: var(--surface);
+  border-radius: var(--radius); cursor: pointer; font-weight: 500;
+}
+.empty { padding: 40px 8px; color: var(--muted); }
+.badge.inferred { color: var(--muted); }
+.inf { font-style: italic; }
+
+/* ---- timeline ---- */
+.tl-wrap { overflow-x: auto; border: 1px solid var(--line); border-radius: var(--radius); background: var(--surface); }
+.tl-inner { position: relative; min-width: 960px; }
+#tl { display: block; width: 100%; }
+.tl-key { display: flex; flex-wrap: wrap; gap: 6px 18px; font-size: 13px; color: var(--muted); margin: 0 0 10px; }
+.tl-key i { display: inline-block; width: 10px; height: 10px; border-radius: 50%; margin-right: 6px; vertical-align: -1px; }
+.tl-key .solid { background: var(--accent); }
+.tl-key .hollow { border: 2px solid var(--accent); }
+.tl-key .bar { width: 22px; height: 3px; border-radius: 2px; background: var(--accent); opacity: 0.45; }
+.tip {
+  position: absolute; pointer-events: none; z-index: 5; max-width: 300px;
+  background: var(--ink); color: var(--bg); padding: 8px 10px; border-radius: var(--radius); font-size: 13px;
+  box-shadow: 0 4px 16px rgb(0 0 0 / 0.25);
+}
+.tip b { font-family: var(--font-read); font-size: 14.5px; }
+.tip span { display: block; opacity: 0.8; }
+
+/* ---- traditions ---- */
+.tgroup { margin: 0 0 28px; }
+.tgroup h3 {
+  margin: 0 0 10px; font: 700 22px/1.1 var(--font-display); letter-spacing: 0.05em; text-transform: uppercase;
+}
+.tgrid { display: grid; grid-template-columns: repeat(auto-fill, minmax(260px, 1fr)); gap: 12px; }
+.tcard {
+  text-align: left; border: 1px solid var(--line); background: var(--surface); border-radius: var(--radius);
+  padding: 14px; cursor: pointer; display: flex; flex-direction: column; gap: 6px;
+}
+.tcard:hover { border-color: var(--accent); }
+.tcard header { display: flex; justify-content: space-between; gap: 8px; align-items: baseline; }
+.tcard strong { font: 600 16px/1.25 var(--font-read); }
+.tcard .n { font: 500 13px var(--font-data); color: var(--accent); white-space: nowrap; }
+.tcard .per { font-size: 12.5px; color: var(--muted); }
+.tcard p { margin: 0; font-size: 13.5px; color: var(--ink); line-height: 1.45; }
+
+/* ---- detail drawer ---- */
+.drawer {
+  position: fixed; top: 0; right: 0; bottom: 0; width: min(460px, 100%); z-index: 20;
+  background: var(--surface); border-left: 1px solid var(--line); box-shadow: -8px 0 32px rgb(0 0 0 / 0.18);
+  overflow-y: auto; padding: calc(18px + env(safe-area-inset-top, 0px)) 24px calc(40px + env(safe-area-inset-bottom, 0px));
+  transform: translateX(0); transition: transform 0.22s ease;
+}
+.drawer[aria-hidden="true"] { transform: translateX(105%); visibility: hidden; }
+.close {
+  float: right; border: 1px solid var(--line); background: var(--bg); border-radius: var(--radius);
+  width: 34px; height: 34px; cursor: pointer; font-size: 18px; line-height: 1;
+}
+.d-trad { font: 600 11px var(--font-body); letter-spacing: 0.08em; text-transform: uppercase; color: var(--accent); }
+.drawer h2 { margin: 8px 0 2px; font: 600 28px/1.15 var(--font-read); text-wrap: balance; }
+.d-orig { font: 20px/1.35 var(--font-read); color: var(--muted); margin: 2px 0 0; }
+.d-date { font: 15px var(--font-data); margin: 14px 0 0; }
+.d-date small { display: block; font: 13px var(--font-body); color: var(--muted); margin-top: 2px; }
+.drawer dl { display: grid; grid-template-columns: 110px minmax(0, 1fr); gap: 10px 14px; margin: 20px 0 0; }
+.drawer dt { font: 600 11px/1.9 var(--font-body); letter-spacing: 0.08em; text-transform: uppercase; color: var(--muted); }
+.drawer dd { margin: 0; min-width: 0; overflow-wrap: anywhere; }
+.drawer dd ul { margin: 0; padding: 0; list-style: none; display: flex; flex-direction: column; gap: 4px; }
+.person small { color: var(--muted); }
+.d-notes { font: 16px/1.6 var(--font-read); margin: 22px 0 0; max-width: 65ch; }
+.d-src { margin: 4px 0 0; font-size: 12px; color: var(--muted); }
+.badge.dist { background: var(--accent); color: var(--surface); border-color: transparent; }
+.badge.now { background: var(--ink); color: var(--surface); border-color: transparent; margin-left: 6px; }
+.nowp { margin: 18px 0 6px; padding: 14px 16px; border: 1px solid var(--line); border-left: 4px solid var(--accent); background: var(--sunk); border-radius: 6px; }
+.nowp h3 { margin: 0 0 8px; font: 700 13px/1.2 var(--font-display); letter-spacing: .08em; text-transform: uppercase; color: var(--accent); }
+.nowp ul { list-style: none; margin: 0; padding: 0; display: grid; gap: 12px; }
+.np-when { font-size: 14px; color: var(--muted); margin: 2px 0 6px; }
+.np-src { display: block; margin-top: 4px; font-size: 11px; color: var(--muted); }
+.np-site { margin: 10px 0 0; font-size: 14px; }
+.btn, .drawer a.btn { display: inline-block; padding: 7px 14px; border-radius: 999px; background: var(--accent); color: var(--surface); font-weight: 600; font-size: 14px; text-decoration: none; }
+.btn:hover, .btn:focus-visible { filter: brightness(1.1); text-decoration: underline; }
+.np { display: block; font-size: 12px; color: var(--muted); margin-top: 2px; }
+.strip { margin: 10px 0 16px; }
+.st-line { position: relative; height: 18px; border-bottom: 1px solid var(--line); }
+.st-tick { position: absolute; bottom: 0; width: 2px; height: 10px; margin-left: -1px; background: var(--muted); border-radius: 1px; }
+.st-tick.dist { background: var(--accent); }
+.st-tick.prem { height: 18px; width: 3px; background: var(--accent); }
+.st-ends { display: flex; justify-content: space-between; font-size: 11px; color: var(--muted); margin-top: 3px; }
+.d-prods { margin: 28px 0 0; border-top: 1px solid var(--line); padding-top: 16px; }
+.d-prods h3 { margin: 0 0 10px; font: 700 20px/1.1 var(--font-display); letter-spacing: 0.05em; text-transform: uppercase; }
+.d-prods h3 small { font: 500 12.5px var(--font-body); letter-spacing: 0; text-transform: none; color: var(--muted); margin-left: 6px; }
+.prods { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 14px; }
+.prod { border-left: 2px solid var(--line); padding: 2px 0 2px 12px; }
+.prod-head { display: flex; flex-wrap: wrap; gap: 6px; align-items: baseline; font-size: 14px; }
+.prod-head em { font-family: var(--font-read); }
+.badge.kind { margin-left: 0; color: var(--accent); }
+.runs { list-style: none; margin: 4px 0 6px; padding: 0; }
+.run { display: grid; grid-template-columns: 112px minmax(0, 1fr); gap: 8px; font-size: 14px; }
+.run-date { font: 13px/1.5 var(--font-data); font-variant-numeric: tabular-nums; }
+.run-where { min-width: 0; }
+.run-where small, .pc small, .prod-src small { color: var(--muted); }
+.pc { font-size: 13.5px; margin-top: 2px; overflow-wrap: anywhere; }
+.pc-l { display: inline-block; min-width: 64px; font: 600 10.5px var(--font-body); letter-spacing: 0.08em; text-transform: uppercase; color: var(--muted); }
+.prod-notes { margin: 6px 0 0; font: 14px/1.5 var(--font-read); }
+.prod-src { margin-top: 4px; font-size: 12.5px; }
+.linkbtn { border: 0; background: none; padding: 0; color: var(--accent); cursor: pointer; text-align: left; text-decoration: underline; text-underline-offset: 3px; }
+.drawer a { color: var(--accent); }
+.scrim { position: fixed; inset: 0; background: rgb(0 0 0 / 0.25); z-index: 15; }
+
+.loading { padding: 60px 24px; color: var(--muted); }
+
+/* ---- feedback: header button, "Suggest a correction" link, and a modal form ---- */
+.fb-open {
+  border: 1px solid var(--line); background: transparent; color: var(--muted); border-radius: 999px;
+  padding: 6px 14px; font-size: 13px; font-weight: 500; cursor: pointer;
+}
+.fb-open:hover { color: var(--accent); border-color: var(--accent); }
+.d-fix { margin: 14px 0 0; font-size: 13.5px; color: var(--muted); }
+.fb {
+  /* sized and placed from vw so it stays on screen even if the page is wider than the phone */
+  width: min(480px, calc(100vw - 32px)); max-height: calc(100vh - 32px); overflow-y: auto; padding: 20px 22px 22px;
+  margin: 0; inset: 50vh auto auto calc((100vw - min(480px, 100vw - 32px)) / 2); transform: translateY(-50%);
+  border: 1px solid var(--line); border-radius: 10px; background: var(--surface); color: var(--ink);
+  box-shadow: 0 16px 48px rgb(0 0 0 / 0.28);
+}
+.fb::backdrop { background: rgb(0 0 0 / 0.35); }
+.fb h2 { margin: 0; font: 700 24px/1.1 var(--font-display); letter-spacing: 0.05em; text-transform: uppercase; color: var(--accent); }
+.fb .close { margin: -4px -6px 0 12px; }
+.fb form, .fb-done { display: flex; flex-direction: column; gap: 14px; margin-top: 14px; }
+.fb-about { margin: 6px 0 0; font: 15px/1.35 var(--font-read); }
+.fb-about small { font: 12px var(--font-data); color: var(--muted); }
+.fb .field textarea, .fb .field input {
+  width: 100%; padding: 9px 11px; border: 1px solid var(--line); border-radius: var(--radius);
+  background: var(--bg); font: 15px/1.45 var(--font-body);
+}
+.fb textarea { min-height: 7.5em; resize: vertical; }
+.fb .opt { text-transform: none; letter-spacing: 0; font-weight: 400; }
+.fb .hint { margin: 4px 0 0; font-size: 12px; color: var(--muted); }
+.fb fieldset { border: 0; margin: 0; padding: 0; min-width: 0; }
+.fb legend { padding: 0; }
+.stars { display: flex; flex-wrap: wrap; gap: 6px; }
+.stars input { position: absolute; opacity: 0; width: 1px; height: 1px; }
+.stars label {
+  min-width: 40px; text-align: center; border: 1px solid var(--line); border-radius: 999px; padding: 4px 10px;
+  font: 13px var(--font-data); cursor: pointer; background: var(--surface);
+}
+.stars input:checked + label { background: var(--accent); border-color: var(--accent); color: var(--on-accent); }
+.stars input:focus-visible + label { outline: 2px solid var(--accent); outline-offset: 2px; }
+.fb-note { margin: 0; padding: 10px 12px; border-radius: var(--radius); background: var(--sunk); font-size: 13.5px; }
+.fb-note.err { color: var(--warn); }
+.fb-acts { display: flex; flex-wrap: wrap; gap: 10px; align-items: center; justify-content: flex-end; }
+.fb-acts .btn { border: 0; cursor: pointer; }
+.fb-acts .btn:disabled { opacity: 0.45; cursor: not-allowed; filter: none; text-decoration: none; }
+.fb-alt { display: flex; flex-wrap: wrap; gap: 8px 14px; }
+.fb-done p { margin: 0; font: 16px/1.55 var(--font-read); }
+
+@media (max-width: 860px) {
+  .main { grid-template-columns: minmax(0, 1fr); }
+  .rail { border-right: 0; border-bottom: 1px solid var(--line); overflow: visible; padding-bottom: 18px; }
+  .rail .about { display: none; }
+  .rail:not(.open) { display: none; }
+  .rail-toggle { display: block; margin: 12px 16px 0; padding: 8px 14px; border: 1px solid var(--line); border-radius: 999px;
+                 background: var(--surface); color: var(--ink); font: 600 14px var(--font-body); justify-self: start; }
+  .rail-toggle[aria-expanded="true"] { background: var(--accent); color: var(--on-accent); border-color: transparent; }
+  .app { height: auto; }
+  .pane { overflow: visible; padding: 16px; }
+  .mast { padding: 12px 16px; }
+  .row { grid-template-columns: 92px minmax(0, 1fr); }
+  .trad { grid-column: 2; }
+}
+@media (prefers-reduced-motion: reduce) { .drawer { transition: none; } }
+</style>
+</head>
+<body>
+<div class="app">
+  <header class="mast">
+    <div class="brand">
+      <h1>Drama Queen</h1>
+      <p id="tagline">Plays from every culture and era</p>
+    </div>
+    <div class="search">
+      <label for="q" class="label" hidden>Search</label>
+      <input id="q" type="search" placeholder="Search titles, playwrights, original scripts, notes…" autocomplete="off">
+    </div>
+    <div class="tabs" role="tablist" aria-label="View">
+      <button role="tab" id="tab-list" aria-selected="true" data-view="list">Plays</button>
+      <button role="tab" id="tab-timeline" aria-selected="false" data-view="timeline">Timeline</button>
+      <button role="tab" id="tab-traditions" aria-selected="false" data-view="traditions">Traditions</button>
+    </div>
+    <button class="fb-open" id="install" type="button" hidden>Install app</button>
+    <button class="fb-open" id="fb-open" type="button" aria-haspopup="dialog">Feedback</button>
+  </header>
+
+  <div class="main">
+    <button class="rail-toggle" id="rail-toggle" type="button" aria-expanded="false" aria-controls="rail">Filters</button>
+    <aside class="rail" id="rail" aria-label="Filters">
+      <div>
+        <h2>Era</h2>
+        <div class="chips" id="eras"></div>
+      </div>
+      <div class="field">
+        <label class="label" for="f-tradition">Tradition</label>
+        <select id="f-tradition"></select>
+      </div>
+      <div class="field">
+        <label class="label" for="f-region">Region</label>
+        <select id="f-region"></select>
+      </div>
+      <div class="field">
+        <label class="label" for="f-language">Language</label>
+        <select id="f-language"></select>
+      </div>
+      <div class="field">
+        <label class="label" for="f-place">Performed in</label>
+        <select id="f-place"></select>
+      </div>
+      <div class="field" hidden>
+        <label class="label" for="f-district">Theatre district</label>
+        <select id="f-district"></select>
+      </div>
+      <label class="check" hidden><input type="checkbox" id="f-now"> Now playing or coming soon</label>
+      <label class="check"><input type="checkbox" id="f-staged"> With production history</label>
+      <label class="check"><input type="checkbox" id="f-disputed"> Disputed attribution only</label>
+      <label class="check" id="curated-wrap" hidden><input type="checkbox" id="f-curated"> Curated entries only (hide Wikidata imports)</label>
+      <button class="reset" id="reset" type="button">Clear all filters</button>
+      <div class="about">
+        <p>Dates are year ranges; BCE years are shown as such. <b>c.</b> marks a conjectural date. Hollow dots on the timeline are conjectural too.</p>
+        <p id="gen"></p>
+      </div>
+    </aside>
+
+    <main class="pane" id="pane">
+      <div class="loading" id="loading">Loading plays…</div>
+
+      <section id="view-list" hidden>
+        <div class="status">
+          <div class="count" id="count-list"></div>
+          <label class="sort" for="sort">Sort
+            <select id="sort">
+              <option value="year">by date</option>
+              <option value="title">by title</option>
+              <option value="tradition">by tradition</option>
+            </select>
+          </label>
+        </div>
+        <ul class="list" id="list"></ul>
+        <button class="more" id="more" type="button" hidden>Show more</button>
+      </section>
+
+      <section id="view-timeline" hidden>
+        <div class="status">
+          <div class="count" id="count-tl"></div>
+          <div class="tl-key"><span><i class="solid"></i>attested date</span><span><i class="hollow"></i>conjectural date</span><span><i class="bar"></i>date range</span></div>
+        </div>
+        <div class="tl-wrap"><div class="tl-inner" id="tl-inner"><canvas id="tl" role="img" aria-label="Timeline of plays by tradition"></canvas><div class="tip" id="tip" hidden></div></div></div>
+      </section>
+
+      <section id="view-traditions" hidden></section>
+    </main>
+  </div>
+</div>
+
+<div class="scrim" id="scrim" hidden></div>
+<aside class="drawer" id="drawer" aria-hidden="true" aria-labelledby="d-title" tabindex="-1"></aside>
+
+<dialog class="fb" id="fb" aria-labelledby="fb-title" aria-describedby="fb-about">
+  <button class="close" type="button" id="fb-close" aria-label="Close feedback">×</button>
+  <h2 id="fb-title">Feedback</h2>
+  <p class="fb-about" id="fb-about">Tell us what works, what is missing, or what looks wrong.</p>
+  <form id="fb-form" novalidate>
+    <div class="field">
+      <label class="label" for="fb-text">Your comment</label>
+      <textarea id="fb-text" maxlength="2000" required aria-describedby="fb-text-hint"></textarea>
+      <p class="hint" id="fb-text-hint">Up to 2,000 characters.</p>
+    </div>
+    <div class="field">
+      <label class="label" for="fb-name">Your name <span class="opt">(optional)</span></label>
+      <input id="fb-name" type="text" maxlength="80" autocomplete="name">
+    </div>
+    <fieldset id="fb-rate">
+      <legend class="label">How useful is Drama Queen? <span class="opt">(optional, 1 = not at all, 5 = very)</span></legend>
+      <div class="stars">
+        <input type="radio" name="fb-rating" id="fb-r0" value="" checked><label for="fb-r0">Skip</label>
+        <input type="radio" name="fb-rating" id="fb-r1" value="1"><label for="fb-r1">1</label>
+        <input type="radio" name="fb-rating" id="fb-r2" value="2"><label for="fb-r2">2</label>
+        <input type="radio" name="fb-rating" id="fb-r3" value="3"><label for="fb-r3">3</label>
+        <input type="radio" name="fb-rating" id="fb-r4" value="4"><label for="fb-r4">4</label>
+        <input type="radio" name="fb-rating" id="fb-r5" value="5"><label for="fb-r5">5</label>
+      </div>
+    </fieldset>
+    <p class="fb-note" id="fb-note" role="status" aria-live="polite" hidden></p>
+    <div class="fb-alt" id="fb-alt" hidden>
+      <button class="linkbtn" type="button" id="fb-comment" hidden>Leave a comment on the page instead</button>
+      <button class="linkbtn" type="button" id="fb-copy">Copy my feedback</button>
+    </div>
+    <div class="fb-acts">
+      <button class="reset" type="button" id="fb-cancel">Cancel</button>
+      <button class="btn" type="submit" id="fb-send">Send feedback</button>
+    </div>
+  </form>
+  <div class="fb-done" id="fb-done" hidden>
+    <p id="fb-thanks" tabindex="-1">Thank you. Your feedback was saved, and the owner of Drama Queen will read it.</p>
+    <div class="fb-acts">
+      <button class="reset" type="button" id="fb-again">Send more feedback</button>
+      <button class="btn" type="button" id="fb-finish">Close</button>
+    </div>
+  </div>
+</dialog>
+
+<script src="config.js"></script>
+<script src="plays.js"></script>
+<script>
+"use strict";
+(function () {
+  const $ = (s) => document.querySelector(s);
+  const esc = (s) => String(s ?? "").replace(/[&<>"']/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]));
+  const fold = (s) => String(s ?? "").normalize("NFKD").replace(/[̀-ͯ]/g, "").toLowerCase();
+
+  const state = { q: "", era: null, tradition: "", region: "", language: "", place: "", district: "", now: false, staged: false, disputed: false, curated: false,
+                  sort: "year", view: "list", shown: 120, current: null };
+  let D, works = [], byId = {}, trad = {}, reg = {}, lang = {}, ppl = {}, genre = {}, filtered = [];
+  let places = {}, venues = {}, orgs = {};
+
+  function load() {
+    if (window.PLAYS_DATA) return Promise.resolve(window.PLAYS_DATA);
+    const get = (url) => fetch(url).then((r) => { if (!r.ok) throw new Error(r.status); return r.json(); });
+    return get("data/index.json").catch(() => get("plays.json"));
+  }
+
+  // The split site (build_db.py --site) ships a compact index and loads each
+  // play's description and productions from a shard when the play is opened.
+  function expandIndex(data) {
+    const P = data.people.map((r) => ({ slug: r[0], name: r[1], name_native: r[2] ?? null, birth_year: r[3] ?? null,
+                                        death_year: r[4] ?? null, dates_approx: !!r[5] }));
+    data.people = P;
+    data.works = data.works.map((c, i) => ({
+      id: c.i, title: c.t, original_title: c.o || null, alt_titles: c.at || [],
+      people: (c.p || []).map((x) => Array.isArray(x) ? { person: P[x[0]].slug, role: x[1], disputed: !!x[2] }
+                                                     : { person: P[x].slug, role: "playwright", disputed: false }),
+      tradition: c.tr || null, tradition_rule: c.tl || null, languages: c.l || [], region: c.r || null,
+      year_from: c.a ?? null, year_to: c.b ?? null, date_basis: c.db || null, era: c.e || "undated",
+      genres: c.g || [], date_certain: !!c.c, attribution_disputed: !!c.d, source: c.s || "wikidata",
+      ids: {}, notes: null, productions: [], _lazy: true, _shard: i % data.shards,
+      _n: c.n || 0, _pl: (c.pl || []).map((k) => data.places[k].id), _ds: c.ds || [], _py: c.py || [], _nw: c.nw || null,
+    }));
+  }
+  // A listed run is "now" or "soon" while its closing date has not passed and a
+  // live listing confirmed it recently; older listings are not trusted.
+  const TODAY = new Date().toISOString().slice(0, 10);
+  const STALE_DAYS = 45;
+  function listingStatus(checked, from, to) {
+    if (!checked) return null;
+    if ((Date.parse(TODAY) - Date.parse(checked)) / 864e5 > STALE_DAYS) return null;
+    if (to && to.length === 10 && to < TODAY) return null;
+    if (from && from.length === 10 && from > TODAY) return "soon";
+    return "now";
+  }
+  const shardCache = {};
+  function loadDetail(w) {
+    if (!w._lazy || w._loaded) return Promise.resolve(w);
+    const n = String(w._shard).padStart(2, "0");
+    shardCache[n] = shardCache[n] || fetch(`data/d/${n}.json`).then((r) => { if (!r.ok) throw new Error(r.status); return r.json(); });
+    return shardCache[n].then((sh) => {
+      Object.entries(sh._people || {}).forEach(([slug, r]) => {
+        if (!ppl[slug]) ppl[slug] = { slug, name: r[0], name_native: r[1] ?? null, birth_year: r[2] ?? null, death_year: r[3] ?? null, dates_approx: !!r[4] };
+      });
+      Object.assign(w, sh[w.id] || {});
+      w._loaded = true;
+      return w;
+    });
+  }
+
+  // ---------- formatting ----------
+  const fy = (y) => (y < 0 ? `${-y} BCE` : `${y}`);
+  function fmtDate(w, long) {
+    const a = w.year_from, b = w.year_to;
+    if (a == null && b == null) return "undated";
+    const c = w.date_certain ? "" : "c. ";
+    if (a == null) return `before ${fy(b)}`;
+    if (a === b) return c + fy(a);
+    if (a < 0 && b < 0) return `${c}${-a}–${-b} BCE`;
+    return `${c}${fy(a)}–${fy(b)}`;
+  }
+  const yearHTML = (w) => {
+    const t = fmtDate(w);
+    return t.startsWith("c. ") ? `<span class="q">c.</span> ${esc(t.slice(3))}` : esc(t);
+  };
+  function peopleText(w) {
+    const writers = w.people.filter((p) => p.role === "playwright" || p.role === "co-author");
+    const shown = writers.length ? writers : w.people;  // e.g. a musical credited only to its composer
+    return shown.map((p) => (ppl[p.person]?.name || p.person) + (writers.length ? "" : ` (${p.role})`) +
+      (p.disputed ? " (?)" : "")).join(", ");
+  }
+  const sameTitle = (a, b) => fold(a) === fold(b);
+  function inferredWhy(w) {
+    const r = w.tradition_rule || "";
+    if (r === "author") return "Inferred from the author's curated plays";
+    if (r.startsWith("author+")) return "Inferred from the author's curated plays and the play's language";
+    if (r.startsWith("class-")) return "Inferred from the play's Wikidata class";
+    if (r.startsWith("genre-")) return "Inferred from the play's genre";
+    if (r === "wikipedia-category") return "From Wikipedia's Broadway, Off-Broadway and West End musical categories";
+    if (r.startsWith("region-")) return "Inferred from the play's country and date";
+    return "Inferred from the play's language, country and date";
+  }
+  const regionName = (id) => reg[id]?.name || id || "";
+  const macroOf = (id) => { const r = reg[id]; return r ? (r.kind === "macro" ? r.id : r.parent || r.id) : "other"; };
+  const MACRO_ORDER = ["europe", "mena", "south_asia", "east_asia", "southeast_asia", "africa",
+                       "north_america", "latin_america", "caribbean", "oceania"];
+  const macroList = () => D.regions.filter((r) => r.kind === "macro")
+    .sort((a, b) => (MACRO_ORDER.indexOf(a.id) + 1 || 99) - (MACRO_ORDER.indexOf(b.id) + 1 || 99));
+  const sortYear = (w) => (w.year_from ?? w.year_to ?? 99999);
+
+  // ---------- setup ----------
+  function init(data) {
+    if (data.format === "index-v1") expandIndex(data);
+    D = data; works = data.works;
+    data.traditions.forEach((t) => (trad[t.id] = t));
+    data.regions.forEach((r) => (reg[r.id] = r));
+    data.languages.forEach((l) => (lang[l.id] = l));
+    data.people.forEach((p) => (ppl[p.slug] = p));
+    (data.genres || []).forEach((g) => (genre[g.id] = g));
+    (data.places || []).forEach((x) => (places[x.id] = x));
+    (data.venues || []).forEach((x) => (venues[x.id] = x));
+    (data.organizations || []).forEach((x) => (orgs[x.id] = x));
+    works.forEach((w) => {
+      byId[w.id] = w;
+      w._macro = macroOf(w.region);
+      w.productions = w.productions || [];
+      if (!w._lazy) {
+        const runs = w.productions.flatMap((p) => p.runs);
+        w._n = w.productions.length;
+        w._pl = runs.map((r) => r.place).filter(Boolean);
+        w._ds = [...new Set(runs.map((r) => r.district).filter(Boolean))];
+        w._py = [...new Set(runs.map((r) => r.from && parseInt(r.from, 10)).filter((y) => y != null && !isNaN(y)))].sort((a, b) => a - b);
+      }
+      w._places = new Set(w._pl);
+      if (w._lazy) w._now = w._nw ? listingStatus(...w._nw) : null;
+      else {
+        const st = w.productions.flatMap((p) => p.runs).map((r) => listingStatus(r.checked, r.from, r.to)).filter(Boolean);
+        w._now = st.includes("now") ? "now" : st.includes("soon") ? "soon" : null;
+      }
+      const staging = w._lazy ? [...w._places].map((id) => `${places[id]?.name || ""} ${places[id]?.native_name || ""}`).concat(w._ds) : w.productions.flatMap((p) => [
+        ...p.runs.map((r) => `${places[r.place]?.name || ""} ${places[r.place]?.native_name || ""} ${venues[r.venue]?.name || ""}`),
+        ...p.credits.map((c) => c.person ? ppl[c.person]?.name : orgs[c.org]?.name), p.title, ...p.runs.map((r) => r.district)]);
+      w._hay = fold([w.title, w.original_title, ...w.alt_titles,
+        ...w.people.map((p) => `${ppl[p.person]?.name || ""} ${ppl[p.person]?.name_native || ""}`),
+        trad[w.tradition]?.name, trad[w.tradition]?.native_name, regionName(w.region), w.notes,
+        ...w.languages.map((l) => lang[l]?.name), ...w.genres, ...staging].join(" \u0001 "));
+    });
+    const nCur = data.meta.curated_count, nAll = data.meta.work_count;
+    $("#tagline").textContent = `${nAll.toLocaleString()} plays from every culture and era`;
+    const nProd = works.reduce((a, w) => a + w._n, 0);
+    $("#gen").textContent = `${nCur.toLocaleString()} curated entries` + (nAll > nCur ? ` and ${(nAll - nCur).toLocaleString()} imported from Wikidata and Wikipedia` : "") +
+      (nProd ? `, with ${nProd.toLocaleString()} productions` : "") + `. Data built ${data.meta.generated.slice(0, 10)}.`;
+    if (nAll > nCur) $("#curated-wrap").hidden = false;
+    buildControls();
+    buildPlaceFilter();
+    restore();
+    $("#loading").hidden = true;
+    apply();
+    if (location.hash.length > 1 && byId[decodeURIComponent(location.hash.slice(1))]) open(decodeURIComponent(location.hash.slice(1)), false);
+  }
+
+  function count(fn) { const m = {}; works.forEach((w) => fn(w).forEach((k) => { if (k) m[k] = (m[k] || 0) + 1; })); return m; }
+
+  function buildControls() {
+    const ec = count((w) => [w.era]);
+    $("#eras").innerHTML = D.meta.eras.concat([{ id: "undated", label: "Undated" }])
+      .filter((e) => ec[e.id]).map((e) => `<button class="chip" type="button" aria-pressed="false" data-era="${e.id}">${esc(e.label)} <small>${ec[e.id]}</small></button>`).join("");
+
+    const macros = macroList();
+    const tc = count((w) => [w.tradition]);
+    let h = `<option value="">All traditions</option>`;
+    macros.forEach((m) => {
+      const ts = D.traditions.filter((t) => macroOf(t.region) === m.id && tc[t.id]);
+      if (ts.length) h += `<optgroup label="${esc(m.name)}">` + ts.map((t) => `<option value="${t.id}">${esc(t.name)} (${tc[t.id]})</option>`).join("") + `</optgroup>`;
+    });
+    if (works.some((w) => !w.tradition)) h += `<option value="__none">Unclassified (${works.filter((w) => !w.tradition).length})</option>`;
+    $("#f-tradition").innerHTML = h;
+
+    const rc = count((w) => [w.region]);
+    const mc = count((w) => [w._macro]);
+    h = `<option value="">All regions</option>`;
+    macros.forEach((m) => {
+      if (!mc[m.id]) return;
+      h += `<option value="m:${m.id}">${esc(m.name)} — all (${mc[m.id]})</option>`;
+      D.regions.filter((r) => r.parent === m.id && rc[r.id]).forEach((r) => (h += `<option value="${r.id}"> ${esc(r.name)} (${rc[r.id]})</option>`));
+    });
+    const orphan = D.regions.filter((r) => r.kind !== "macro" && !r.parent && rc[r.id]);
+    if (orphan.length) h += `<optgroup label="Other">` + orphan.map((r) => `<option value="${r.id}">${esc(r.name)} (${rc[r.id]})</option>`).join("") + `</optgroup>`;
+    $("#f-region").innerHTML = h;
+
+    const lc = count((w) => w.languages);
+    $("#f-language").innerHTML = `<option value="">All languages</option>` +
+      D.languages.filter((l) => lc[l.id]).map((l) => `<option value="${l.id}">${esc(l.name)}${l.native_name && l.native_name !== l.name ? " · " + esc(l.native_name) : ""} (${lc[l.id]})</option>`).join("");
+  }
+
+  function buildPlaceFilter() {
+    const pc = count((w) => [...w._places]);
+    const opts = Object.keys(pc).sort((a, b) => (places[a]?.name || a).localeCompare(places[b]?.name || b));
+    $("#f-place").innerHTML = `<option value="">Any city</option>` +
+      opts.map((id) => `<option value="${esc(id)}">${esc(places[id]?.name || id)} (${pc[id]})</option>`).join("");
+    const dc = count((w) => w._ds);
+    const DIST = ["Broadway", "Off-Broadway", "Off-Off-Broadway", "West End"].filter((d) => dc[d]);
+    $("#f-district").innerHTML = `<option value="">Any</option>` + DIST.map((d) => `<option value="${d}">${d} (${dc[d]})</option>`).join("");
+    $("#f-district").parentElement.hidden = !DIST.length;
+    $("#f-now").parentElement.hidden = !works.some((w) => w._now);
+    const staged = works.filter((w) => w._n).length;
+    $("#f-staged").parentElement.hidden = !staged;
+    $("#f-place").parentElement.hidden = !opts.length;
+  }
+
+  // ---------- filtering ----------
+  function matches(w, skip) {
+    if (state.era && skip !== "era" && w.era !== state.era) return false;
+    if (state.tradition && (state.tradition === "__none" ? w.tradition : w.tradition !== state.tradition)) return false;
+    if (state.region) {
+      if (state.region.startsWith("m:")) { if (w._macro !== state.region.slice(2)) return false; }
+      else if (w.region !== state.region) return false;
+    }
+    if (state.language && !w.languages.includes(state.language)) return false;
+    if (state.place && !w._places.has(state.place)) return false;
+    if (state.district && !w._ds.includes(state.district)) return false;
+    if (state.staged && !w._n) return false;
+    if (state.now && !w._now) return false;
+    if (state.disputed && !w.attribution_disputed) return false;
+    if (state.curated && w.source !== "curated") return false;
+    if (state.q) {
+      for (const tok of state.q) if (!w._hay.includes(tok)) return false;
+    }
+    return true;
+  }
+
+  function apply() {
+    filtered = works.filter((w) => matches(w));
+    const nActive = ["era", "tradition", "region", "language", "place", "district", "now", "staged", "disputed", "curated"]
+      .filter((k) => state[k]).length;
+    $("#rail-toggle").textContent = nActive ? `Filters (${nActive})` : "Filters";
+    const cmp = {
+      year: (a, b) => sortYear(a) - sortYear(b) || a.title.localeCompare(b.title),
+      title: (a, b) => fold(a.title).localeCompare(fold(b.title)),
+      tradition: (a, b) => (trad[a.tradition]?.name || "~").localeCompare(trad[b.tradition]?.name || "~") || sortYear(a) - sortYear(b),
+    }[state.sort];
+    filtered.sort(cmp);
+    // era chip counts reflect the other active filters
+    const ec = {}; works.forEach((w) => { if (matches(w, "era")) ec[w.era] = (ec[w.era] || 0) + 1; });
+    document.querySelectorAll("#eras .chip").forEach((b) => {
+      b.setAttribute("aria-pressed", String(b.dataset.era === state.era));
+      b.querySelector("small").textContent = ec[b.dataset.era] || 0;
+    });
+    render();
+    save();
+  }
+
+  function render() {
+    for (const v of ["list", "timeline", "traditions"]) {
+      $("#view-" + v).hidden = state.view !== v;
+      $("#tab-" + v).setAttribute("aria-selected", String(state.view === v));
+    }
+    const n = filtered.length.toLocaleString(), all = works.length.toLocaleString();
+    const label = `<b>${n}</b> ${filtered.length === 1 ? "play" : "plays"}${filtered.length !== works.length ? ` of ${all}` : ""}`;
+    if (state.view === "list") { $("#count-list").innerHTML = label; renderList(); }
+    if (state.view === "timeline") {
+      const nd = filtered.filter((w) => w.year_from != null || w.year_to != null).length;
+      $("#count-tl").innerHTML = `<b>${nd.toLocaleString()}</b> dated ${nd === 1 ? "play" : "plays"}` +
+        (nd < filtered.length ? ` (${(filtered.length - nd).toLocaleString()} undated not shown)` : "");
+      drawTimeline();
+    }
+    if (state.view === "traditions") renderTraditions();
+  }
+
+  function renderList() {
+    const items = filtered.slice(0, state.shown);
+    $("#list").innerHTML = items.length ? items.map((w) => {
+      const t = trad[w.tradition];
+      const by = peopleText(w);
+      return `<li class="row${state.current === w.id ? " active" : ""}" tabindex="0" data-id="${esc(w.id)}">
+        <div class="yr">${yearHTML(w)}</div>
+        <div class="ttl"><strong>${esc(w.title)}</strong>${w.original_title && !sameTitle(w.original_title, w.title) ? `<span class="orig" dir="auto">${esc(w.original_title)}</span>` : ""}
+          ${w.attribution_disputed ? `<span class="badge" title="Attribution disputed">disputed</span>` : ""}${w._now ? `<span class="badge now">${w._now === "now" ? "Now playing" : "Coming soon"}</span>` : ""}
+          <span class="by">${esc(by || "Anonymous")}</span>${w._n ? `<span class="np">${w._n} ${w._n === 1 ? "production" : "productions"}${w._ds.length ? " · " + esc(w._ds.join(", ")) : ""}</span>` : ""}</div>
+        <div class="trad"><span>${esc(t ? t.name : "Unclassified")}${w.tradition_rule ? ` <span class="inf" title="${esc(inferredWhy(w))}">(inferred)</span>` : ""}</span><span>${esc(regionName(w.region))}</span></div>
+      </li>`;
+    }).join("") : `<li class="empty">No plays match these filters. Try removing a filter or shortening the search.</li>`;
+    const rest = filtered.length - items.length;
+    $("#more").hidden = rest <= 0;
+    $("#more").textContent = `Show ${Math.min(rest, 200).toLocaleString()} more (${rest.toLocaleString()} left)`;
+  }
+
+  function renderTraditions() {
+    const tc = {}; filtered.forEach((w) => { tc[w.tradition || "__none"] = (tc[w.tradition || "__none"] || 0) + 1; });
+    const macros = macroList();
+    let h = "";
+    macros.forEach((m) => {
+      const ts = D.traditions.filter((t) => macroOf(t.region) === m.id && tc[t.id]);
+      if (!ts.length) return;
+      h += `<div class="tgroup"><h3>${esc(m.name)}</h3><div class="tgrid">` + ts.map((t) => `
+        <button class="tcard" type="button" data-trad="${t.id}">
+          <header><strong>${esc(t.name)}</strong><span class="n">${tc[t.id]} ${tc[t.id] === 1 ? "play" : "plays"}</span></header>
+          <span class="per">${t.native_name ? `<span dir="auto">${esc(t.native_name)}</span> · ` : ""}${esc(t.period_label || "")}</span>
+          <p>${esc(t.description || "")}</p>
+        </button>`).join("") + `</div></div>`;
+    });
+    if (tc.__none) h += `<div class="tgroup"><h3>Unclassified</h3><div class="tgrid"><button class="tcard" type="button" data-trad="__none"><header><strong>Imported from Wikidata</strong><span class="n">${tc.__none} plays</span></header><p>Plays imported from Wikidata that have not yet been assigned to a tradition.</p></button></div></div>`;
+    $("#view-traditions").innerHTML = h || `<p class="empty">No traditions match these filters.</p>`;
+  }
+
+  // ---------- timeline ----------
+  // Piecewise-linear time axis: antiquity is long but sparse, the last two
+  // centuries short but dense, so each segment gets its own share of the width.
+  const SEG = [[-560, 500, 0.20], [500, 1500, 0.15], [1500, 1800, 0.22], [1800, 1900, 0.15], [1900, 2030, 0.28]];
+  const TICKS = [-500, 1, 500, 1000, 1500, 1600, 1700, 1800, 1850, 1900, 1950, 2000];
+  let tlHits = [];
+  function xOf(y, x0, w) {
+    let acc = 0;
+    for (const [a, b, f] of SEG) {
+      if (y <= b || b === SEG[SEG.length - 1][1]) return x0 + (acc + Math.max(0, Math.min(1, (y - a) / (b - a))) * f) * w;
+      acc += f;
+    }
+    return x0 + w;
+  }
+  function css(name) { return getComputedStyle(document.documentElement).getPropertyValue(name).trim(); }
+
+  function drawTimeline() {
+    const canvas = $("#tl"), inner = $("#tl-inner");
+    const dated = filtered.filter((w) => w.year_from != null || w.year_to != null);
+    // lanes: traditions grouped by macro region, ordered by period start
+    const macros = macroList().map((r) => r.id);
+    const laneIds = [...new Set(dated.map((w) => w.tradition || "__none"))];
+    laneIds.sort((a, b) => {
+      const ta = trad[a], tb = trad[b];
+      const ma = ta ? macros.indexOf(macroOf(ta.region)) : 99, mb = tb ? macros.indexOf(macroOf(tb.region)) : 99;
+      return ma - mb || (ta?.year_from ?? 9999) - (tb?.year_from ?? 9999) || (ta?.name || "").localeCompare(tb?.name || "");
+    });
+    const narrow = inner.clientWidth < 700;
+    const LABEL = narrow ? 150 : 210, TOP = 34, LANE = 22, GAP = 18;
+    const rows = []; let y = TOP, lastMacro = null;
+    laneIds.forEach((id) => {
+      const m = trad[id] ? macroOf(trad[id].region) : "other";
+      if (m !== lastMacro) { rows.push({ head: reg[m]?.name || "Unclassified", y }); y += GAP; lastMacro = m; }
+      rows.push({ id, y }); y += LANE;
+    });
+    const H = Math.max(y + 12, 120), W = inner.clientWidth, dpr = window.devicePixelRatio || 1;
+    canvas.width = W * dpr; canvas.height = H * dpr; canvas.style.height = H + "px";
+    const ctx = canvas.getContext("2d"); ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+    const C = { ink: css("--ink"), muted: css("--muted"), line: css("--line"), accent: css("--accent"), surface: css("--surface"), sunk: css("--sunk") };
+    const x0 = LABEL, plotW = W - LABEL - 16;
+    ctx.clearRect(0, 0, W, H);
+    // segment bands + ticks
+    let acc = 0;
+    SEG.forEach(([, , f], i) => { if (i % 2 === 1) { ctx.fillStyle = C.sunk; ctx.globalAlpha = 0.5; ctx.fillRect(x0 + acc * plotW, TOP - 8, f * plotW, H - TOP); ctx.globalAlpha = 1; } acc += f; });
+    ctx.font = `11px ${css("--font-data")}`; ctx.textAlign = "center"; ctx.textBaseline = "alphabetic";
+    TICKS.forEach((t) => {
+      const x = xOf(t, x0, plotW);
+      ctx.strokeStyle = C.line; ctx.lineWidth = 1; ctx.beginPath(); ctx.moveTo(x + 0.5, TOP - 8); ctx.lineTo(x + 0.5, H); ctx.stroke();
+      ctx.fillStyle = C.muted; ctx.fillText(t === 1 ? "1 CE" : t < 0 ? `${-t} BCE` : String(t), x, 18);
+    });
+    // lanes
+    const laneY = {};
+    ctx.textAlign = "left"; ctx.textBaseline = "middle";
+    rows.forEach((r) => {
+      if (r.head) {
+        ctx.fillStyle = C.ink; ctx.font = `700 13px ${css("--font-display")}`;
+        ctx.fillText(r.head.toUpperCase(), 10, r.y + GAP / 2 + 1);
+        return;
+      }
+      laneY[r.id] = r.y + LANE / 2;
+      ctx.strokeStyle = C.line; ctx.globalAlpha = 0.6; ctx.beginPath(); ctx.moveTo(x0, r.y + LANE - 0.5); ctx.lineTo(W - 16, r.y + LANE - 0.5); ctx.stroke(); ctx.globalAlpha = 1;
+      ctx.fillStyle = C.muted; ctx.font = `12.5px ${css("--font-body")}`;
+      let name = trad[r.id]?.name || "Unclassified";
+      while (ctx.measureText(name).width > LABEL - 22 && name.length > 4) name = name.slice(0, -2) + "…";
+      ctx.fillText(name, 10, r.y + LANE / 2);
+    });
+    // marks: range bars first, then dots; jitter within a lane to reduce overlap
+    tlHits = [];
+    const marks = dated.map((w, i) => {
+      const a = w.year_from ?? w.year_to, b = w.year_to ?? w.year_from;
+      const xa = xOf(a, x0, plotW), xb = xOf(b, x0, plotW);
+      const jitter = ((hash(w.id) % 7) - 3) * 1.6;
+      return { w, xa, xb, x: (xa + xb) / 2, y: laneY[w.tradition || "__none"] + jitter };
+    });
+    ctx.lineCap = "round";
+    marks.forEach((m) => { if (m.xb - m.xa > 2) { ctx.strokeStyle = C.accent; ctx.globalAlpha = 0.35; ctx.lineWidth = 3; ctx.beginPath(); ctx.moveTo(m.xa, m.y); ctx.lineTo(m.xb, m.y); ctx.stroke(); ctx.globalAlpha = 1; } });
+    marks.forEach((m) => {
+      const r = m.w.id === state.current ? 6.5 : 4.5;
+      ctx.beginPath(); ctx.arc(m.x, m.y, r + 1.5, 0, Math.PI * 2); ctx.fillStyle = C.surface; ctx.fill();
+      ctx.beginPath(); ctx.arc(m.x, m.y, r, 0, Math.PI * 2);
+      if (m.w.date_certain) { ctx.fillStyle = C.accent; ctx.fill(); }
+      else { ctx.lineWidth = 2; ctx.strokeStyle = C.accent; ctx.stroke(); }
+      tlHits.push(m);
+    });
+  }
+  function hash(s) { let h = 0; for (let i = 0; i < s.length; i++) h = (h * 31 + s.charCodeAt(i)) | 0; return Math.abs(h); }
+  function hitAt(ev) {
+    const rect = $("#tl").getBoundingClientRect(), x = ev.clientX - rect.left, y = ev.clientY - rect.top;
+    let best = null, bd = 100;
+    for (const m of tlHits) { const d = (m.x - x) ** 2 + (m.y - y) ** 2; if (d < bd) { bd = d; best = m; } }
+    return best ? { m: best, x, y } : null;
+  }
+
+  // ---------- detail ----------
+  function open(id, push = true) {
+    const w = byId[id]; if (!w) return;
+    state.current = id;
+    if (w._lazy && !w._loaded) {
+      $("#drawer").innerHTML = `<button class="close" type="button" id="close" aria-label="Close">×</button><h2 id="d-title">${esc(w.title)}</h2><p class="d-src">Loading…</p>`;
+      $("#drawer").setAttribute("aria-hidden", "false"); $("#scrim").hidden = false;
+      if (push) history.replaceState(null, "", "#" + encodeURIComponent(id));
+      loadDetail(w).then(() => { if (state.current === id) open(id, false); })
+        .catch(() => { if (state.current === id) $("#drawer").insertAdjacentHTML("beforeend", `<p class="d-src">Could not load the details of this play.</p>`); });
+      return;
+    }
+    const t = trad[w.tradition];
+    const basis = { written: "written", premiered: "first performed", published: "first published", approximate: "approximate dating" }[w.date_basis] || "";
+    // one line per person, with all their roles ("playwright, composer")
+    const grouped = [];
+    w.people.forEach((p) => {
+      const g = grouped.find((x) => x.person === p.person);
+      if (g) { g.roles.push(p.role); g.disputed = g.disputed || p.disputed; } else grouped.push({ ...p, roles: [p.role] });
+    });
+    const pplHTML = grouped.length ? `<ul>${grouped.map((p) => {
+      const P = ppl[p.person] || { name: p.person };
+      const life = P.birth_year != null || P.death_year != null ? `${P.dates_approx ? "c. " : ""}${P.birth_year != null ? fy(P.birth_year) : "?"}–${P.death_year != null ? fy(P.death_year) : ""}` : "";
+      return `<li class="person"><button class="linkbtn" type="button" data-person="${esc(P.name)}">${esc(P.name)}</button>${P.name_native && P.name_native !== P.name ? ` <span dir="auto">${esc(P.name_native)}</span>` : ""}
+        ${p.roles.join() !== "playwright" ? ` <small>· ${esc(p.roles.join(", "))}</small>` : ""}${p.disputed ? ` <span class="badge">disputed</span>` : ""}${life ? `<br><small>${esc(life)}</small>` : ""}</li>`;
+    }).join("")}</ul>` : "Anonymous";
+    const ids = w.ids || {};
+    const links = [];
+    if (ids.wikidata) links.push(`<a href="https://www.wikidata.org/wiki/${esc(ids.wikidata)}" target="_blank" rel="noopener">Wikidata ${esc(ids.wikidata)}</a>`);
+    if (ids.viaf) links.push(`<a href="https://viaf.org/viaf/${esc(ids.viaf)}" target="_blank" rel="noopener">VIAF</a>`);
+    if (ids.website) links.push(`<a href="${esc(ids.website)}" target="_blank" rel="noopener nofollow">Official website</a>`);
+    if (ids.enwiki) links.push(`<a href="https://en.wikipedia.org/wiki/${encodeURIComponent(ids.enwiki.replace(/ /g, "_"))}" target="_blank" rel="noopener">Wikipedia</a>`);
+    else links.push(`<a href="https://en.wikipedia.org/w/index.php?search=${encodeURIComponent(w.title + " " + (ppl[w.people[0]?.person]?.name || "play"))}" target="_blank" rel="noopener">Search Wikipedia</a>`);
+    $("#drawer").innerHTML = `
+      <button class="close" type="button" id="close" aria-label="Close">×</button>
+      <div class="d-trad">${esc(t ? t.name : "Unclassified")}</div>
+      <h2 id="d-title">${esc(w.title)}</h2>
+      ${w.original_title && !sameTitle(w.original_title, w.title) ? `<p class="d-orig" dir="auto" lang="${esc(w.languages[0] || "")}">${esc(w.original_title)}</p>` : ""}
+      <p class="d-date">${esc(fmtDate(w))}<small>${esc(basis)}${w.date_certain ? " · attested" : (w.year_from != null || w.year_to != null ? " · conjectural" : "")}</small></p>
+      ${nowPlayingHTML(w)}
+      <dl>
+        <dt>${grouped.length > 1 || (grouped[0] && grouped[0].roles.join() !== "playwright") ? "People" : "Playwright"}</dt><dd>${pplHTML}</dd>
+        <dt>Tradition</dt><dd>${t ? `<button class="linkbtn" type="button" data-trad="${t.id}">${esc(t.name)}</button>${w.tradition_rule ? ` <span class="badge inferred" title="${esc(inferredWhy(w))}">inferred</span>` : ""}<br><small class="person"><small>${esc(w.tradition_rule ? inferredWhy(w) : (t.period_label || ""))}</small></small>` : "Unclassified"}</dd>
+        <dt>Language</dt><dd>${w.languages.map((l) => esc(lang[l]?.name || l)).join(", ") || "—"}</dd>
+        <dt>Region</dt><dd>${esc(regionName(w.region) || "—")}</dd>
+        ${w.genres.length ? `<dt>Genre</dt><dd>${w.genres.map((g) => esc(genre[g]?.name || g)).join(", ")}</dd>` : ""}
+        ${w.alt_titles.length ? `<dt>Also known as</dt><dd>${w.alt_titles.slice(0, 12).map((t) => `<span dir="auto">${esc(t)}</span>`).join("<br>")}</dd>` : ""}
+        <dt>Links</dt><dd>${links.join(" · ")}</dd>
+      </dl>
+      <p class="d-fix">Something wrong or missing? <button class="linkbtn" type="button" id="d-fix" aria-haspopup="dialog">Suggest a correction</button></p>
+      ${w.notes ? `<p class="d-notes">${esc(w.notes)}</p>${w.notes_source === "generated" ? `<p class="d-src">Summary generated from the records below.</p>` : w.notes_source === "wikidata" ? `<p class="d-src">Description from Wikidata.</p>` : w.notes_source === "wikipedia" ? `<p class="d-src">From the English Wikipedia article${ids.enwiki ? ` <a href="https://en.wikipedia.org/wiki/${encodeURIComponent(ids.enwiki.replace(/ /g, "_"))}" target="_blank" rel="noopener">${esc(ids.enwiki)}</a>` : ""}, CC BY-SA 4.0.</p>` : ""}` : ""}
+      ${productionsHTML(w)}`;
+    $("#drawer").setAttribute("aria-hidden", "false");
+    $("#scrim").hidden = false;
+    $("#drawer").focus({ preventScroll: true });
+    if (push) history.replaceState(null, "", "#" + encodeURIComponent(id));
+    if (state.view === "list") renderList();
+    if (state.view === "timeline") drawTimeline();
+  }
+  // ---------- productions ----------
+  const MONTHS = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
+  function fmtPartial(d) {
+    if (!d) return "";
+    const m = /^(-?\d+)(?:-(\d{2}))?(?:-(\d{2}))?$/.exec(d);
+    if (!m) return d;
+    const y = fy(parseInt(m[1], 10));
+    if (m[3]) return `${parseInt(m[3], 10)} ${MONTHS[parseInt(m[2], 10) - 1]} ${y}`;
+    if (m[2]) return `${MONTHS[parseInt(m[2], 10) - 1]} ${y}`;
+    return y;
+  }
+  function runHTML(r) {
+    const date = r.from ? fmtPartial(r.from) + (r.to && r.to !== r.from ? ` – ${fmtPartial(r.to)}` : "") : "date unknown";
+    const where = [venues[r.venue]?.name, places[r.place]?.name].filter(Boolean).map(esc).join(", ");
+    return `<li class="run"><span class="run-date">${r.certain === false ? "c. " : ""}${esc(date)}</span>
+      <span class="run-where">${where}${r.district ? ` <span class="badge dist">${esc(r.district)}</span>` : ""}${r.notes ? ` <small>(${esc(r.notes)})</small>` : ""}</span></li>`;
+  }
+  function productionsHTML(w) {
+    if (!w.productions.length) return "";
+    const kindLabel = { premiere: "World premiere", revival: "Revival", tour: "Tour", transfer: "Transfer" };
+    const items = w.productions.map((p) => {
+      const by = (role) => p.credits.filter((c) => c.role === role);
+      const name = (c) => esc(c.person ? (ppl[c.person]?.name || c.person) : (orgs[c.org]?.name || c.org));
+      const line = (label, list) => list.length ? `<div class="pc"><span class="pc-l">${label}</span> ${list.map(name).join(", ")}</div>` : "";
+      const cast = by("cast");
+      const shownCast = cast.slice(0, 8).map((c) => name(c) + (c.character ? ` <small>as ${esc(c.character)}</small>` : ""));
+      const others = ["designer", "composer", "choreographer", "translator", "adapter"].flatMap((r) => by(r).map((c) => `${name(c)} <small>(${r})</small>`));
+      const lang = p.language && p.language !== w.languages[0] ? lang_(p.language) : "";
+      return `<li class="prod">
+        <div class="prod-head">${kindLabel[p.kind] ? `<span class="badge kind">${kindLabel[p.kind]}</span>` : ""}
+          ${p.title ? `<em>${esc(p.title)}</em>` : ""}${lang ? ` <small>in ${esc(lang)}</small>` : ""}</div>
+        <ul class="runs">${p.runs.map(runHTML).join("")}</ul>
+        ${line("Company", by("company"))}${line("Producer", by("producer"))}${line("Director", by("director"))}
+        ${cast.length ? `<div class="pc"><span class="pc-l">Cast</span> ${shownCast.join(", ")}${cast.length > 8 ? `, and ${cast.length - 8} more` : ""}</div>` : ""}
+        ${others.length ? `<div class="pc"><span class="pc-l">Also</span> ${others.join(", ")}</div>` : ""}
+        ${p.notes ? `<p class="prod-notes">${esc(p.notes)}</p>` : ""}
+        <div class="prod-src">${p.citation ? `<a href="${esc(p.citation)}" target="_blank" rel="noopener">${{ wikipedia: "Wikipedia", idu: "IDU open data (CC BY 4.0)", web: "Source page", ticketmaster: "Ticketmaster", kunstenpunt: "Kunstenpunt", theaterencyclopedie: "TheaterEncyclopedie (CC0)" }[p.source] || "Source"}</a>` : ""}${p.ids && p.ids.wikidata ? `${p.citation ? " · " : ""}<a href="https://www.wikidata.org/wiki/${esc(p.ids.wikidata)}" target="_blank" rel="noopener">Wikidata ${esc(p.ids.wikidata)}</a>` : ""}${p.source !== "curated" ? ` <small>· imported from ${{ wikidata: "Wikidata", wikipedia: "English Wikipedia", idu: "the Czech Arts and Theatre Institute", ticketmaster: "a Ticketmaster listing", web: "a web search, checked against the cited page", kunstenpunt: "Kunstenpunt, the Flanders Arts Institute", theaterencyclopedie: "TheaterEncyclopedie" }[p.source] || p.source}</small>` : ""}${p.ids && p.ids.idu ? ` <small>· IDU production ${esc(p.ids.idu)}</small>` : ""}</div>
+      </li>`;
+    });
+    const nPlaces = new Set(w.productions.flatMap((p) => p.runs.map((r) => r.place).filter(Boolean))).size;
+    return `<section class="d-prods"><h3>Productions <small>${w.productions.length} ${w.productions.length === 1 ? "production" : "productions"}${nPlaces ? ` in ${nPlaces} ${nPlaces === 1 ? "city" : "cities"}` : ""}</small></h3>
+      ${stagingStrip(w)}
+      <ol class="prods">${items.join("")}</ol></section>`;
+  }
+  const lang_ = (id) => lang[id]?.name || id;
+
+  // Current and upcoming runs, with where to buy tickets. Links come only from
+  // the listing sources (the theatre's box office, Ticketmaster); none are made up.
+  function nowPlayingHTML(w) {
+    const rows = w.productions.flatMap((p) => p.runs.map((r) => ({ r, p, st: listingStatus(r.checked, r.from, r.to) })))
+      .filter((x) => x.st).sort((a, b) => (a.st === "now" ? 0 : 1) - (b.st === "now" ? 0 : 1) || (a.r.from || "").localeCompare(b.r.from || ""));
+    if (!rows.length) return "";
+    const items = rows.map(({ r, p, st }) => {
+      const v = venues[r.venue], where = [v?.name, places[r.place]?.name].filter(Boolean).map(esc).join(", ");
+      const when = st === "soon" ? `Opens ${fmtPartial(r.from)}` : (r.from && r.from.length >= 7 ? `Since ${fmtPartial(r.from)}` : "Playing now");
+      const until = r.to ? ` · until ${fmtPartial(r.to)}` : (st === "now" ? " · open-ended" : "");
+      const tickets = r.ticket_url
+        ? `<a class="btn" href="${esc(r.ticket_url)}" target="_blank" rel="noopener nofollow">Tickets${p.source === "ticketmaster" ? " on Ticketmaster" : v ? ` · ${esc(v.name)} box office` : ""}</a>`
+        : (v?.website ? `<a class="btn" href="${esc(v.website)}" target="_blank" rel="noopener nofollow">Tickets · ${esc(v.name)} box office</a>` : "");
+      return `<li><div class="np-where"><strong>${where || "Venue to be announced"}</strong>${r.district ? ` <span class="badge dist">${esc(r.district)}</span>` : ""}</div>
+        <div class="np-when">${esc(when + until)}</div>${tickets}
+        <small class="np-src">Listing confirmed ${esc(fmtPartial(r.checked))}. Check with the seller for dates and prices.</small></li>`;
+    });
+    return `<section class="nowp" aria-label="Now playing"><h3>${rows.some((x) => x.st === "now") ? "Now playing" : "Coming soon"}</h3><ul>${items.join("")}</ul>
+      ${w.ids?.website ? `<p class="np-site"><a href="${esc(w.ids.website)}" target="_blank" rel="noopener nofollow">Official website</a></p>` : ""}</section>`;
+  }
+
+  // A one-line timeline of a play's stagings: one tick per production, from
+  // the first to the most recent, with the premiere marked.
+  function stagingStrip(w) {
+    const pts = w.productions.map((p) => {
+      const r = p.runs.find((x) => x.from); if (!r) return null;
+      return { y: parseInt(r.from, 10), kind: p.kind, d: r.district, where: places[r.place]?.name || "" };
+    }).filter((x) => x && !isNaN(x.y));
+    if (pts.length < 2) return "";
+    const lo = Math.min(...pts.map((p) => p.y)), hi = Math.max(...pts.map((p) => p.y)), span = Math.max(hi - lo, 1);
+    const ticks = pts.map((p) => `<span class="st-tick${p.kind === "premiere" ? " prem" : ""}${p.d ? " dist" : ""}" style="left:${((p.y - lo) / span * 100).toFixed(2)}%" title="${esc(fy(p.y) + (p.where ? ", " + p.where : "") + (p.d ? " (" + p.d + ")" : ""))}"></span>`).join("");
+    return `<div class="strip" aria-hidden="true"><div class="st-line">${ticks}</div><div class="st-ends"><span>${esc(fy(lo))}</span><span>${esc(fy(hi))}</span></div></div>`;
+  }
+
+  function closeDrawer() {
+    $("#drawer").setAttribute("aria-hidden", "true"); $("#scrim").hidden = true;
+    state.current = null; history.replaceState(null, "", location.pathname + location.search);
+    if (state.view === "list") renderList();
+    if (state.view === "timeline") drawTimeline();
+  }
+
+  // ---------- persistence (per-viewer convenience only) ----------
+  function save() { try { localStorage.setItem("dq-view", JSON.stringify({ view: state.view, sort: state.sort })); } catch (e) { /* storage unavailable */ } }
+  function restore() {
+    try { const s = JSON.parse(localStorage.getItem("dq-view") || "{}"); if (s.view) state.view = s.view; if (s.sort) state.sort = s.sort; } catch (e) { /* ignore */ }
+    $("#sort").value = state.sort;
+  }
+
+  // ---------- events ----------
+  let qt;
+  $("#q").addEventListener("input", (e) => { clearTimeout(qt); qt = setTimeout(() => { state.q = fold(e.target.value).split(/\s+/).filter(Boolean); state.shown = 120; apply(); }, 120); });
+  $("#eras").addEventListener("click", (e) => { const b = e.target.closest(".chip"); if (!b) return; state.era = state.era === b.dataset.era ? null : b.dataset.era; state.shown = 120; apply(); });
+  for (const k of ["tradition", "region", "language", "place", "district"]) $("#f-" + k).addEventListener("change", (e) => { state[k] = e.target.value; state.shown = 120; apply(); });
+  $("#f-disputed").addEventListener("change", (e) => { state.disputed = e.target.checked; apply(); });
+  $("#f-staged").addEventListener("change", (e) => { state.staged = e.target.checked; apply(); });
+  $("#rail-toggle").addEventListener("click", (e) => {
+    const open = $("#rail").classList.toggle("open");
+    e.currentTarget.setAttribute("aria-expanded", String(open));
+  });
+  $("#f-now").addEventListener("change", (e) => { state.now = e.target.checked; apply(); });
+  $("#f-curated").addEventListener("change", (e) => { state.curated = e.target.checked; apply(); });
+  $("#sort").addEventListener("change", (e) => { state.sort = e.target.value; apply(); });
+  $("#reset").addEventListener("click", () => {
+    Object.assign(state, { q: "", era: null, tradition: "", region: "", language: "", place: "", district: "", now: false, staged: false,
+                           disputed: false, curated: false, shown: 120 });
+    $("#q").value = ""; ["tradition", "region", "language", "place", "district"].forEach((k) => ($("#f-" + k).value = ""));
+    $("#f-disputed").checked = false; $("#f-curated").checked = false; $("#f-staged").checked = false; apply();
+  });
+  document.querySelector(".tabs").addEventListener("click", (e) => { const b = e.target.closest("button"); if (!b) return; state.view = b.dataset.view; render(); save(); });
+  $("#more").addEventListener("click", () => { state.shown += 200; renderList(); });
+  $("#list").addEventListener("click", (e) => { const r = e.target.closest(".row"); if (r) open(r.dataset.id); });
+  $("#list").addEventListener("keydown", (e) => { const r = e.target.closest(".row"); if (r && (e.key === "Enter" || e.key === " ")) { e.preventDefault(); open(r.dataset.id); } });
+  function filterTradition(id) {
+    state.tradition = id; $("#f-tradition").value = id; state.view = "list"; state.shown = 120; apply();
+  }
+  $("#view-traditions").addEventListener("click", (e) => { const c = e.target.closest(".tcard"); if (c) filterTradition(c.dataset.trad); });
+  $("#drawer").addEventListener("click", (e) => {
+    if (e.target.closest("#close")) return closeDrawer();
+    if (e.target.closest("#d-fix")) { const w = byId[state.current]; if (w) openFeedback({ id: w.id, title: w.title }, e.target.closest("#d-fix")); return; }
+    const t = e.target.closest("[data-trad]"); if (t) { closeDrawer(); return filterTradition(t.dataset.trad); }
+    const p = e.target.closest("[data-person]");
+    if (p) { closeDrawer(); $("#q").value = p.dataset.person; state.q = fold(p.dataset.person).split(/\s+/); state.view = "list"; apply(); }
+  });
+  $("#scrim").addEventListener("click", closeDrawer);
+  document.addEventListener("keydown", (e) => { if (e.key === "Escape" && !$("#fb").open && $("#drawer").getAttribute("aria-hidden") === "false") closeDrawer(); });
+
+  // ---------- feedback ----------
+  // Submissions go to the artifact's shared `db` store, collection "feedback". The
+  // store only exists on the published claude.ai page; opened as a local file there
+  // is no runtime (no window.claude), so the form says where to send feedback from.
+  // Viewers who may not write shared data are offered a page comment instead.
+  const fb = { ctx: null, opener: null, caps: null, readOnly: false, busy: false };
+  function feedbackCaps() {
+    if (fb.caps) return fb.caps;
+    const use = (n) => { try { return window.claude?.use ? Promise.resolve(window.claude.use(n)).catch(() => null) : Promise.resolve(null); } catch (e) { return Promise.resolve(null); } };
+    fb.caps = Promise.all([use("db"), use("user"), use("comments")]).then(async ([db, user, comments]) => {
+      let canWrite = null;
+      try { canWrite = user ? await user.can("data.write") : null; } catch (e) { /* no answer: let a write decide */ }
+      // On the public website there is no claude.ai runtime; config.js may name a form endpoint instead.
+      const web = !window.claude?.use && window.DQ_CONFIG?.feedback?.endpoint ? window.DQ_CONFIG.feedback : null;
+      return { runtime: !!window.claude?.use, db, user, comments, canWrite, web };
+    });
+    return fb.caps;
+  }
+  function fbNote(msg, err) { const n = $("#fb-note"); n.textContent = msg || ""; n.hidden = !msg; n.classList.toggle("err", !!err); }
+  async function fbMode() {
+    const c = await feedbackCaps();
+    if (!$("#fb").open) return;
+    $("#fb-comment").hidden = !c.comments;
+    if (c.web) {
+      fb.readOnly = false; fbNote("");
+    } else if (!c.runtime) {
+      fb.readOnly = true;
+      fbNote("Feedback can only be sent from the shared Drama Queen page on claude.ai. This copy runs on its own, so there is nowhere to send it. You can copy your text and send it to the owner another way.", true);
+    } else if (!c.db || c.canWrite === false || fb.readOnly) {
+      fb.readOnly = true;
+      fbNote(c.comments ? "Your access to this page doesn't include saving feedback. You can leave it as a comment on the page, or copy it and send it to the owner." : "Your access to this page doesn't include saving feedback. Copy your text and send it to the owner another way.", true);
+    } else fbNote("");
+    $("#fb-alt").hidden = !fb.readOnly;
+    $("#fb-send").disabled = fb.readOnly;
+  }
+  function openFeedback(ctx, opener) {
+    const d = $("#fb");
+    fb.ctx = ctx; fb.opener = opener || document.activeElement;
+    $("#fb-title").textContent = ctx ? "Suggest a correction" : "Feedback";
+    const about = $("#fb-about");
+    if (ctx) { about.textContent = ""; about.append(ctx.title + " "); const s = document.createElement("small"); s.textContent = ctx.id; about.append(s); }
+    else about.textContent = "Tell us what works, what is missing, or what looks wrong.";
+    $("#fb-text").placeholder = ctx ? "What is wrong or missing? A date, a playwright, a production…" : "";
+    $("#fb-rate").hidden = !!ctx;
+    $("#fb-form").hidden = false; $("#fb-done").hidden = true;
+    $("#fb-send").disabled = fb.readOnly; $("#fb-alt").hidden = !fb.readOnly;
+    if (!d.open) d.showModal();
+    $("#fb-text").focus();
+    fbMode();
+  }
+  function closeFeedback() {
+    const d = $("#fb"); if (d.open) d.close();
+  }
+  $("#fb").addEventListener("close", () => {
+    const o = fb.opener; fb.opener = null;
+    if (o && o.isConnected) o.focus({ preventScroll: true });
+    else if ($("#drawer").getAttribute("aria-hidden") === "false") $("#drawer").focus({ preventScroll: true });
+  });
+  $("#fb").addEventListener("click", (e) => { if (e.target === $("#fb")) closeFeedback(); });  // click on the backdrop
+  $("#fb-open").addEventListener("click", (e) => openFeedback(null, e.currentTarget));
+  $("#fb-close").addEventListener("click", closeFeedback);
+  $("#fb-cancel").addEventListener("click", closeFeedback);
+  $("#fb-finish").addEventListener("click", closeFeedback);
+  $("#fb-again").addEventListener("click", () => { $("#fb-done").hidden = true; $("#fb-form").hidden = false; $("#fb-text").focus(); });
+  $("#fb-copy").addEventListener("click", () => {
+    const t = $("#fb-text"), name = $("#fb-name").value.trim();
+    const text = (fb.ctx ? `Correction for "${fb.ctx.title}" (${fb.ctx.id}):\n` : "Drama Queen feedback:\n") + t.value.trim() + (name ? `\n— ${name}` : "");
+    const done = () => fbNote("Copied. Paste it into a message to the owner.");
+    const fallback = () => { t.focus(); t.select(); fbNote("Your text is selected. Copy it with Ctrl+C or ⌘C."); };
+    try { navigator.clipboard.writeText(text).then(done, fallback); } catch (e) { fallback(); }
+  });
+  $("#fb-comment").addEventListener("click", async () => {
+    const c = await feedbackCaps();
+    if (!c.comments) return;
+    const target = fb.ctx && $("#d-title") ? $("#d-title") : $(".brand h1");
+    closeFeedback();
+    try { await c.comments.openComposer({ element: target }); }
+    catch (e) { $("#fb-comment").hidden = true; }
+  });
+  $("#fb-form").addEventListener("submit", async (e) => {
+    e.preventDefault();
+    if (fb.busy || fb.readOnly) return;
+    const comment = $("#fb-text").value.trim();
+    if (!comment) { fbNote("Write a comment before sending.", true); $("#fb-text").focus(); return; }
+    const c = await feedbackCaps();
+    if (!c.db && !c.web) { fbMode(); return; }
+    const r = document.querySelector('input[name="fb-rating"]:checked')?.value;
+    let by = null;
+    try { by = c.user ? await c.user.id() : null; } catch (err) { /* no id */ }
+    const doc = {
+      kind: fb.ctx ? "correction" : "general",
+      comment,
+      name: $("#fb-name").value.trim(),
+      rating: !fb.ctx && r ? Number(r) : null,
+      play: fb.ctx ? { id: fb.ctx.id, title: fb.ctx.title } : null,
+      by,
+      at: new Date().toISOString(),
+    };
+    fb.busy = true; $("#fb-send").disabled = true; fbNote("Sending…");
+    const send = c.web ? async () => {
+      // A form service (Formspree, Web3Forms...) that emails each submission to the owner
+      const body = { ...(c.web.fields || {}), ...doc, play: doc.play ? `${doc.play.title} (${doc.play.id})` : "",
+                     subject: fb.ctx ? `Drama Queen correction: ${fb.ctx.title}` : "Drama Queen feedback", page: location.href };
+      const res = await fetch(c.web.endpoint, { method: "POST", headers: { "Content-Type": "application/json", Accept: "application/json" }, body: JSON.stringify(body) });
+      if (!res.ok) throw Object.assign(new Error("HTTP " + res.status), { code: res.status === 429 ? "resource_exhausted" : "unavailable" });
+    } : () => c.db.collection("feedback").add(doc);
+    try {
+      try { await send(); }
+      catch (err) {
+        if (err?.code !== "unavailable") throw err;
+        await new Promise((ok) => setTimeout(ok, 600 + Math.random() * 900));
+        await send();
+      }
+      fbNote("");
+      $("#fb-text").value = ""; $("#fb-r0").checked = true;
+      $("#fb-form").hidden = true; $("#fb-done").hidden = false; $("#fb-thanks").focus();
+    } catch (err) {
+      const code = err?.code;
+      if (code === "invalid_argument" || code === "not_granted" || code === "capability_disabled" || code === "capability_removed" || code === "revoked") { fb.readOnly = true; fbMode(); }
+      else if (code === "quota_exceeded") fbNote("The feedback box is full, so this was not saved. Copy your text and send it to the owner another way.", true);
+      else if (code === "resource_exhausted") fbNote("Too many messages at once. Wait a minute, then send again.", true);
+      else fbNote("Your feedback was not saved because the connection failed. Try again in a moment.", true);
+      $("#fb-alt").hidden = !(fb.readOnly || code === "quota_exceeded");
+    } finally {
+      fb.busy = false; $("#fb-send").disabled = fb.readOnly;
+    }
+  });
+  feedbackCaps();  // start resolving capabilities early; nothing is written until a viewer sends
+
+  // ---------- installable app ----------
+  // On the public website the page is a Progressive Web App: a service worker keeps
+  // it working offline, and phones can add it to the home screen. Not inside claude.ai,
+  // where the page runs in a sandboxed frame.
+  if ("serviceWorker" in navigator && /^https?:$/.test(location.protocol) && !window.claude && window.top === window) {
+    window.addEventListener("load", () => { navigator.serviceWorker.register("sw.js").catch(() => { /* offline support is optional */ }); });
+  }
+  let installPrompt = null;
+  window.addEventListener("beforeinstallprompt", (e) => { e.preventDefault(); installPrompt = e; $("#install").hidden = false; });
+  $("#install").addEventListener("click", async () => {
+    if (!installPrompt) return;
+    installPrompt.prompt();
+    try { await installPrompt.userChoice; } catch (e) { /* dismissed */ }
+    installPrompt = null; $("#install").hidden = true;
+  });
+  window.addEventListener("appinstalled", () => { $("#install").hidden = true; });
+
+  const tip = $("#tip");
+  $("#tl").addEventListener("mousemove", (e) => {
+    const h = hitAt(e);
+    if (!h) { tip.hidden = true; $("#tl").style.cursor = "default"; return; }
+    const w = h.m.w;
+    tip.innerHTML = `<b>${esc(w.title)}</b><span>${esc(peopleText(w) || "Anonymous")}</span><span>${esc(fmtDate(w))} · ${esc(trad[w.tradition]?.name || "Unclassified")}</span>`;
+    tip.hidden = false; $("#tl").style.cursor = "pointer";
+    const iw = $("#tl-inner").clientWidth;
+    tip.style.left = Math.min(h.m.x + 12, iw - 310) + "px"; tip.style.top = (h.m.y + 12) + "px";
+  });
+  $("#tl").addEventListener("mouseleave", () => (tip.hidden = true));
+  $("#tl").addEventListener("click", (e) => { const h = hitAt(e); if (h) open(h.m.w.id); });
+  let rt; window.addEventListener("resize", () => { clearTimeout(rt); rt = setTimeout(() => state.view === "timeline" && drawTimeline(), 120); });
+  if (window.matchMedia) matchMedia("(prefers-color-scheme: dark)").addEventListener?.("change", () => state.view === "timeline" && drawTimeline());
+
+  load().then(init).catch((err) => {
+    $("#loading").innerHTML = `Could not load the play data (${esc(err.message)}). Run <code>python3 build_db.py</code> to generate <code>web/plays.json</code> and <code>web/plays.js</code>, or serve the <code>web/</code> folder with <code>python3 -m http.server</code>.`;
+  });
+})();
+</script>
+</body>
+</html>
