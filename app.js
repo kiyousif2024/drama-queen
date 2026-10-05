@@ -117,6 +117,22 @@
     if (from && from.length === 10 && from > TODAY) return "soon";
     return "now";
   }
+  // Actors and directors: data/credits.json lists who was in or directed each play. It comes after the
+  // page is up; its names join each play's search text, so searching a name finds their shows.
+  let creditsLoaded = false;
+  function loadCredits() {
+    if (creditsLoaded || !D?.meta?.generated || !D.shards) return;
+    creditsLoaded = true;
+    fetch(`data/credits.json?v=${encodeURIComponent(D.meta.generated)}`).then((r) => (r.ok ? r.json() : null)).then((c) => {
+      if (!c) return;
+      const names = c.names.map((n) => fold(n));
+      for (const [id, list] of Object.entries(c.works)) {
+        const w = byId[id]; if (!w) continue;
+        w._hay += " \u0001 " + list.map((i) => names[i]).join(" \u0001 ");
+      }
+      if (state.q.length && !$("#v-browse").hidden) applyBrowse();
+    }).catch(() => { creditsLoaded = false; });
+  }
   const shardCache = {};
   function loadDetail(w) {
     if (!w._lazy || w._loaded) return Promise.resolve(w);
@@ -168,6 +184,7 @@
     buildFacets();
     restorePrefs();
     $("#loading").hidden = true;
+    loadCredits();
     route();
   }
 
