@@ -1,0 +1,46 @@
+# Billd (https://billd.theater)
+# Billd's curated data, research and members' reviews are not offered for scraping, data mining
+# or training AI models. Parts that come from open sources (Wikidata, Wikipedia, Wikimedia
+# Commons) can be had from those sources under their own licences.
+
+# AI training, AI search and AI agent crawlers: not allowed anywhere
+User-agent: GPTBot
+User-agent: OAI-SearchBot
+User-agent: ChatGPT-User
+User-agent: ClaudeBot
+User-agent: Claude-User
+User-agent: Claude-SearchBot
+User-agent: anthropic-ai
+User-agent: Google-Extended
+User-agent: GoogleOther
+User-agent: Applebot-Extended
+User-agent: CCBot
+User-agent: meta-externalagent
+User-agent: meta-externalfetcher
+User-agent: FacebookBot
+User-agent: Bytespider
+User-agent: Amazonbot
+User-agent: PerplexityBot
+User-agent: Perplexity-User
+User-agent: cohere-ai
+User-agent: cohere-training-data-crawler
+User-agent: Diffbot
+User-agent: DeepSeekBot
+User-agent: MistralAI-User
+User-agent: YouBot
+User-agent: AI2Bot
+User-agent: Ai2Bot-Dolma
+User-agent: Timpibot
+User-agent: omgili
+User-agent: omgilibot
+User-agent: ImagesiftBot
+User-agent: PetalBot
+User-agent: Scrapy
+User-agent: img2dataset
+Disallow: /
+
+# Everyone else, including search engines: the pages, but not the data files
+User-agent: *
+Disallow: /data/
+Disallow: /plays.json
+Disallow: /plays.js
