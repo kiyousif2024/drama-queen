@@ -1,13 +1,13 @@
 // Billd service worker: makes the public website work offline and installable.
 // build_db.py --site replaces BUILD with the build time, so each publish gets fresh caches.
-const BUILD = "2026-10-05T01:25:04Z";
+const BUILD = "2026-10-05T01:25:59Z";
 const SHELL = `billd-shell-${BUILD}`;
 const DATA = `billd-data-${BUILD}`;
 const SHELL_FILES = ["./", "index.html", "app.css", "app.js", "social.js", "config.js", "plays.js", "manifest.webmanifest",
                      "icons/icon.svg", "icons/icon-192.png", "icons/icon-512.png", "icons/apple-touch-icon.png"];
 
 self.addEventListener("install", (event) => {
-  event.waitUntil(caches.open(SHELL).then((c) => c.addAll(SHELL_FILES)).then(() => self.skipWaiting()));
+  event.waitUntil(caches.open(SHELL).then((c) => c.addAll(SHELL_FILES.map((f) => new Request(f, { cache: "reload" })))).then(() => self.skipWaiting()));
 });
 
 self.addEventListener("activate", (event) => {
