@@ -2177,7 +2177,12 @@
       if (stale(tok)) return;
       el.innerHTML = `<section class="sec"><div class="sec-head"><h2>New members</h2></div>
         <label class="check"><input type="checkbox" id="adm-appr"${cfg.require_approval ? " checked" : ""}${myRank() >= 2 ? "" : " disabled"}> New members need approval before they can post</label>
-        <p class="hint" style="max-width:62ch;margin-top:8px">When this is on, new accounts can look around but can't log, review, comment or follow until a moderator approves them in the Queue. It doesn't affect members who joined earlier.${myRank() >= 2 ? "" : " Only admins can change this."}</p></section>`;
+        <p class="hint" style="max-width:62ch;margin-top:8px">When this is on, new accounts can look around but can't log, review, comment or follow until a moderator approves them in the Queue. It doesn't affect members who joined earlier.${myRank() >= 2 ? "" : " Only admins can change this."}</p></section>
+        ${myRank() >= 2 ? `<section class="sec"><div class="sec-head"><h2>Listings refresh</h2></div>
+        <p class="hint" style="max-width:62ch">The data was last updated ${esc(fmtPartial((D.meta.generated || "").slice(0, 10)))}. Two scheduled Claude routines keep it current:
+          <b>Billd weekly refresh</b> (Mondays: Ticketmaster and re-checking every listing and cast list) and
+          <b>Billd monthly refresh</b> (the 1st: research for newly announced shows and casts). Open them in Claude Code to run one now, change its schedule or pause it.</p>
+        <p style="margin-top:10px"><a class="btn sm" href="https://claude.ai/code" target="_blank" rel="noopener">Open routines in Claude Code</a></p></section>` : ""}`;
       $("#adm-appr").addEventListener("change", async (e) => {
         try { await S.setSetting("require_approval", e.target.checked); toast(e.target.checked ? "New members now need approval" : "New members can post straight away"); }
         catch (err) { e.target.checked = !e.target.checked; toast(err.message); }
