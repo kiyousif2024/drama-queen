@@ -255,7 +255,29 @@
 
   // ---------------------------------------------------------------- routing
   const pageEl = () => $("#page");
-  let lastRoute = "";
+  let lastRoute = null;
+  const navStack = [], scrollAt = {};
+  // "‹ Back" to the page the visitor came from in Billd, named; a page opened directly goes to fallback
+  function backLink(fallback = "#/onstage", fallbackName = "On stage now") {
+    const prev = navStack.length > 1 ? navStack[navStack.length - 2] : null;
+    const name = prev == null ? fallbackName : routeName(prev);
+    return `<a class="back" href="${prev == null ? fallback : "#" + esc(prev)}" data-back="${prev == null ? "" : "1"}">‹ ${esc(name)}</a>`;
+  }
+  function routeName(h) {
+    const [a, b] = h.replace(/^\//, "").split("/").map((x) => { try { return decodeURIComponent(x); } catch (e) { return x; } });
+    if (!a) return "Home";
+    if (a === "onstage") return b && places[b] ? `On stage in ${places[b].name}` : "On stage now";
+    if (a === "browse") return "Shows";
+    if (a === "play") return byId[b]?.title || "Back";
+    if (a === "u") return `@${b}`;
+    return { activity: "Activity", lists: "Lists", members: "Members", me: "My diary", list: "List", review: "Review" }[a] || "Back";
+  }
+  document.addEventListener("click", (e) => {
+    const a = e.target.closest("a[data-back='1']");
+    if (!a || e.metaKey || e.ctrlKey || e.shiftKey) return;
+    e.preventDefault();
+    history.back();
+  });
   // Pages load members' data asynchronously; each render checks, after every wait, that the
   // visitor hasn't moved on, so a slow page never draws over the one now showing.
   let routeSeq = 0;
@@ -291,8 +313,17 @@
     $$(".tabbar a").forEach((x) => { if (x.dataset.tab === tab) x.setAttribute("aria-current", "page"); else x.removeAttribute("aria-current"); });
     const key = h;
     const sameView = key === lastRoute;
+    // where the visitor came from, so a page can offer "‹ Back" to it, and the scroll position to
+    // return to: going back to the previous page restores both, its filters included
+    let restore = null;
+    if (!sameView) {
+      scrollAt[lastRoute] = window.scrollY;
+      if (navStack.length > 1 && navStack[navStack.length - 2] === key) { navStack.pop(); restore = scrollAt[key]; }
+      else navStack.push(key);
+    }
     lastRoute = key;
-    if (isBrowse) { applyBrowse(); document.title = "Shows · Billd"; return; }
+    const settle = () => { if (restore != null && !stale(tok)) requestAnimationFrame(() => window.scrollTo(0, restore)); };
+    if (isBrowse) { applyBrowse(); document.title = "Shows · Billd"; if (restore != null) settle(); else if (!sameView) window.scrollTo(0, 0); return; }
     if (!sameView) window.scrollTo(0, 0);
     const go = {
       "": renderHome, onstage: () => renderOnStage(b), play: () => renderPlay(b), u: () => renderProfile(b, c), me: renderMe,
@@ -300,7 +331,7 @@
       activity: () => renderActivity(b), settings: renderSettings, about: renderAbout, admin: () => renderAdmin(b),
       credits: renderCredits, copyright: renderCopyright,
     }[a || ""] || renderNotFound;
-    Promise.resolve(go()).catch((e) => { console.error(e); if (stale(tok)) return; pageEl().innerHTML = `<div class="wrap"><p class="empty">Something went wrong: ${esc(e.message)}</p></div>`; });
+    Promise.resolve(go()).then(settle).catch((e) => { console.error(e); if (stale(tok)) return; pageEl().innerHTML = `<div class="wrap"><p class="empty">Something went wrong: ${esc(e.message)}</p></div>`; });
   }
   window.addEventListener("hashchange", route);
   function renderNotFound() {
@@ -427,14 +458,20 @@
     pageEl().innerHTML = `<div class="wrap" style="padding-top:30px">
       <h1 class="h1">On stage ${sel ? `in ${esc(places[sel]?.name)}` : "now"}</h1>
       <p class="count" style="margin:8px 0 18px">${plural(playing.length, "show")} playing${soon.length ? `, ${soon.length} coming soon` : ""}. From the theatres' listings and Ticketmaster, checked in the last ${STALE_DAYS} days.</p>
-      <div class="cities" role="group" aria-label="City">
-        <a class="chip" href="#/onstage" aria-pressed="${!sel}">Everywhere <small>${now.length}</small></a>
-        ${cities.map((p) => `<a class="chip" href="#/onstage/${encodeURIComponent(p)}" aria-pressed="${p === sel}">${esc(places[p]?.name || p)} <small>${counts[p]}</small></a>`).join("")}
-      </div>
+      <label class="city-pick"><span>City</span>
+        <select id="city-pick" aria-label="City">
+          <option value="" ${sel ? "" : "selected"}>Everywhere (${now.length})</option>
+          <optgroup label="Most shows">${cities.slice(0, 8).map((p) => `<option value="${esc(p)}" ${p === sel ? "selected" : ""}>${esc(places[p]?.name || p)} (${counts[p]})</option>`).join("")}</optgroup>
+          <optgroup label="All cities, A–Z">${cities.slice().sort((x, y) => (places[x]?.name || x).localeCompare(places[y]?.name || y)).map((p) => `<option value="${esc(p)}">${esc(places[p]?.name || p)} (${counts[p]})</option>`).join("")}</optgroup>
+        </select></label>
       <section class="sec"><div class="sec-head"><h2>Playing now</h2></div><div class="grid">${playing.map((w) => cell(w, `<div class="cell-cap">${esc(nowWhere(w))}</div>`)).join("") || `<p class="empty">Nothing listed.</p>`}</div></section>
       ${soon.length ? `<section class="sec"><div class="sec-head"><h2>Coming soon</h2></div><div class="grid">${soon.map((w) => cell(w, `<div class="cell-cap">${esc(soonWhen(w))}</div>`)).join("")}</div></section>` : ""}
     </div>`;
   }
+  document.addEventListener("change", (e) => {
+    if (e.target.id !== "city-pick") return;
+    location.hash = e.target.value ? `#/onstage/${encodeURIComponent(e.target.value)}` : "#/onstage";
+  });
   function soonWhen(w) {
     const r = w._runs.filter((x) => x.st === "soon").sort((a, b) => (a.from || "").localeCompare(b.from || ""))[0];
     return r ? `${fmtPartial(r.from)} · ${places[r.place]?.name || ""}` : "";
@@ -736,7 +773,7 @@
     if (!w) return renderNotFound();
     document.title = `${w.title} · Billd`;
     const draw = () => {
-      pageEl().innerHTML = `<div class="wrap"><article class="play">
+      pageEl().innerHTML = `<div class="wrap">${backLink()}<article class="play">
         <div class="play-poster">${poster(w)}${imageCredit(w)}</div>
         <div class="play-main">
           <header class="play-head">
