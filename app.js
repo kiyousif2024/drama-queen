@@ -189,11 +189,11 @@
   }
 
   // ---------------------------------------------------------------- posters
-  const PALETTE = [
-    ["#6d1f2b", "#f6ead6", "#f0b93f"], ["#1f3a5f", "#f2ece0", "#e9b949"], ["#1f4a3d", "#efe8d8", "#e7c56a"],
-    ["#e9dfc8", "#1d1813", "#a3282e"], ["#3f2547", "#f4e9f0", "#f0b93f"], ["#b5452f", "#fbf1e4", "#1d1813"],
-    ["#16494d", "#eef3ef", "#f0b93f"], ["#2a2724", "#f3ede4", "#e04f5f"], ["#c9962c", "#1d1404", "#1d1404"],
-    ["#5b5f2a", "#f4f0dc", "#f6d36b"], ["#0f2e3a", "#f6efe2", "#ef8f5a"], ["#7a3b5c", "#fbeef3", "#f6d36b"],
+  const PALETTE = [  // [cover, type, brass]: deep jewel programme covers, each with a brass or ink accent
+    ["#6d1726", "#fbf1dc", "#e3c27a"], ["#1d3d5c", "#f6efe2", "#e3c27a"], ["#1f5f5b", "#f2ece0", "#e9c97a"],
+    ["#3b3a7a", "#f4ecf6", "#e3c27a"], ["#7a3a12", "#fbf1e4", "#f0d48c"], ["#245a3a", "#eef3e6", "#e9c97a"],
+    ["#4a1420", "#f6ead6", "#d9a84a"], ["#2a2f45", "#f2ece0", "#e3c27a"], ["#a87a22", "#24170a", "#24170a"],
+    ["#5b2a3a", "#fbeef3", "#f0d48c"], ["#5a4a2a", "#f6f0dc", "#f0d48c"], ["#16494d", "#eef3ef", "#e3c27a"],
   ];
   // tag "span" when the poster sits inside another link (a list row, a list card): links can't nest
   function poster(w, { badge = true, cls = "", tag = "a" } = {}) {
@@ -1613,15 +1613,30 @@
       const favs = (p.favorites || []).map((id) => byId[id]);
       // diary entries and shows marked seen without one, newest first, each play once
       const loggedPlays = new Set(logs.map((l) => l.play_id));
-      const recent = logs.map((l) => ({ ...l, when: l.seen_on || l.created_at.slice(0, 10), at: l.created_at }))
+      const recent = logs.map((l) => ({ ...l, _log: true, when: l.seen_on || l.created_at.slice(0, 10), at: l.created_at }))
         .concat(seen.filter((s) => !loggedPlays.has(s.play_id)).map((s) => ({ ...s, when: (s.updated_at || "").slice(0, 10), at: s.updated_at || "" })))
         .filter((x) => byId[x.play_id])
         .sort((a, b) => b.when.localeCompare(a.when) || String(b.at).localeCompare(String(a.at)));
-      body = `<section class="sec"><div class="sec-head"><h2>Favourite shows</h2>${mine ? `<button type="button" id="edit-favs">Edit</button>` : ""}</div>
+      const onStage = want.map((s) => byId[s.play_id]).filter((w) => w && w._now).slice(0, 4);
+      const critics = following.slice(0, 4);
+      const lines = critics.length ? await Promise.all(critics.map((c) => S.logsForUser(c.id, { limit: 40 }).catch(() => []))) : [];
+      if (stale(tok)) return;
+      const thisYear = logs.filter((l) => (l.seen_on || l.created_at).startsWith(String(THIS_YEAR)));
+      const rated = thisYear.filter((l) => l.rating);
+      const venues = new Set(thisYear.map((l) => (l.venue || "").trim().toLowerCase()).filter(Boolean));
+      const aside = `${onStage.length ? `<section class="sec"><div class="sec-head"><h2>${mine ? "Tickets to get" : "Wants to see"}</h2><a href="${base}/want">All →</a></div>
+          <ul class="stubs">${onStage.map(stubHTML).join("")}</ul></section>` : ""}
+        ${critics.length ? `<section class="sec"><div class="sec-head"><h2>${mine ? "Critics I follow" : "Follows"}</h2><a href="${base}/following">All →</a></div>
+          <ul class="critics">${critics.map((c, i) => criticHTML(c, lines[i], fset)).join("")}</ul></section>` : ""}
+        <div class="season-card"><b>${mine ? "Your" : who(p) + "’s"} ${THIS_YEAR} season</b><p>${plural(thisYear.length, "show")}${venues.size ? ` · ${plural(venues.size, "theatre")}` : ""}${rated.length ? ` · ${(rated.reduce((a, l) => a + l.rating, 0) / rated.length / 2).toFixed(1)}★ average` : ""}</p>
+          <a class="btn brass sm" href="${base}/diary">Open the diary</a></div>`;
+      body = `<div class="prof-cols"><div>
+        <section class="sec"><div class="sec-head"><h2>Recently in the diary</h2><a href="${base}/diary">Diary →</a></div>
+          ${recent.length ? `<div class="scraps">${recent.slice(0, 8).map((l) => scrapHTML(l, mine)).join("")}</div>` : `<p class="empty">${mine ? `Nothing logged yet. <button class="linkbtn" type="button" data-log>Log the last show you saw.</button>` : "Nothing logged yet."}</p>`}</section>
+        <section class="sec"><div class="sec-head"><h2>Favourite shows</h2>${mine ? `<button type="button" id="edit-favs">Edit</button>` : ""}</div>
           <div class="favs">${[0, 1, 2, 3].map((i) => favs[i] ? `<div>${poster(favs[i], { badge: false })}</div>` : `<div class="fav-empty">${mine ? "Pick a favourite in Edit profile" : ""}</div>`).join("")}</div></section>
-        <section class="sec"><div class="sec-head"><h2>Recent activity</h2><a href="${base}/diary">Diary →</a></div>
-          ${recent.length ? `<div class="grid dense">${recent.slice(0, 8).map((l) => cell(byId[l.play_id], `<div class="cell-meta">${l.rating ? `<span class="stars">${stars(l.rating)}</span>` : ""}${l.liked ? `<span class="heart">♥</span>` : ""}${l.review ? `<span title="Reviewed">≡</span>` : ""}</div>`)).join("")}</div>` : `<p class="empty">${mine ? `Nothing logged yet. <button class="linkbtn" type="button" data-log>Log the last show you saw.</button>` : "Nothing logged yet."}</p>`}</section>
-        ${logs.some((l) => l.review) ? `<section class="sec"><div class="sec-head"><h2>Recent reviews</h2><a href="${base}/reviews">All →</a></div><ul class="reviews">${logs.filter((l) => l.review).slice(0, 3).map((l) => reviewHTML(l)).join("")}</ul></section>` : ""}`;
+        ${logs.some((l) => l.review) ? `<section class="sec"><div class="sec-head"><h2>Recent reviews</h2><a href="${base}/reviews">All →</a></div><ul class="reviews">${logs.filter((l) => l.review).slice(0, 3).map((l) => reviewHTML(l)).join("")}</ul></section>` : ""}
+        </div><aside aria-label="Tickets, critics and season">${aside}</aside></div>`;
     } else if (tab === "diary") {
       body = diaryHTML(logs, mine);
     } else if (tab === "reviews") {
@@ -1635,15 +1650,15 @@
       const ps = tab === "following" ? following : followers;
       body = ps.length ? `<ul class="members">${ps.map((m) => memberHTML(m, fset)).join("")}</ul>` : `<p class="empty">${tab === "following" ? "Not following anyone yet." : "No followers yet."}</p>`;
     }
-    pageEl().innerHTML = `<div class="wrap">
+    pageEl().innerHTML = `<div class="prof-mast"><div class="wrap">
       <header class="prof">${avatar(p, "lg")}
-        <div class="prof-main"><h1>${who(p)}</h1><div class="handle">@${esc(p.username)}${S.kind === "local" ? " · saved on this device" : ""} ${roleBadge(p.id)}</div>${p.bio ? `<p class="bio">${esc(p.bio)}</p>` : ""}
+        <div class="prof-main"><h1>${who(p)}’s Show Diary</h1><div class="handle">@${esc(p.username)}${S.kind === "local" ? " · saved on this device" : ""} ${roleBadge(p.id)}</div>${p.bio ? `<p class="bio">${esc(p.bio)}</p>` : ""}
           <div style="margin-top:12px;display:flex;gap:8px;flex-wrap:wrap">${mine ? `<a class="btn ghost sm" href="#/settings">Edit profile</a>` : S.kind !== "local" ? `<button class="btn sm${fset.has(p.id) ? " on" : ""}" type="button" data-follow="${p.id}" data-on="${fset.has(p.id)}">${fset.has(p.id) ? "Following" : "Follow"}</button>` : ""}
             ${!mine && me && S.kind !== "local" ? (outranks(p.id) ? `<button class="btn ghost sm" type="button" data-manage="${p.id}">Manage</button>` : `<button class="btn ghost sm" type="button" data-report="profile:${p.id}">Report</button>`) : ""}
             <button class="btn ghost sm" type="button" id="share-prof">Share</button></div></div>
         <div class="prof-stats"><a href="${base}/seen"><b>${seen.length.toLocaleString()}</b><span>Shows</span></a><a href="${base}/diary"><b>${year.toLocaleString()}</b><span>This year</span></a><a href="${base}/lists"><b>${lists.length}</b><span>Lists</span></a>
           ${S.kind !== "local" ? `<a href="${base}/following"><b>${following.length}</b><span>Following</span></a><a href="${base}/followers"><b>${followers.length}</b><span>Followers</span></a>` : ""}</div>
-      </header>
+      </header></div></div><div class="wrap">
       <nav class="tabs" aria-label="Profile">${tabs.map(([k, n]) => `<a href="${base}${k ? "/" + k : ""}"${k === (tab || "") ? ' aria-current="page"' : ""}>${n}</a>`).join("")}</nav>
       ${body}</div>`;
     $('.tabs a[aria-current="page"]')?.scrollIntoView({ inline: "center", block: "nearest" });
@@ -1651,22 +1666,50 @@
     $("#edit-favs")?.addEventListener("click", () => editProfile());
     $("#new-list2")?.addEventListener("click", () => editList(null));
   }
+  // A diary entry as a programme pasted into a scrapbook: the cover, the night, the stars and the
+  // member's own words in pen. Works for a log and for a show marked seen without one.
+  function scrapHTML(l, mine) {
+    const w = byId[l.play_id];
+    const d = l.seen_on || (l.created_at || "").slice(0, 10) || l.when || "";
+    const dt = /^\d{4}-\d{2}-\d{2}$/.test(d) ? new Date(d + "T12:00:00Z") : null;
+    const day = dt ? `${["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"][dt.getUTCDay()]} ${dt.getUTCDate()} ${MONTHS[dt.getUTCMonth()]}` : "";
+    const note = (l.review || "").trim().replace(/\s+/g, " ");
+    const isLog = !!l._log || "seen_on" in l;
+    return `<article class="scrap"><a href="${playUrl(l.play_id)}" aria-label="${esc(w?.title || l.play_title || "")}">${w ? poster(w, { tag: "span", badge: false }) : ""}</a>
+      <div class="scrap-meta">${day ? `<time datetime="${esc(d)}">${esc(day)}</time>` : "<span></span>"}${l.rating ? `<span class="stars" aria-label="${starsLabel(l.rating)}">${stars(l.rating)}</span>` : ""}</div>
+      ${note ? `<p class="scrap-note"><a href="#/review/${esc(l.id)}">${esc(note.length > 110 ? note.slice(0, 108).trimEnd() + "…" : note)}</a></p>` : ""}
+      ${l.venue ? `<p class="scrap-venue">${esc(l.venue)}</p>` : ""}
+      <div class="scrap-foot">${l.liked ? `<span class="heart" title="Liked" aria-label="Liked">♥</span>` : ""}${l.rewatch ? `<span title="Seen before" aria-label="Seen before">↻</span>` : ""}${note ? `<a href="#/review/${esc(l.id)}">Review</a>` : ""}${mine && isLog && l.id ? `<button class="end" type="button" data-edit-log="${esc(l.id)}" aria-label="Edit entry">✎</button>` : ""}</div></article>`;
+  }
+  // A show on the want-to-see list that is on stage: a ticket stub dated by its closing or opening night
+  function stubHTML(w) {
+    const rs = w._runs.filter((r) => r.st);
+    const soon = w._now === "soon";
+    const d = soon ? rs.map((r) => r.from).filter((x) => x && x.length === 10).sort()[0] : rs.map((r) => r.to).filter((x) => x && x.length === 10).sort().pop();
+    const dt = d ? new Date(d + "T12:00:00Z") : null;
+    const block = dt ? `<span>${soon ? "Opens" : "Until"}</span><b>${dt.getUTCDate()}</b><span>${MONTHS[dt.getUTCMonth()]}</span>` : `<span>On</span><b>now</b>`;
+    return `<li class="stub"><div class="stub-d">${block}</div><div class="stub-i"><h3><a href="${playUrl(w.id)}">${esc(w.title)}</a></h3><p>${esc(nowWhere(w))}</p>
+      <a class="btn ghost sm" href="${playUrl(w.id)}">Tickets →</a></div></li>`;
+  }
+  function criticHTML(c, logs, fset) {
+    const last = (logs || []).find((l) => l.review);
+    const line = last ? last.review.trim().replace(/\s+/g, " ") : "";
+    return `<li class="critic">${avatar(c)}<div class="critic-i"><a href="#/u/${esc(c.username)}">${who(c)}</a><small>${plural((logs || []).length, "diary entry", "diary entries")}</small>
+      ${line ? `<q>${esc(line.length > 60 ? line.slice(0, 58).trimEnd() + "…" : line)}</q>` : ""}</div>
+      ${me && c.id !== me.id ? `<button class="btn ghost sm${fset.has(c.id) ? " on" : ""}" type="button" data-follow="${c.id}" data-on="${fset.has(c.id)}">${fset.has(c.id) ? "Following" : "Follow"}</button>` : ""}</li>`;
+  }
   function diaryHTML(logs, mine) {
     if (!logs.length) return `<p class="empty">The diary is empty.${mine ? ` <button class="linkbtn" type="button" data-log>Log a show</button>` : ""}</p>`;
-    const sorted = [...logs].sort((a, b) => (b.seen_on || b.created_at.slice(0, 10)).localeCompare(a.seen_on || a.created_at.slice(0, 10)));
-    let lastMonth = "", rows = "";
+    const dOf = (l) => l.seen_on || l.created_at.slice(0, 10);
+    const sorted = [...logs].sort((a, b) => dOf(b).localeCompare(dOf(a)));
+    const months = [];
     for (const l of sorted) {
-      const d = l.seen_on || l.created_at.slice(0, 10);
-      const m = d.slice(0, 7);
-      const w = byId[l.play_id];
-      rows += `<tr><td class="mon">${m !== lastMonth ? `${MONTHS[+d.slice(5, 7) - 1]} ${d.slice(0, 4)}` : ""}</td><td class="day">${+d.slice(8, 10)}</td>
-        <td class="t"><a href="${playUrl(l.play_id)}">${esc(w?.title || l.play_title)}</a>${w && fmtDate(w) ? `<small>${esc(fmtDate(w))}</small>` : ""}${l.venue ? `<small>${esc(l.venue)}</small>` : ""}</td>
-        <td class="stars">${stars(l.rating)}</td><td class="heart">${l.liked ? "♥" : ""}</td><td class="hide-sm">${l.rewatch ? "↻" : ""}</td>
-        <td>${l.review ? `<a href="#/review/${l.id}" title="Read review" aria-label="Read review">≡</a>` : ""}</td>
-        <td>${mine ? `<button class="icon-btn" type="button" data-edit-log="${l.id}" aria-label="Edit entry">✎</button>` : ""}</td></tr>`;
-      lastMonth = m;
+      const m = dOf(l).slice(0, 7);
+      if (!months.length || months[months.length - 1].m !== m) months.push({ m, logs: [] });
+      months[months.length - 1].logs.push(l);
     }
-    return `<div class="diary-wrap"><table class="diary"><thead><tr><th>Month</th><th>Day</th><th>Show</th><th>Rating</th><th><span class="vh">Liked</span></th><th class="hide-sm"><span class="vh">Seen before</span></th><th><span class="vh">Review</span></th><th></th></tr></thead><tbody>${rows}</tbody></table></div>`;
+    return months.map(({ m, logs: ls }) => `<h2 class="month">${new Date(m + "-15T12:00:00Z").toLocaleDateString("en-GB", { month: "long", year: "numeric", timeZone: "UTC" })} <small>${plural(ls.length, "show")}</small></h2>
+      <div class="scraps">${ls.map((l) => scrapHTML(l, mine)).join("")}</div>`).join("");
   }
   function memberHTML(m, fset) {
     const isMe = me && m.id === me.id;
@@ -1736,14 +1779,14 @@
   // ---------------------------------------------------------------- settings
   function renderSettings() {
     document.title = "Settings · Billd";
-    let theme = "dark"; try { theme = localStorage.getItem("billd-theme") || "dark"; } catch (e) { /* default */ }
+    let theme = "light"; try { theme = localStorage.getItem("billd-theme") || "light"; } catch (e) { /* default */ }
     const local = S.local && S.kind !== "local" && S.local.isLocalData();
     pageEl().innerHTML = `<div class="wrap" style="padding-top:30px;max-width:720px"><h1 class="h1">Settings</h1>
       ${me ? `<section class="sec"><div class="sec-head"><h2>Profile</h2></div><button class="btn ghost" type="button" id="st-prof">Edit profile and favourites</button></section>` : ""}
       ${myRank() ? `<section class="sec"><div class="sec-head"><h2>Billd team</h2></div><p class="hint" style="margin-bottom:10px">You're ${myRank() === 1 ? "a moderator" : myRank() === 2 ? "an admin" : "the owner"}.</p><a class="btn ghost" href="#/admin">Open Admin</a></section>` : ""}
       ${canInstall() ? `<section class="sec"><div class="sec-head"><h2>The app</h2></div><p class="hint" style="margin-bottom:10px">Put Billd on your home screen and open it like an app.</p><button class="btn ghost" type="button" data-install>Install the app</button></section>` : ""}
       <section class="sec"><div class="sec-head"><h2>Appearance</h2></div>
-        <div class="seg" role="radiogroup" aria-label="Theme">${[["dark", "Dark"], ["light", "Light"]].map(([k, n]) => `<button type="button" role="radio" data-theme-set="${k}" aria-selected="${theme === k}" aria-checked="${theme === k}">${n}</button>`).join("")}</div></section>
+        <div class="seg" role="radiogroup" aria-label="Theme">${[["light", "Programme (light)"], ["dark", "Velvet (dark)"]].map(([k, n]) => `<button type="button" role="radio" data-theme-set="${k}" aria-selected="${theme === k}" aria-checked="${theme === k}">${n}</button>`).join("")}</div></section>
       ${local && me ? `<section class="sec"><div class="sec-head"><h2>Diary saved on this device</h2></div><p>This device has shows you logged before you had an account. <button class="btn sm" type="button" id="st-import">Move them to my account</button></p></section>` : ""}
       ${me && S.kind !== "local" ? `<section class="sec" id="st-sugg" hidden></section>` : ""}
       <section class="sec"><div class="sec-head"><h2>Your data</h2></div><p class="hint" style="margin-bottom:10px">Download everything you've logged, rated, reviewed and listed, as a JSON file.</p><button class="btn ghost" type="button" id="st-export"${me ? "" : " disabled"}>Download my data</button></section>
