@@ -111,7 +111,9 @@
   function listingStatus(checked, from, to) {
     if (!checked) return null;
     if ((Date.parse(TODAY) - Date.parse(checked)) / 864e5 > STALE_DAYS) return null;
-    if (to && to.length === 10 && to < TODAY) return null;
+    // a closing date may be a year or a month ("2000", "2026-08"): compare it at its own precision
+    if (to && to < TODAY.slice(0, to.length)) return null;
+    if (!to && from && from.length < 10 && from < TODAY.slice(0, from.length)) return null;
     if (from && from.length === 10 && from > TODAY) return "soon";
     return "now";
   }
