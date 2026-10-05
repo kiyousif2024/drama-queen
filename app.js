@@ -855,7 +855,7 @@
       const more = (r.links || []).filter(([, url]) => safeUrl(url)).map(([seller, url]) => `<a class="btn ghost sm" href="${esc(aff(url, seller))}" target="_blank" rel="noopener nofollow sponsored">${SELLER[seller] || "Tickets"}</a>`).join("");
       const tickets = main || more ? `<div class="np-buy">${main}${more}</div>` : "";
       return `<li><div><div class="np-where"><strong>${where || "Venue to be announced"}</strong>${r.district ? ` <span class="badge dist">${esc(r.district)}</span>` : ""}</div>
-        <div class="np-when">${esc(when + until)}</div></div>${tickets}<small class="np-src">Listing checked ${esc(fmtPartial(r.checked))}. Check with the seller for dates and prices.</small></li>`;
+        <div class="np-when">${esc(when + until)}</div></div>${tickets}${whoIsInIt(p, r)}<small class="np-src">Listing checked ${esc(fmtPartial(r.checked))}. Check with the seller for dates and prices.</small></li>`;
     });
     // the current production's artwork, from Ticketmaster: shown here, beside its tickets, and nowhere else
     const art = w.artwork && safeUrl(w.artwork[0]) ? `<figure class="np-art"><img src="${esc(safeUrl(w.artwork[0]))}" alt="Artwork for this production of ${esc(w.title)}" loading="lazy" referrerpolicy="no-referrer">
@@ -863,6 +863,22 @@
     return `<section class="nowp" aria-label="On stage now"><h2>${rows.some((x) => x.st === "now") ? "On stage now" : "Coming soon"}</h2>${art}<ul>${items.join("")}</ul>
       ${Object.keys(CFG.affiliates || {}).length ? `<p class="src">Billd may earn a commission when you buy tickets through these links.</p>` : ""}
       ${safeUrl(w.ids?.website) ? `<p class="src"><a href="${esc(safeUrl(w.ids.website))}" target="_blank" rel="noopener nofollow">Official website</a></p>` : ""}</section>`;
+  }
+  // who is in this production: its director(s) and cast, parts where known; the rest of a long
+  // cast folds away. Names search Billd for that person, like the playwrights' names.
+  function whoIsInIt(p, r) {
+    const current = (p.credits || []).some((c) => c.since && (c.role === "cast" || c.role === "director"));
+    const since = current ? (p.credits.find((c) => c.since)?.since || "") : "";
+    const cr = (role) => (p.credits || []).filter((c) => c.role === role && (current ? !!c.since || (role === "director" && !p.credits.some((x) => x.since && x.role === "director")) : !c.since))
+      .map((c) => ({ name: c.person ? ppl[c.person]?.name : orgs[c.org]?.name, part: c.character })).filter((x) => x.name);
+    // a run that opened over a year ago without a current cast list: its credits are the original company
+    const original = !current && r?.from && r.from.slice(0, 10) < new Date(Date.now() - 365 * 864e5).toISOString().slice(0, 10);
+    const castLabel = current ? `Cast <small>as of ${esc(fmtPartial(since.slice(0, 7)))}</small>` : original ? "Original cast" : "Cast";
+    const one = (x) => `<button class="linkbtn" type="button" data-person="${esc(x.name)}">${esc(x.name)}</button>${x.part ? ` <span class="np-part">as ${esc(x.part)}</span>` : ""}`;
+    const dirs = cr("director"), cast = cr("cast"), SHOW = 6;
+    if (!dirs.length && !cast.length) return "";
+    return `<div class="np-cast">${dirs.length ? `<div><span class="np-l">Directed by</span> ${dirs.map(one).join(", ")}</div>` : ""}${cast.length ? `<div><span class="np-l">${castLabel}</span> ${cast.slice(0, SHOW).map(one).join(", ")}${cast.length > SHOW
+      ? `<details class="np-more"><summary>and ${cast.length - SHOW} more</summary>, ${cast.slice(SHOW).map(one).join(", ")}</details>` : ""}</div>` : ""}</div>`;
   }
   function factsHTML(w) {
     const grouped = [];
@@ -958,10 +974,10 @@
   function prodItemHTML(w, p) {
     const kindLabel = { premiere: "World premiere", revival: "Revival", tour: "Tour", transfer: "Transfer" };
     const srcName = { wikipedia: "Wikipedia", idu: "IDU open data (CC BY 4.0)", web: "Source page", ticketmaster: "Ticketmaster", kunstenpunt: "Kunstenpunt", theaterencyclopedie: "TheaterEncyclopedie (CC0)", member: "Suggested by a member, checked against this page" };
-    const by = (role) => p.credits.filter((c) => c.role === role);
+    const by = (role) => p.credits.filter((c) => c.role === role && !c.since);
     const name = (c) => esc(c.person ? (ppl[c.person]?.name || c.person) : (orgs[c.org]?.name || c.org));
     const line = (label, list) => list.length ? `<div class="pc"><span class="pc-l">${label}</span> ${list.map(name).join(", ")}</div>` : "";
-    const cast = by("cast");
+    const cast = by("cast"), curCast = p.credits.filter((c) => c.role === "cast" && c.since);
     const shownCast = cast.slice(0, 8).map((c) => name(c) + (c.character ? ` <small>as ${esc(c.character)}</small>` : ""));
     const others = ["designer", "composer", "choreographer", "translator", "adapter"].flatMap((r) => by(r).map((c) => `${name(c)} <small>(${r})</small>`));
     const pl = p.language && p.language !== w.languages[0] ? (lang[p.language]?.name || p.language) : "";
@@ -973,7 +989,8 @@
         return `<li class="run"><span class="run-date">${r.certain === false ? "c. " : ""}${esc(date)}</span><span>${where}${r.district ? ` <span class="badge dist">${esc(r.district)}</span>` : ""}</span></li>`;
       }).join("")}</ul>
       ${line("Company", by("company"))}${line("Producer", by("producer"))}${line("Director", by("director"))}
-      ${cast.length ? `<div class="pc"><span class="pc-l">Cast</span> ${shownCast.join(", ")}${cast.length > 8 ? `, and ${cast.length - 8} more` : ""}</div>` : ""}
+      ${cast.length ? `<div class="pc"><span class="pc-l">${curCast.length ? "Original cast" : "Cast"}</span> ${shownCast.join(", ")}${cast.length > 8 ? `, and ${cast.length - 8} more` : ""}</div>` : ""}
+      ${curCast.length ? `<div class="pc"><span class="pc-l">Cast as of ${esc(fmtPartial(curCast[0].since.slice(0, 7)))}</span> ${curCast.slice(0, 8).map((c) => name(c) + (c.character ? ` <small>as ${esc(c.character)}</small>` : "")).join(", ")}${curCast.length > 8 ? `, and ${curCast.length - 8} more` : ""}</div>` : ""}
       ${others.length ? `<div class="pc"><span class="pc-l">Also</span> ${others.join(", ")}</div>` : ""}
       ${p.notes ? `<p class="prod-notes">${esc(p.notes)}</p>` : ""}
       <div class="prod-src">${safeUrl(p.citation) ? `<a href="${esc(safeUrl(p.citation))}" target="_blank" rel="noopener">${srcName[p.source] || "Source"}</a>` : esc(srcName[p.source] || p.source)}${p.ids?.wikidata ? ` · <a href="https://www.wikidata.org/wiki/${esc(p.ids.wikidata)}" target="_blank" rel="noopener">Wikidata</a>` : ""}</div>
