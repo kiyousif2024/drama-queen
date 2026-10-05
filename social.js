@@ -13,7 +13,7 @@
 "use strict";
 (function () {
   const cfg = (window.DQ_CONFIG || {}).supabase || null;
-  const SUPABASE_JS = "https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.117.2/dist/umd/supabase.min.js";
+  const SUPABASE_JS = "supabase.js";  // @supabase/supabase-js 2.117.2 (dist/umd), served with the site rather than from a CDN
   const USERNAME = /^[a-z0-9_]{3,20}$/;
   // each backend has its own listeners, so clearing the device's preview diary after moving it
   // to an account doesn't announce the local "you" as the signed-in member

@@ -3,6 +3,8 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src https://fonts.gstatic.com; img-src 'self' data: https:; connect-src 'self' https://*.supabase.co wss://*.supabase.co https://api.web3forms.com; object-src 'none'; base-uri 'none'; form-action 'self'">
+<meta name="referrer" content="strict-origin-when-cross-origin">
 <title>Billd</title>
 <meta name="description" content="Billd: keep a diary of the plays and musicals you see, rate and review them, find what's on stage now, and follow friends.">
 <meta name="theme-color" content="#131015">
@@ -17,10 +19,7 @@
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,400;0,9..144,600;0,9..144,800;1,9..144,500;1,9..144,800&family=Instrument+Sans:wght@400;500;600;700&family=Oswald:wght@500;700&display=swap">
 <link rel="stylesheet" href="app.css">
-<script>
-  // the theme before first paint (a per-viewer preference)
-  try { const t = localStorage.getItem("billd-theme"); if (t === "light" || t === "dark") document.documentElement.dataset.theme = t; } catch (e) { /* storage blocked */ }
-</script>
+<script src="theme.js"></script>
 </head>
 <body>
 <a class="skip" href="#main">Skip to content</a>

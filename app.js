@@ -7,12 +7,16 @@
   const $ = (s, r = document) => r.querySelector(s);
   const $$ = (s, r = document) => [...r.querySelectorAll(s)];
   const esc = (s) => String(s ?? "").replace(/[&<>"']/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]));
+  // a link from data (scraped, researched or sent by a member) is used only if it is http(s)
+  const safeUrl = (u) => (/^https?:\/\//i.test(String(u ?? "").trim()) ? String(u).trim() : "");
   const fold = (s) => String(s ?? "").normalize("NFKD").replace(/[̀-ͯ]/g, "").toLowerCase();
   const S = window.BilldSocial;
   const CFG = window.DQ_CONFIG || {};
 
-  let D, works = [], byId = {}, trad = {}, reg = {}, lang = {}, ppl = {}, genre = {};
-  let places = {}, venues = {}, orgs = {};
+  // lookups without a prototype, so an id such as "constructor" or "__proto__" finds nothing
+  const dict = () => Object.create(null);
+  let D, works = [], byId = dict(), trad = dict(), reg = dict(), lang = dict(), ppl = dict(), genre = dict();
+  let places = dict(), venues = dict(), orgs = dict();
   let me = null, myStatus = {}, rated = {}, popular = {};
 
   // ---------------------------------------------------------------- formatting
@@ -184,7 +188,7 @@
     const nb = badge && w._now ? `<span class="p-badge${w._now === "soon" ? " soon" : ""}">${w._now === "now" ? "On now" : "Soon"}</span>` : "";
     // a real picture when there is one (a free Commons image, never a production's artwork); the designed
     // cover stays underneath and shows again if the picture can't load
-    const img = w.image && w.image[1] === "commons" ? `<img class="p-img" src="${esc(w.image[0])}" alt="" loading="lazy" decoding="async" referrerpolicy="no-referrer" onload="billdImg(this)" onerror="this.remove()">` : "";
+    const img = w.image && w.image[1] === "commons" ? `<img class="p-img" src="${esc(safeUrl(w.image[0]))}" alt="" loading="lazy" decoding="async" referrerpolicy="no-referrer">` : "";
     return `<${tag} class="poster ${layout} ${cls}"${tag === "a" ? ` href="${playUrl(w.id)}"` : ""} style="--bg1:${bg};--fg:${fg};--acc:${acc}" aria-label="${esc(t)}${yearOf(w) != null ? ` (${esc(fmtDate(w))})` : ""}">${img}${nb}
       <span class="p-top" aria-hidden="true">${esc(top)}</span>
       <span class="p-title${size}" aria-hidden="true" lang="en">${esc(t)}</span>
@@ -194,11 +198,19 @@
   }
   // A picture replaces the designed cover once it has loaded. A wide one (Ticketmaster's artwork,
   // a landscape photo) sits whole across the top, like a playbill, so its own lettering isn't cut off.
-  window.billdImg = (img) => {
+  function billdImg(img) {
     const p = img.parentNode; if (!p) return;
     p.classList.add("has-img");
     if (img.naturalWidth > img.naturalHeight * 1.05) p.classList.add("wide");
-  };
+  }
+  // load and error don't bubble, so these listen in the capture phase (no inline handlers: the
+  // page's content security policy forbids them)
+  document.addEventListener("load", (e) => { const t = e.target; if (t.matches?.("img.p-img")) billdImg(t); }, true);
+  document.addEventListener("error", (e) => {
+    const t = e.target;
+    if (t.matches?.("img.p-img")) t.remove();
+    else if (t.matches?.(".np-art img")) t.parentNode?.remove();
+  }, true);
   // who made the picture: Commons images need their author and licence; Ticketmaster's are its own
   function imageCredit(w) {
     const im = w.image; if (!im) return "";
@@ -215,7 +227,7 @@
   }
   function creditHTML(credit, license, page) {
     const lic = license ? (licenseLink(license) ? `<a href="${esc(licenseLink(license))}" target="_blank" rel="noopener license">${esc(license)}</a>` : esc(license)) : "";
-    return `${credit ? esc(credit) : "author unknown"}${lic ? `, ${lic}` : ""}, via <a href="${esc(page)}" target="_blank" rel="noopener">Wikimedia Commons</a>`;
+    return `${credit ? esc(credit) : "author unknown"}${lic ? `, ${lic}` : ""}, via <a href="${esc(safeUrl(page) || "https://commons.wikimedia.org/")}" target="_blank" rel="noopener">Wikimedia Commons</a>`;
   }
   // #/credits: every picture on Billd with its author and licence (a poster in a grid has no room for one)
   function renderCredits() {
@@ -291,7 +303,7 @@
     if (/(^|[&#])(access_token|error_description|error_code)=/.test(h)) {
       const q = new URLSearchParams(h.slice(h.search(/(access_token|error)/)));
       const err = q.get("error_description");
-      if (err) toast(err.replace(/\+/g, " ") + ". Try logging in, or ask for a new link.");
+      if (err) toast("That link didn't work (it may have expired). Try logging in, or ask for a new link.");
       const recovery = q.get("type") === "recovery";
       if (recovery) setTimeout(() => toast("Choose a new password below"), 400);
       h = recovery ? "/settings" : "";
@@ -821,7 +833,8 @@
   const SELLER = { todaytix: "TodayTix", broadway_direct: "Broadway Direct" };
   // A ticket link with the affiliate tracking set at publish (CFG.affiliates: seller -> template with {url})
   function aff(url, seller) {
-    seller = seller || (/ticketmaster\./.test(url) ? "ticketmaster" : /todaytix\.com/.test(url) ? "todaytix" : /broadwaydirect\.com/.test(url) ? "broadway_direct" : "");
+    let host = ""; try { host = new URL(url).hostname; } catch (e) { /* not a link */ }
+    seller = seller || (/(^|\.)ticketmaster\.[a-z.]+$/.test(host) ? "ticketmaster" : /(^|\.)todaytix\.com$/.test(host) ? "todaytix" : /(^|\.)broadwaydirect\.com$/.test(host) ? "broadway_direct" : "");
     const t = (CFG.affiliates || {})[seller];
     return t ? t.replace("{url}", encodeURIComponent(url)) : url;
   }
@@ -835,19 +848,19 @@
       const v = venues[r.venue], where = [v?.name, places[r.place]?.name].filter(Boolean).map(esc).join(", ");
       const when = st === "soon" ? `Opens ${fmtPartial(r.from)}` : (r.from && r.from.length >= 7 ? `Since ${fmtPartial(r.from)}` : "Playing now");
       const until = r.to ? ` · until ${fmtPartial(r.to)}` : (st === "now" ? " · open-ended" : "");
-      const main = r.ticket_url ? `<a class="btn sm" href="${esc(aff(r.ticket_url))}" target="_blank" rel="noopener nofollow sponsored">Tickets${/ticketmaster\./.test(r.ticket_url) ? " · Ticketmaster" : ""}</a>`
-        : (v?.website ? `<a class="btn sm" href="${esc(v.website)}" target="_blank" rel="noopener nofollow">Tickets · box office</a>` : "");
-      const more = (r.links || []).map(([seller, url]) => `<a class="btn ghost sm" href="${esc(aff(url, seller))}" target="_blank" rel="noopener nofollow sponsored">${SELLER[seller] || "Tickets"}</a>`).join("");
+      const main = safeUrl(r.ticket_url) ? `<a class="btn sm" href="${esc(aff(safeUrl(r.ticket_url)))}" target="_blank" rel="noopener nofollow sponsored">Tickets${/ticketmaster\./.test(r.ticket_url) ? " · Ticketmaster" : ""}</a>`
+        : (safeUrl(v?.website) ? `<a class="btn sm" href="${esc(safeUrl(v.website))}" target="_blank" rel="noopener nofollow">Tickets · box office</a>` : "");
+      const more = (r.links || []).filter(([, url]) => safeUrl(url)).map(([seller, url]) => `<a class="btn ghost sm" href="${esc(aff(url, seller))}" target="_blank" rel="noopener nofollow sponsored">${SELLER[seller] || "Tickets"}</a>`).join("");
       const tickets = main || more ? `<div class="np-buy">${main}${more}</div>` : "";
       return `<li><div><div class="np-where"><strong>${where || "Venue to be announced"}</strong>${r.district ? ` <span class="badge dist">${esc(r.district)}</span>` : ""}</div>
         <div class="np-when">${esc(when + until)}</div></div>${tickets}<small class="np-src">Listing checked ${esc(fmtPartial(r.checked))}. Check with the seller for dates and prices.</small></li>`;
     });
     // the current production's artwork, from Ticketmaster: shown here, beside its tickets, and nowhere else
-    const art = w.artwork ? `<figure class="np-art"><img src="${esc(w.artwork[0])}" alt="Artwork for this production of ${esc(w.title)}" loading="lazy" referrerpolicy="no-referrer" onerror="this.parentNode.remove()">
-      <figcaption>Artwork via <a href="${esc(aff(w.artwork[1] || "https://www.ticketmaster.com/"))}" target="_blank" rel="noopener nofollow sponsored">Ticketmaster</a></figcaption></figure>` : "";
+    const art = w.artwork && safeUrl(w.artwork[0]) ? `<figure class="np-art"><img src="${esc(safeUrl(w.artwork[0]))}" alt="Artwork for this production of ${esc(w.title)}" loading="lazy" referrerpolicy="no-referrer">
+      <figcaption>Artwork via <a href="${esc(aff(safeUrl(w.artwork[1]) || "https://www.ticketmaster.com/"))}" target="_blank" rel="noopener nofollow sponsored">Ticketmaster</a></figcaption></figure>` : "";
     return `<section class="nowp" aria-label="On stage now"><h2>${rows.some((x) => x.st === "now") ? "On stage now" : "Coming soon"}</h2>${art}<ul>${items.join("")}</ul>
       ${Object.keys(CFG.affiliates || {}).length ? `<p class="src">Billd may earn a commission when you buy tickets through these links.</p>` : ""}
-      ${w.ids?.website ? `<p class="src"><a href="${esc(w.ids.website)}" target="_blank" rel="noopener nofollow">Official website</a></p>` : ""}</section>`;
+      ${safeUrl(w.ids?.website) ? `<p class="src"><a href="${esc(safeUrl(w.ids.website))}" target="_blank" rel="noopener nofollow">Official website</a></p>` : ""}</section>`;
   }
   function factsHTML(w) {
     const grouped = [];
@@ -861,7 +874,7 @@
     const ids = w.ids || {}, links = [];
     if (ids.enwiki) links.push(`<a href="https://en.wikipedia.org/wiki/${encodeURIComponent(ids.enwiki.replace(/ /g, "_"))}" target="_blank" rel="noopener">Wikipedia</a>`);
     if (ids.wikidata) links.push(`<a href="https://www.wikidata.org/wiki/${esc(ids.wikidata)}" target="_blank" rel="noopener">Wikidata</a>`);
-    if (ids.website) links.push(`<a href="${esc(ids.website)}" target="_blank" rel="noopener nofollow">Official website</a>`);
+    if (safeUrl(ids.website)) links.push(`<a href="${esc(safeUrl(ids.website))}" target="_blank" rel="noopener nofollow">Official website</a>`);
     const basis = { written: "written", premiered: "first performed", published: "first published", approximate: "approximate" }[w.date_basis] || "";
     return `<dl class="facts">
       <dt>${grouped.length > 1 ? "People" : "Playwright"}</dt><dd>${pplHTML}</dd>
@@ -961,7 +974,7 @@
       ${cast.length ? `<div class="pc"><span class="pc-l">Cast</span> ${shownCast.join(", ")}${cast.length > 8 ? `, and ${cast.length - 8} more` : ""}</div>` : ""}
       ${others.length ? `<div class="pc"><span class="pc-l">Also</span> ${others.join(", ")}</div>` : ""}
       ${p.notes ? `<p class="prod-notes">${esc(p.notes)}</p>` : ""}
-      <div class="prod-src">${p.citation ? `<a href="${esc(p.citation)}" target="_blank" rel="noopener">${srcName[p.source] || "Source"}</a>` : esc(srcName[p.source] || p.source)}${p.ids?.wikidata ? ` · <a href="https://www.wikidata.org/wiki/${esc(p.ids.wikidata)}" target="_blank" rel="noopener">Wikidata</a>` : ""}</div>
+      <div class="prod-src">${safeUrl(p.citation) ? `<a href="${esc(safeUrl(p.citation))}" target="_blank" rel="noopener">${srcName[p.source] || "Source"}</a>` : esc(srcName[p.source] || p.source)}${p.ids?.wikidata ? ` · <a href="https://www.wikidata.org/wiki/${esc(p.ids.wikidata)}" target="_blank" rel="noopener">Wikidata</a>` : ""}</div>
     </li>`;
   }
   function refreshProds(w, keepFocus) {
