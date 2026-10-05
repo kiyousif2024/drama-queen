@@ -989,7 +989,8 @@
         return `<li class="run"><span class="run-date">${r.certain === false ? "c. " : ""}${esc(date)}</span><span>${where}${r.district ? ` <span class="badge dist">${esc(r.district)}</span>` : ""}</span></li>`;
       }).join("")}</ul>
       ${line("Company", by("company"))}${line("Producer", by("producer"))}${line("Director", by("director"))}
-      ${cast.length ? `<div class="pc"><span class="pc-l">${curCast.length ? "Original cast" : "Cast"}</span> ${shownCast.join(", ")}${cast.length > 8 ? `, and ${cast.length - 8} more` : ""}</div>` : ""}
+      ${cast.length ? `<div class="pc"><span class="pc-l">${curCast.length ? "Original cast" : "Cast"}</span> ${shownCast.join(", ")}${cast.length > 8
+        ? `<details class="np-more"><summary>and ${cast.length - 8} more</summary>, ${cast.slice(8).map((c) => name(c) + (c.character ? ` <small>as ${esc(c.character)}</small>` : "")).join(", ")}</details>` : ""}</div>` : ""}
       ${curCast.length ? `<div class="pc"><span class="pc-l">Cast as of ${esc(fmtPartial(curCast[0].since.slice(0, 7)))}</span> ${curCast.slice(0, 8).map((c) => name(c) + (c.character ? ` <small>as ${esc(c.character)}</small>` : "")).join(", ")}${curCast.length > 8 ? `, and ${curCast.length - 8} more` : ""}</div>` : ""}
       ${others.length ? `<div class="pc"><span class="pc-l">Also</span> ${others.join(", ")}</div>` : ""}
       ${p.notes ? `<p class="prod-notes">${esc(p.notes)}</p>` : ""}
