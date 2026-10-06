@@ -414,24 +414,26 @@
     ticket: `<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3 6a1 1 0 0 1 1-1h16a1 1 0 0 1 1 1v3a3 3 0 0 0 0 6v3a1 1 0 0 1-1 1H4a1 1 0 0 1-1-1v-3a3 3 0 0 0 0-6Zm11 1v2h2V7Zm0 4v2h2v-2Zm0 4v2h2v-2Z"/></svg>`,
   };
   const onNow = () => works.filter((w) => w._now).sort((a, b) => (popular[b.id] || 0) - (popular[a.id] || 0) || b._pop - a._pop);
+  // The landing stage: house curtains part, a spotlight finds the floor, the words sit in its light
+  function stageHTML(copy) {
+    return `<div class="stage">
+          <div class="st-back" aria-hidden="true"></div><div class="st-beam" aria-hidden="true"></div>
+          <div class="st-floor" aria-hidden="true"></div><div class="st-pool" aria-hidden="true"></div>
+          <div class="st-copy">${copy}</div>
+          <div class="st-seats" aria-hidden="true"></div>
+          <div class="st-drape l" aria-hidden="true"></div><div class="st-drape r" aria-hidden="true"></div><div class="st-valance" aria-hidden="true"></div>
+        </div>`;
+  }
   async function renderHome() {
     const tok = routeSeq;
     document.title = "Billd: a diary for theatregoers";
     const now = onNow();
     const intro = !me || S.kind === "local" ? `
       <section class="hero">
-        <div class="stage">
-          <div class="st-back" aria-hidden="true"></div><div class="st-beam" aria-hidden="true"></div>
-          <div class="st-floor" aria-hidden="true"></div><div class="st-pool" aria-hidden="true"></div>
-          <div class="st-copy">
-            <h1>Your <em>show biz.</em></h1>
+        ${stageHTML(`<h1>Your <em>show biz.</em></h1>
             <p>Every play you've watched, from your first school trip to last night's preview, kept in one place, with the plays of every culture and era to browse between curtains.</p>
             <div class="acts">${S.kind === "local" ? `<button class="btn" type="button" data-log>Log a show</button>` : `<button class="btn" type="button" data-auth-open="up">Join Billd</button>`}
-              <a class="btn ghost" href="#/onstage">What's on now</a></div>
-          </div>
-          <div class="st-seats" aria-hidden="true"></div>
-          <div class="st-drape l" aria-hidden="true"></div><div class="st-drape r" aria-hidden="true"></div><div class="st-valance" aria-hidden="true"></div>
-        </div>
+              <a class="btn ghost" href="#/onstage">What's on now</a></div>`)}
         <div class="lets" aria-label="What you can do on Billd">
           <div class="let">${ICONS.ticket}<p>Find out what's playing tonight in your city, with links to buy seats</p></div>
           <div class="let">${ICONS.cal}<p>Note the date, the theatre and the company for each performance, so your theatregoing history is never lost</p></div>
@@ -439,7 +441,9 @@
           <div class="let">${ICONS.grid}<p>Look up any play, from Sophocles to this season, and see where and when it's been staged</p></div>
         </div>
         ${S.kind === "local" ? `<p class="banner"><b>Preview mode.</b> Your diary is saved on this device. Member accounts, following and shared reviews switch on when Billd's server is connected.</p>` : ""}
-      </section>` : `<section class="welcome">${avatar(me)}<h1>Welcome back, ${who(me)}.</h1></section>`;
+      </section>` : `<section class="hero hero-member">${stageHTML(`<h1>Welcome back, <em>${who(me)}.</em></h1>
+            <div class="acts"><button class="btn" type="button" data-log>Log a show</button><a class="btn ghost" href="#/onstage">What's on now</a>
+              <a class="btn ghost" href="#/u/${esc(me.username)}/diary">Your diary</a></div>`)}</section>`;
     pageEl().innerHTML = `<div class="wrap">${installCardHTML()}${intro}
       <section class="sec"><div class="sec-head"><h2>On stage now</h2><a href="#/onstage">All ${now.length.toLocaleString()} →</a></div>
         <div class="row-scroll">${now.slice(0, 18).map((w) => cell(w, `<div class="cell-cap">${esc(nowWhere(w))}</div>`)).join("") || `<p class="empty">No current listings.</p>`}</div></section>
