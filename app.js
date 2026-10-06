@@ -420,10 +420,18 @@
     const now = onNow();
     const intro = !me || S.kind === "local" ? `
       <section class="hero">
-        <h1>Your <em>show biz.</em></h1>
-        <p>Every play you've watched, from your first school trip to last night's preview, kept in one place, with the plays of every culture and era to browse between curtains.</p>
-        <div class="acts">${S.kind === "local" ? `<button class="btn" type="button" data-log>Log a show</button>` : `<button class="btn" type="button" data-auth-open="up">Join Billd</button>`}
-          <a class="btn ghost" href="#/onstage">What's on now</a></div>
+        <div class="stage">
+          <div class="st-back" aria-hidden="true"></div><div class="st-beam" aria-hidden="true"></div>
+          <div class="st-floor" aria-hidden="true"></div><div class="st-pool" aria-hidden="true"></div>
+          <div class="st-copy">
+            <h1>Your <em>show biz.</em></h1>
+            <p>Every play you've watched, from your first school trip to last night's preview, kept in one place, with the plays of every culture and era to browse between curtains.</p>
+            <div class="acts">${S.kind === "local" ? `<button class="btn" type="button" data-log>Log a show</button>` : `<button class="btn" type="button" data-auth-open="up">Join Billd</button>`}
+              <a class="btn ghost" href="#/onstage">What's on now</a></div>
+          </div>
+          <div class="st-seats" aria-hidden="true"></div>
+          <div class="st-drape l" aria-hidden="true"></div><div class="st-drape r" aria-hidden="true"></div><div class="st-valance" aria-hidden="true"></div>
+        </div>
         <div class="lets" aria-label="What you can do on Billd">
           <div class="let">${ICONS.ticket}<p>Find out what's playing tonight in your city, with links to buy seats</p></div>
           <div class="let">${ICONS.cal}<p>Note the date, the theatre and the company for each performance, so your theatregoing history is never lost</p></div>
