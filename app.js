@@ -420,7 +420,7 @@
     const now = onNow();
     const intro = !me || S.kind === "local" ? `
       <section class="hero">
-        <h1>Your life in the <em>stalls.</em></h1>
+        <h1>Every show you’ve <em>ever seen.</em></h1>
         <p>Every play you've watched, from your first school trip to last night's preview, kept in one place, with the plays of every culture and era to browse between curtains.</p>
         <div class="acts">${S.kind === "local" ? `<button class="btn" type="button" data-log>Log a show</button>` : `<button class="btn" type="button" data-auth-open="up">Join Billd</button>`}
           <a class="btn ghost" href="#/onstage">What's on now</a></div>
