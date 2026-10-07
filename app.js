@@ -452,14 +452,28 @@
   function renderAcct() {
     const el = $("#acct");
     if (me && S.kind !== "local") {
-      el.innerHTML = `${myRank() ? `<a class="btn ghost sm acct-admin" href="#/admin">Admin</a>` : ""}<button class="btn sm" type="button" data-log>+ Log</button>${avatar(me)}`;
+      const name = me.display_name || cap(me.username) || "?";
+      el.innerHTML = `${myRank() ? `<a class="btn ghost sm acct-admin" href="#/admin">Admin</a>` : ""}<button class="btn sm" type="button" data-log>+ Log</button>`
+        + `<span class="acct-menu"><button class="avatar" type="button" id="acct-btn" style="--hue:${hash(me.username || "") % 360}" aria-haspopup="menu" aria-expanded="false" aria-controls="acct-pop" aria-label="${esc(name)}: your account">${esc(name.trim()[0] || "?")}</button>`
+        + `<div class="acct-pop" id="acct-pop" role="menu" hidden><div class="who">@${esc(me.username)}</div><a role="menuitem" href="#/u/${esc(me.username)}">Your profile and diary</a><a role="menuitem" href="#/settings">Settings</a><button role="menuitem" type="button" data-logout>Log out</button></div></span>`;
     } else if (S.kind === "local") {
       el.innerHTML = `<button class="btn sm" type="button" data-log>+ Log</button>${avatar(S.me())}`;
     } else {
       el.innerHTML = `<button class="btn ghost sm" type="button" data-auth-open="in">Log in</button><button class="btn sm" type="button" data-auth-open="up">Join</button>`;
     }
   }
+  // the menu under your picture: profile, Settings, Log out
+  const acctMenu = (open) => {
+    const pop = $("#acct-pop"), btn = $("#acct-btn"); if (!pop || !btn) return;
+    pop.hidden = !open; btn.setAttribute("aria-expanded", String(open));
+    if (open) pop.querySelector("[role=menuitem]")?.focus();
+  };
+  document.addEventListener("click", (e) => { if (!e.target.closest(".acct-menu")) acctMenu(false); });
+  document.addEventListener("keydown", (e) => { if (e.key === "Escape" && $("#acct-pop") && !$("#acct-pop").hidden) { acctMenu(false); $("#acct-btn")?.focus(); } });
+  window.addEventListener("hashchange", () => acctMenu(false));
   $("#acct").addEventListener("click", (e) => {
+    if (e.target.closest("#acct-btn")) return acctMenu($("#acct-pop").hidden);
+    if (e.target.closest("#acct-pop [role=menuitem]")) acctMenu(false);
     const a = e.target.closest("[data-auth-open]"); if (a) return openAuth(a.dataset.authOpen);
     if (e.target.closest("[data-log]")) openLog(null);
   });
@@ -2372,8 +2386,44 @@
     $("#auth-go").textContent = mode === "up" ? "Create account" : mode === "reset" ? "Email me a reset link" : "Log in";
     $("#auth-forgot").hidden = mode !== "in";
     $("#auth-terms-f").hidden = !(mode === "up" && termsState().live);
+    // Google on the website only for now: in the app, Apple requires Sign in with Apple alongside it
+    $("#auth-alt").hidden = APP || mode === "reset";
     note("#auth-note", "");
   }
+  $("#auth-google").addEventListener("click", async (e) => {
+    const terms = termsState();
+    if (authMode === "up" && terms.live && !$("#auth-terms").checked) return note("#auth-note", "Tick the box to agree to the Terms of Use and Community Guidelines.", true);
+    e.currentTarget.disabled = true;
+    try { await S.signInWithGoogle(); }  // leaves for Google's page
+    catch (err) { note("#auth-note", err.message, true); e.currentTarget.disabled = false; }
+  });
+  // ---- a member who joined with Google chooses a username (asked again on each visit until they do)
+  let askedName = false;
+  function maybePickName() {
+    if (askedName || !me || S.kind === "local" || !S.needsUsername?.() || $("#pickname").open) return;
+    askedName = true;
+    const guess = fold(me.display_name || "").toLowerCase().replace(/[^a-z0-9]+/g, "_").replace(/^_+|_+$/g, "").slice(0, 20);
+    $("#pn-user").value = guess.length >= 3 ? guess : "";
+    $("#pn-name").value = me.display_name || "";
+    $("#pn-show").textContent = $("#pn-user").value || "yourname";
+    note("#pn-note", "");
+    $("#pickname").showModal(); $("#pn-user").focus(); $("#pn-user").select();
+  }
+  $("#pn-user").addEventListener("input", (e) => { $("#pn-show").textContent = e.target.value.trim().toLowerCase() || "yourname"; });
+  $("#pn-later").addEventListener("click", () => $("#pickname").close());
+  $("#pn-form").addEventListener("submit", async (e) => {
+    e.preventDefault();
+    const user = $("#pn-user").value.trim().toLowerCase();
+    if (!/^[a-z0-9_]{3,20}$/.test(user) || /^member_[0-9a-f]{8}$/.test(user)) return note("#pn-note", "Usernames are 3 to 20 lowercase letters, numbers or _.", true);
+    $("#pn-go").disabled = true;
+    try {
+      if (!(await S.usernameFree(user))) return note("#pn-note", "That username is taken. Try another.", true);
+      await S.updateProfile({ username: user, display_name: $("#pn-name").value.trim().slice(0, 50) || null });
+      $("#pickname").close(); toast(`Welcome to Billd, ${$("#pn-name").value.trim() || cap(user)}`);
+      if (location.hash.startsWith("#/u/")) location.hash = `#/u/${user}`;
+    } catch (err) { note("#pn-note", /duplicate|unique|23505/i.test(err.message + (err.code || "")) ? "That username is taken. Try another." : err.message, true); }
+    finally { $("#pn-go").disabled = false; }
+  });
   $$("[data-auth]").forEach((b) => b.addEventListener("click", () => setAuthMode(b.dataset.auth)));
   $("#auth-forgot").addEventListener("click", () => setAuthMode("reset"));
   $("#auth-form").addEventListener("submit", async (e) => {
@@ -3003,7 +3053,7 @@
     try { dbSettings = S.kind !== "local" && !offline ? await S.settings() : {}; } catch (e) { dbSettings = {}; }
     S.setTermsVersion(termsState().live ? termsState().version : null);
     if (!offline) await Promise.all([loadTeam(), loadBlocks()]);
-    renderAcct(); renderStanding(); renderTermsBar(); renderSyncBar();
+    renderAcct(); renderStanding(); renderTermsBar(); renderSyncBar(); maybePickName();
     try { myStatus = me ? await S.myStatuses() : {}; } catch (e) { myStatus = {}; }
     if (offline) return;
     try { (await S.popular(60)).forEach((r, i) => (popular[r.play_id] = 1000 - i)); } catch (e) { /* none yet */ }
@@ -3021,7 +3071,7 @@
   // web/auth/confirm.html verified a password-reset link and sent the member here
   try { if (sessionStorage.getItem("billd-recovery")) { sessionStorage.removeItem("billd-recovery"); setTimeout(() => toast("Choose a new password below"), 1200); } } catch (e) { /* storage blocked */ }
   S.onAuth(async (p) => {
-    me = p; followingSet = null; await Promise.all([loadTeam(), loadBlocks()]); renderAcct(); renderStanding(); renderTermsBar(); renderSyncBar();
+    me = p; followingSet = null; await Promise.all([loadTeam(), loadBlocks()]); renderAcct(); renderStanding(); renderTermsBar(); renderSyncBar(); maybePickName();
     try { myStatus = me ? await S.myStatuses() : {}; } catch (e) { myStatus = {}; }
     if (D) { if (FACETS.length) totals(); route(); }
   });

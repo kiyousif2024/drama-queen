@@ -45,6 +45,9 @@
       isLocalData: () => db.logs.length + Object.keys(db.status).length + db.lists.length > 0,
       async signUp() { throw err("Accounts are not set up on this site yet.", "no_server"); },
       async signIn() { throw err("Accounts are not set up on this site yet.", "no_server"); },
+      async signInWithGoogle() { throw err("Accounts are not set up on this site yet.", "no_server"); },
+      needsUsername: () => false,
+      async usernameFree() { return true; },
       async signOut() {},
       async resetPassword() { throw err("Accounts are not set up on this site yet.", "no_server"); },
       async handleAuthLink() { throw err("Accounts are not set up on this copy of Billd.", "no_server"); },
@@ -286,12 +289,24 @@
       async signUp(email, password, username, displayName, termsAccepted) {
         username = String(username || "").toLowerCase();
         if (!USERNAME.test(username)) throw err("Usernames are 3 to 20 letters, numbers or underscores.", "bad_username");
+        if (/^member_[0-9a-f]{8}$/.test(username)) throw err("Choose a username of your own.", "bad_username");
         const taken = check(await sb.from("profiles").select("id").eq("username", username).maybeSingle());
         if (taken) throw err("That username is taken.", "username_taken");
         const { data, error } = await sb.auth.signUp({ email, password, options: { data: { username, display_name: (displayName || "").trim().slice(0, 50) || undefined, terms_version: termsAccepted || undefined }, emailRedirectTo: returnTo() } });
         if (error) throw friendly(error);
         if (!data.session) return { confirm: true };  // the project asks new members to confirm their email
         uid = data.user.id; await loadProfile(); emit(profile); return { confirm: false };
+      },
+      // Continue with Google: Google's page, then back to this page signed in (route() in app.js tidies
+      // the address). A new member gets a placeholder username and chooses one (needsUsername).
+      async signInWithGoogle() {
+        const { error } = await sb.auth.signInWithOAuth({ provider: "google", options: { redirectTo: returnTo() } });
+        if (error) throw friendly(error);
+      },
+      needsUsername: () => !!profile && /^member_[0-9a-f]{8}$/.test(profile.username || ""),
+      async usernameFree(username) {
+        username = String(username || "").toLowerCase();
+        return !check(await sb.from("profiles").select("id").eq("username", username).maybeSingle());
       },
       async signIn(email, password) {
         const { data, error } = await sb.auth.signInWithPassword({ email, password });
@@ -342,6 +357,7 @@
         const row = {};
         for (const k of ["display_name", "bio", "favorites", "username"]) if (k in p) row[k] = p[k];
         if (row.username && !USERNAME.test(row.username)) throw err("Usernames are 3 to 20 letters, numbers or underscores.", "bad_username");
+        if (row.username && /^member_[0-9a-f]{8}$/.test(row.username) && row.username !== profile?.username) throw err("Choose a username of your own.", "bad_username");
         profile = check(await sb.from("profiles").update(row).eq("id", uid).select().single());
         emit(profile); return profile;
       },

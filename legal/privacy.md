@@ -7,6 +7,7 @@
 ## What Billd collects
 
 - **Your account** (if you join): email address, a password (stored only as a hash by our database provider), username, display name, bio and favourite shows, and when you accepted the Terms of Use.
+- **If you continue with Google**: Google tells Billd your email address, your name and a link to your Google profile picture. Billd uses your name as your starting display name (you can change it) and doesn't show the picture; our database provider keeps these details with your login. Billd never sees your Google password, and if your Google email matches an existing Billd account, you're signed into that account.
 - **What you post**: shows you've marked seen, liked or want to see, ratings, diary entries and reviews (with who can see each), comments, likes, lists, follows, members you've blocked, reports you send, and productions or plays you suggest (including the web page you gave and what Billd read from it).
 - **Messages you send through forms**: feedback, corrections and copyright reports (your comment and, if you give it, your name; when you're logged in, your display name and username are added) are kept for the Billd team and emailed to [OPERATOR].
 - **Pages fetched for you**: when you use "Add a production", Billd's server fetches the web page you give and keeps what it read from it with your suggestion.
@@ -22,6 +23,7 @@
 
 - **Supabase** ([REGION]) hosts the database and logins, and runs Billd's server functions (the "Add a production" page reader and account deletion).
 - **Brevo** sends sign-up and password emails.
+- **Google** confirms who you are when you choose "Continue with Google".
 - **Web3Forms** delivers form messages to [OPERATOR]'s email.
 - **GitHub Pages** hosts the website.
 
