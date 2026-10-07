@@ -75,7 +75,7 @@
   function toast(msg) {
     const t = $("#toast"); t.textContent = msg; t.hidden = false;
     (document.querySelector("dialog[open]") || document.body).appendChild(t);  // modal dialogs sit above everything else
-    clearTimeout(toast.t); toast.t = setTimeout(() => (t.hidden = true), 2600);
+    clearTimeout(toast.t); toast.t = setTimeout(() => (t.hidden = true), msg.length > 60 ? 6000 : 2600);
   }
   function avatar(p, cls = "") {
     const name = p?.display_name || cap(p?.username) || "?";
@@ -98,7 +98,7 @@
     const P = data.people.map((r) => ({ slug: r[0], name: r[1], name_native: r[2] ?? null, birth_year: r[3] ?? null, death_year: r[4] ?? null, dates_approx: !!r[5] }));
     data.people = P;
     data.works = data.works.map((c, i) => ({
-      id: c.i, title: c.t, original_title: c.o || null, alt_titles: c.at || [],
+      id: c.i, title: c.t, original_title: c.o || null, alt_titles: c.at || [], search_titles: c.hs || [],
       people: (c.p || []).map((x) => Array.isArray(x) ? { person: P[x[0]].slug, role: x[1], disputed: !!x[2] } : { person: P[x].slug, role: "playwright", disputed: false }),
       tradition: c.tr || null, tradition_rule: c.tl || null, languages: c.l || [], region: c.r || null,
       year_from: c.a ?? null, year_to: c.b ?? null, date_basis: c.db || null, era: c.e || "undated",
@@ -179,7 +179,8 @@
       const recent = w._runs.filter((r) => r.st || (r.yf ?? -1e9) >= THIS_YEAR - 10).length;
       // a stand-in for popularity until members' activity says otherwise: what is on now, then what is staged often
       w._pop = (w._now === "now" ? 100000 : w._now === "soon" ? 50000 : 0) + new Set(w._runs.filter((r) => r.st).map((r) => r.place)).size * 1000 + recent * 20 + w._n;
-      w._hay = fold([w.title, w.original_title, ...w.alt_titles,
+      // search_titles: a title as written when the one shown has a masked word (build_db.py), so it's still found
+      w._hay = fold([w.title, w.original_title, ...w.alt_titles, ...(w.search_titles || []),
         ...w.people.map((p) => `${ppl[p.person]?.name || ""} ${ppl[p.person]?.name_native || ""}`),
         trad[w.tradition]?.name, regionName(w.region), ...w.languages.map((l) => lang[l]?.name), ...w.genres,
         ...[...new Set(w._runs.map((r) => r.place))].map((id) => places[id]?.name || ""), ...w._ds].join(" \u0001 "));
@@ -910,7 +911,7 @@
   function descHTML(w) {
     const ids = w.ids || {};
     if (!w.notes) return "";
-    const src = w.notes_source === "wikipedia" ? `From the English Wikipedia article${ids.enwiki ? ` <a href="https://en.wikipedia.org/wiki/${encodeURIComponent(ids.enwiki.replace(/ /g, "_"))}" target="_blank" rel="noopener">${esc(ids.enwiki)}</a>` : ""}, lightly edited; <a href="https://creativecommons.org/licenses/by-sa/4.0/" target="_blank" rel="noopener license">CC BY-SA 4.0</a>.`
+    const src = w.notes_source === "wikipedia" ? `From the English Wikipedia article${ids.enwiki ? ` <a href="https://en.wikipedia.org/wiki/${encodeURIComponent(ids.enwiki.replace(/ /g, "_"))}" target="_blank" rel="noopener">${esc((w.search_titles || []).length ? w.title : ids.enwiki)}</a>` : ""}, lightly edited; <a href="https://creativecommons.org/licenses/by-sa/4.0/" target="_blank" rel="noopener license">CC BY-SA 4.0</a>.`
       : w.notes_source === "wikidata" ? "Description from Wikidata." : w.notes_source === "generated" ? "Summary written from the records below." : "";
     // Wikipedia leads lose their pronunciation guides in extraction, leaving "Hamlet (), is"
     const text = w.notes.replace(/\s*\(\s*[;,]?\s*\)/g, "").replace(/\(\s*[;,]\s*/g, "(");
@@ -1239,6 +1240,10 @@
 
   // ---------------------------------------------------------------- reviews
   const VIS_LABEL = { friends: "Friends", private: "Only you" };
+  // a post with a word on the filter list is saved but held: only its author and the Billd team see it
+  const HELD_TEXT = "Waiting for the Billd team to approve — it contains a word that needs a check";
+  const HELD_SAVED = "Saved. Only you and the Billd team can see it until the team approves it: it contains a word that needs a check.";
+  const heldNote = (x, tag = "p") => (x?.held ? `<${tag} class="held-note">${HELD_TEXT}.${me && x.user_id && x.user_id !== me.id ? " Only its author and the Billd team can see it." : ""}</${tag}>` : "");
   const VIS_TITLE = { friends: "Only the people this member follows can see this", private: "Only you can see this" };
   function reviewHTML(l, { poster: withPoster = true, full = false } = {}) {
     const w = byId[l.play_id];
@@ -1249,7 +1254,7 @@
       <div>${withPoster ? `<h3 class="review-title"><a href="${playUrl(l.play_id)}">${esc(w?.title || l.play_title)}</a>${w && fmtDate(w) ? `<small>${esc(fmtDate(w))}</small>` : ""}</h3>` : ""}
         <div class="review-head">${avatar(l.profile, "sm")}<a href="#/u/${esc(l.profile?.username)}">${who(l.profile)}</a>${l.rating ? `<span class="stars" aria-label="${starsLabel(l.rating)}">${stars(l.rating)}</span>` : ""}${l.liked ? `<span class="heart" title="Liked it">♥</span>` : ""}${l.rewatch ? `<span title="Seen before">↻</span>` : ""}
           <span>${l.seen_on ? `Seen ${esc(fmtPartial(l.seen_on))}` : ago(l.created_at)}${l.venue ? ` · ${esc(l.venue)}` : ""}</span>${VIS_LABEL[l.visibility] ? `<span class="vis" title="${VIS_TITLE[l.visibility]}">${VIS_LABEL[l.visibility]}</span>` : ""}</div>
-        ${body}
+        ${heldNote(l)}${body}
         <div class="review-foot">
           ${S.kind !== "local" ? `<button type="button" data-like-log="${l.id}" aria-pressed="${!!l.liked_by_me}">♥ <span>${l.likes ? l.likes.toLocaleString() : ""}</span> ${l.liked_by_me ? "Liked" : "Like"}</button>
           <a href="#/review/${l.id}">${l.comments ? plural(l.comments, "comment") : "Comment"}</a>` : ""}
@@ -1272,7 +1277,7 @@
     if (stale(tok)) return;
     if (!l) return renderNotFound();
     const w = byId[l.play_id];
-    document.title = `${l.profile?.display_name || l.profile?.username || "A member"}'s review of ${l.play_title} · Billd`;
+    document.title = `${l.profile?.display_name || l.profile?.username || "A member"}'s review of ${w?.title || l.play_title} · Billd`;
     pageEl().innerHTML = `<div class="wrap" style="max-width:820px;padding-top:30px"><ul class="reviews">${reviewHTML(l, { full: true })}</ul>
       <section class="sec"><div class="sec-head"><h2>Comments</h2></div><ul class="comments" id="cm-list"><li class="hint">Loading…</li></ul>
       ${signedIn() && S.kind !== "local" ? `<form class="comment-form" id="cm-form"><label class="vh" for="cm-body">Add a comment</label><input id="cm-body" maxlength="2000" placeholder="Add a comment…" required><button class="btn" type="submit">Post</button></form>` : S.kind !== "local" ? `<p class="hint"><button class="linkbtn" type="button" data-auth-open="in">Log in</button> to comment.</p>` : ""}</section>
@@ -1280,13 +1285,13 @@
     const draw = async () => {
       const cs = notBlocked(await S.comments(l.id));
       if (stale(tok)) return;
-      $("#cm-list").innerHTML = cs.length ? cs.map((c) => `<li><a class="who" href="#/u/${esc(c.profile?.username)}">${who(c.profile)}</a>${esc(c.body)}<time datetime="${esc(c.created_at)}">${ago(c.created_at)}</time>${me && c.user_id === me.id ? ` <button class="linkbtn danger" type="button" data-del-c="${c.id}">Delete</button>` : ` ${modButton("comment", c.id, c.user_id, "linkbtn")}`}</li>`).join("") : `<li class="hint">No comments yet.</li>`;
+      $("#cm-list").innerHTML = cs.length ? cs.map((c) => `<li><a class="who" href="#/u/${esc(c.profile?.username)}">${who(c.profile)}</a>${esc(c.body)}${heldNote(c, "span")}<time datetime="${esc(c.created_at)}">${ago(c.created_at)}</time>${me && c.user_id === me.id ? ` <button class="linkbtn danger" type="button" data-del-c="${c.id}">Delete</button>` : ` ${modButton("comment", c.id, c.user_id, "linkbtn")}`}</li>`).join("") : `<li class="hint">No comments yet.</li>`;
     };
     draw();
     $("#cm-form")?.addEventListener("submit", async (e) => {
       e.preventDefault();
       const body = $("#cm-body").value.trim(); if (!body) return;
-      try { await S.addComment(l.id, body); $("#cm-body").value = ""; draw(); } catch (err) { toast(err.message); }
+      try { const c = await S.addComment(l.id, body); $("#cm-body").value = ""; draw(); if (c?.held) toast(HELD_SAVED); } catch (err) { toast(err.message); }
     });
     $("#cm-list").addEventListener("click", async (e) => {
       const d = e.target.closest("[data-del-c]"); if (d) { await S.deleteComment(+d.dataset.delC); draw(); }
@@ -1368,12 +1373,12 @@
     if (logState.edit) row.id = logState.edit.id;
     $("#log-save").disabled = true;
     try {
-      await S.saveLog(row);
+      const saved = await S.saveLog(row);
       const patch = { seen: true }; if (row.rating) patch.rating = row.rating; if (row.liked) patch.liked = true;
       if (row.visibility) patch.visibility = row.visibility;  // the show's rating and marks follow the entry
       const s = await S.setStatus(w.id, patch); if (s) myStatus[w.id] = s;
       $("#logd").close();
-      toast(logState.edit ? "Entry updated" : row.review && S.kind !== "local" ? "Review posted" : "Added to your diary");
+      toast(saved?.held ? HELD_SAVED : logState.edit ? "Entry updated" : row.review && S.kind !== "local" ? "Review posted" : "Added to your diary");
       route();
     } catch (err) { note("#log-note", err.message, true); }
     finally { $("#log-save").disabled = false; }
@@ -1547,7 +1552,7 @@
   function listCard(l) {
     const ps = l.items.slice(0, 5).map((i) => byId[i.play_id]).filter(Boolean);
     return `<a class="lcard" href="#/list/${l.id}"><div class="lcard-stack">${ps.map((w) => poster(w, { badge: false, tag: "span" })).join("")}${Array(Math.max(0, 5 - ps.length)).fill(`<span class="ph"></span>`).join("")}</div>
-      <h3>${esc(l.title)}</h3><p>${who(l.profile)} · ${plural(l.count, "show")}${l.likes ? ` · ♥ ${l.likes}` : ""}</p></a>`;
+      <h3>${esc(l.title)}</h3><p>${who(l.profile)} · ${plural(l.count, "show")}${l.likes ? ` · ♥ ${l.likes}` : ""}</p>${l.held ? `<p class="held-note sm">Waiting for approval</p>` : ""}</a>`;
   }
   async function renderLists() {
     const tok = routeSeq;
@@ -1570,7 +1575,7 @@
     pageEl().innerHTML = `<div class="wrap" style="padding-top:30px">
       <p class="kicker">List by <a href="#/u/${esc(l.profile?.username)}">${who(l.profile)}</a></p>
       <h1 class="h1" style="margin-top:6px">${esc(l.title)}</h1>
-      ${l.description ? `<p class="lead" style="margin-top:12px;max-width:62ch">${esc(l.description)}</p>` : ""}
+      ${heldNote(l)}${l.description ? `<p class="lead" style="margin-top:12px;max-width:62ch">${esc(l.description)}</p>` : ""}
       <div class="toolbar">
         ${mine ? `<button class="btn ghost sm" type="button" id="edit-list">Edit list</button>` : ""}
         ${S.kind !== "local" && !mine ? `<button class="btn ghost sm" type="button" id="like-list" aria-pressed="${l.liked_by_me}">♥ ${l.liked_by_me ? "Liked" : "Like"} ${l.likes ? `· ${l.likes}` : ""}</button>` : ""}
@@ -1578,7 +1583,7 @@
         ${mine ? "" : modButton("list", l.id, l.user_id, "btn ghost sm")}
         <span class="count">${plural(l.count, "show")}</span>
       </div>
-      <ul class="list-items${l.ranked ? " ranked" : ""}">${l.items.map((i) => byId[i.play_id] ? `<li>${cell(byId[i.play_id], i.note ? `<div class="cell-cap">${esc(i.note)}</div>` : "")}</li>` : "").join("") || `<li class="empty">This list is empty.</li>`}</ul></div>`;
+      <ul class="list-items${l.ranked ? " ranked" : ""}">${l.items.map((i) => byId[i.play_id] ? `<li>${cell(byId[i.play_id], i.note ? `<div class="cell-cap">${esc(i.note)}</div>${heldNote({ held: i.held, user_id: l.user_id }, "div")}` : "")}</li>` : "").join("") || `<li class="empty">This list is empty.</li>`}</ul></div>`;
     $("#edit-list")?.addEventListener("click", () => editList(l));
     $("#share-list").addEventListener("click", () => share(`${l.title}, a list on Billd`, location.href));
     $("#like-list")?.addEventListener("click", async (e) => {
@@ -1637,7 +1642,7 @@
       try {
         const saved = await S.saveList({ id: l?.id, title, description: $("#el-desc").value.trim() || null, ranked: $("#el-ranked").checked });
         await S.setListItems(saved.id, items);
-        $("#editd").close(); toast(l ? "List saved" : "List created");
+        $("#editd").close(); toast(saved.held ? HELD_SAVED : l ? "List saved" : "List created");
         if (location.hash === `#/list/${saved.id}`) route(); else location.hash = `#/list/${saved.id}`;
       } catch (err) { note("#el-note", err.message, true); }
     };
@@ -1749,7 +1754,7 @@
     return `<article class="scrap"><a href="${playUrl(l.play_id)}" aria-label="${esc(w?.title || l.play_title || "")}">${w ? poster(w, { tag: "span", badge: false }) : ""}</a>
       <div class="scrap-meta">${day ? `<time datetime="${esc(d)}">${esc(day)}</time>` : "<span></span>"}${l.rating ? `<span class="stars" aria-label="${starsLabel(l.rating)}">${stars(l.rating)}</span>` : ""}</div>
       ${note ? `<p class="scrap-note"><a href="#/review/${esc(l.id)}">${esc(note.length > 110 ? note.slice(0, 108).trimEnd() + "…" : note)}</a></p>` : ""}
-      ${l.venue ? `<p class="scrap-venue">${esc(l.venue)}</p>` : ""}
+      ${l.venue ? `<p class="scrap-venue">${esc(l.venue)}</p>` : ""}${l.held ? `<p class="held-note sm" title="${HELD_TEXT}">Waiting for approval</p>` : ""}
       <div class="scrap-foot">${l.liked ? `<span class="heart" title="Liked" aria-label="Liked">♥</span>` : ""}${l.rewatch ? `<span title="Seen before" aria-label="Seen before">↻</span>` : ""}${note ? `<a href="#/review/${esc(l.id)}">Review</a>` : ""}${mine && isLog && l.id ? `<button class="end" type="button" data-edit-log="${esc(l.id)}" aria-label="Edit entry">✎</button>` : ""}</div></article>`;
   }
   // A show on the want-to-see list that is on stage: a ticket stub dated by its closing or opening night
@@ -1844,7 +1849,7 @@
     }
     const verb = l.review ? "reviewed" : l.rewatch ? "saw again" : "saw";
     return `<li>${poster(w, { badge: false })}<div class="what"><a href="#/u/${esc(l.profile?.username)}">${who(l.profile)}</a> ${verb} <a href="${l.review ? `#/review/${l.id}` : playUrl(w.id)}">${esc(w.title)}</a>
-      ${l.rating ? ` <span class="stars" aria-label="${starsLabel(l.rating)}">${stars(l.rating)}</span>` : ""}${l.liked ? ` <span class="heart">♥</span>` : ""}${l.venue ? ` <small class="hint">at ${esc(l.venue)}</small>` : ""}</div><time datetime="${esc(l.created_at)}">${ago(l.created_at)}</time></li>`;
+      ${l.rating ? ` <span class="stars" aria-label="${starsLabel(l.rating)}">${stars(l.rating)}</span>` : ""}${l.liked ? ` <span class="heart">♥</span>` : ""}${l.venue ? ` <small class="hint">at ${esc(l.venue)}</small>` : ""}${heldNote(l)}</div><time datetime="${esc(l.created_at)}">${ago(l.created_at)}</time></li>`;
   }
 
   // ---------------------------------------------------------------- settings
@@ -2339,10 +2344,23 @@
     else if (x.action === "word block") s = `${a} added “${esc(d.term)}” to the word filter`;
     else if (x.action === "word allow") s = `${a} allowed “${esc(d.term)}” as an exception to the word filter`;
     else if (x.action === "word removed") s = `${a} removed “${esc(d.term)}” from the word filter`;
+    else if (x.action === "held approve" || x.action === "held remove") s = `${a} ${x.action === "held approve" ? "approved" : "removed"} ${t}'s held ${esc((HELD_KIND[d.kind] || "post").toLowerCase())}${d.text || d.title ? ` <small class="hint">${esc(String(d.title || d.text).slice(0, 120))}</small>` : ""}`;
     else s = `${a}: ${esc(x.action)}`;
     return `<li class="adm-log">${s}${noteTxt} <time class="hint" datetime="${esc(x.created_at)}">${ago(x.created_at)}</time></li>`;
   }
   const admSugg = { status: "pending" };
+  // posts held because they contain a word on the filter list (Queue tab)
+  const HELD_KIND = { log: "Diary entry", comment: "Comment", list: "List", list_item: "List note" };
+  const HELD_FIELD = { review: "the review", venue: "the theatre", city: "the town", play_title: "the title", body: "the comment", title: "the title", description: "the description", note: "the note" };
+  function heldItem(x) {
+    const where = String(x.reason || "").replace(/^listed word in /, "").split(/,\s*/).filter(Boolean).map((f) => HELD_FIELD[f] || f);
+    const mine = x.uid === me.id;
+    return `<li class="adm-item"><div class="adm-meta"><span class="badge">${HELD_KIND[x.kind] || esc(x.kind)}</span> by ${nameLink(x.who)} ${roleBadge(x.uid)} · held ${ago(x.at)}${x.vis === "friends" ? ` <span class="vis" title="${VIS_TITLE.friends}">Friends</span>` : ""}</div>
+      <blockquote class="adm-quote held-text">${x.title ? `<b>${esc(x.title)}</b>${x.kind === "list_item" && byId[x.play_id] ? ` · ${esc(byId[x.play_id].title)}` : ""}<br>` : ""}${x.text ? esc(String(x.text).slice(0, 1500)) : "<i>Nothing written.</i>"}</blockquote>
+      <div class="hint">${where.length ? `A listed word in ${esc(where.join(" and "))}` : "A listed word"} · <a href="${x.link}">Open</a></div>
+      <div class="adm-acts">${outranks(x.uid) ? `<button class="btn sm" type="button" data-adm="held-approve" data-kind="${x.kind}" data-id="${esc(x.id)}">Approve</button>` : mine ? `<span class="hint">Your own post: someone else on the team approves it.</span>` : ""}
+        ${outranks(x.uid) || mine ? `<button class="btn ghost sm danger" type="button" data-adm="held-remove" data-kind="${x.kind}" data-id="${esc(x.id)}">Remove</button>` : ""}</div></li>`;
+  }
   const FB_KIND = { feedback: "Feedback", correction: "Correction", copyright: "Copyright report" };
   function feedbackItem(x) {
     return `<li class="adm-item"><div class="adm-meta"><span class="badge">${FB_KIND[x.kind] || esc(x.kind)}</span>${x.play_id ? ` <a href="${playUrl(x.play_id)}"><b>${esc(x.play_title || x.play_id)}</b></a>` : ""}
@@ -2365,11 +2383,12 @@
     await loadTeam();
     if (stale(tok)) return;
     if (!tab) {
-      const [pending, reports, suggs, approved, plays, notes] = await Promise.all([S.standings("pending"), S.reports("open"), S.suggestionsFor("pending"), S.suggestionsFor("approved"),
-        S.playSuggestionsFor("pending").catch(() => []), S.feedbackFor("open").catch(() => [])]);
+      const [pending, reports, suggs, approved, plays, notes, held] = await Promise.all([S.standings("pending"), S.reports("open"), S.suggestionsFor("pending"), S.suggestionsFor("approved"),
+        S.playSuggestionsFor("pending").catch(() => []), S.feedbackFor("open").catch(() => []), S.heldPosts().catch(() => [])]);
       const targets = await Promise.all(reports.map((r) => reportTarget(r).catch(() => null)));
       if (stale(tok)) return;
       pending.forEach((x) => x.profile && (people[x.user_id] = x.profile));
+      held.forEach((x) => x.who && (people[x.uid] = x.who));
       const rep = reports.map((r, i) => {
         const t = targets[i];
         if (t?.who) people[t.uid] = t.who;
@@ -2390,6 +2409,8 @@
             ${x.url ? `<dt>Link</dt><dd><a href="${esc(/^https?:\/\//i.test(x.url) ? x.url : "https://" + x.url)}" target="_blank" rel="noopener nofollow">${esc(x.url)}</a></dd>` : ""}</dl>
           <div class="adm-acts"><button class="btn sm" type="button" data-adm="approve-s" data-id="${x.id}">Approve</button><button class="btn ghost sm" type="button" data-adm="decline-s" data-id="${x.id}">Decline</button></div></li>`);
       el.innerHTML = admSection("Members waiting for approval", pending.length, pending.filter((x) => x.profile).map((x) => admMember(x.profile, x)), "No one is waiting.")
+        + admSection("Held posts", held.length, held.map(heldItem), "No posts are waiting for a check.")
+        + (held.length ? `<p class="hint" style="max-width:62ch;margin-top:-6px">These contain a word on the word filter's list, so only their authors and the team can see them. Approve one and it goes live; remove one and its words go (a diary entry keeps its date and rating).</p>` : "")
         + admSection("Reports", reports.length, rep, "No open reports.")
         + admSection("Feedback and corrections", notes.length, notes.map(feedbackItem), "Nothing new.")
         + admSection("Suggested plays", plays.length, plays.map((x) => `<li class="adm-item"><div class="adm-meta"><b>${esc(x.title)}</b> · from ${nameLink(x.profile)} · ${ago(x.created_at)}</div>
@@ -2503,7 +2524,8 @@
           <p class="hint" style="max-width:62ch;margin-top:8px">When this is on, new members tick a box to accept the <a href="#/terms">Terms</a> and <a href="#/guidelines">Community Guidelines</a> when they join, and existing members are asked once; until they accept they can read but not post.
             Change the version when the Terms change, and everyone is asked again. Turn it on only once the Terms are final, together with <code>terms.live</code> in the published site settings (the site config ${CFG.terms?.live ? "has it on" : "has it off"}).${myRank() >= 2 ? "" : " Only admins can change this."}</p></section>
         <section class="sec" id="adm-words"><div class="sec-head"><h2>Word filter</h2></div>
-          <p class="hint" style="max-width:62ch">Reviews, comments, list titles and descriptions, list notes, usernames, display names and bios that contain one of these words are refused with “This contains a word that isn't allowed on Billd. Please rephrase.” Words match whole, ignoring capitals, accents, spacing (s p a c e d) and numbers for letters (n0t). Keep it to unambiguous slurs: ordinary words found in play titles (kill, hell, bastard) would stop members writing about those plays. <b>Allowed</b> phrases are exceptions, such as a play's title that contains a listed word. Existing posts aren't changed.</p>
+          <p class="hint" style="max-width:62ch">A review or diary entry (with its theatre, town and title), comment, list title or description, or list note that contains one of these words is saved but <b>held</b>: only its author and the team see it, with a note that it's waiting for a check, until a moderator approves or removes it in the <a href="#/admin">Queue</a>. An approved post that's edited to add a listed word is held again. Usernames, display names and bios can't be held (everyone sees them), so those are refused with a message asking for other words.
+            Words match whole, ignoring capitals, accents, spacing (s p a c e d) and numbers for letters (n0t). Keep it to unambiguous slurs: ordinary words found in play titles (kill, hell, bastard) would hold every post about those plays. Play titles on Billd show listed words masked (“N****r”), from <code>data/masked_words.txt</code> at the next data update; keep that file in step with this list. <b>Allowed</b> phrases are exceptions that are never held. Existing posts aren't changed.</p>
           <div id="adm-words-body"><p class="hint">${myRank() >= 2 ? "Loading…" : "Only admins can see and change the list."}</p></div></section>`;
       $("#adm-appr").addEventListener("change", async (e) => {
         try { await S.setSetting("require_approval", e.target.checked); toast(e.target.checked ? "New members now need approval" : "New members can post straight away"); }
@@ -2553,6 +2575,10 @@
         if (k === "member") { const p = people[b.dataset.uid] || (await S.profileById(b.dataset.uid)); if (p) manageMember(p, again); return; }
         if (k === "resolve" || k === "dismiss") { b.disabled = true; await S.resolveReport(rid, k === "resolve" ? "resolved" : "dismissed"); toast(k === "resolve" ? "Marked done" : "Dismissed"); return again(); }
         if (k === "remove") return removePost(b.dataset.kind, b.dataset.id, async () => { await S.resolveReport(rid, "resolved"); again(); });
+        if (k === "held-approve") { b.disabled = true; await S.reviewHeld(b.dataset.kind, b.dataset.id, "approve"); toast("Approved: it's live"); return again(); }
+        if (k === "held-remove") return teamAction({ title: "Remove this post?", go: "Remove", danger: true, why: "Note for the team",
+          body: `<p class="hint">${{ log: "The review is deleted, and the theatre or town if the word is there; the diary entry and rating stay.", comment: "The comment is deleted.", list: "The whole list is deleted.", list_item: "The note is deleted; the show stays on the list." }[b.dataset.kind] || ""}</p>`,
+          run: async (w) => { await S.reviewHeld(b.dataset.kind, b.dataset.id, "remove", w); toast("Removed"); again(); } });
         if (k === "approve-s") return teamAction({ title: "Approve this production?", go: "Approve", why: "Note for the member",
           body: `<p class="hint">Check it against its link first. It's added to the play's history at the next data update.</p>`,
           run: async (w) => { await S.reviewSuggestion(+b.dataset.id, "approved", w || "Approved. It'll appear at the next update. Thank you!"); toast("Approved"); again(); } });

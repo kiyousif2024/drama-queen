@@ -19,7 +19,7 @@ Billd ("we") is run by [OPERATOR: Billd Media LLC, Michigan, USA]. By using Bill
 - **Facts you suggest** (a production's dates, theatre, cast, a missing play) become part of Billd's open database once checked. You agree that these facts may be published and reused by anyone under CC0 (public domain dedication).
 - Post only what you have the right to post. Don't copy other people's reviews, articles, photos or programme text.
 - Follow the [Community Guidelines](#/guidelines): nothing hateful, harassing, sexually explicit, illegal or spam; no impersonation; mark spoilers.
-- Billd automatically refuses posts that contain slurs, and you can block members you don't want to hear from.
+- Posts that contain a word on Billd's list of slurs are held until the Billd team has checked them (usernames, names and bios that contain one are refused), and you can block members you don't want to hear from.
 - Choosing "Friends" or "Only me" limits who can see an entry on Billd. The Billd team can't see private entries in the app, but [OPERATOR] can access the database to run and protect the service.
 
 ## Moderation

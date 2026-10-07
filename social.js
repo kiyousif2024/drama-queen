@@ -125,6 +125,8 @@
       async myPlaySuggestions() { return []; },
       async importReviewFor() { throw err("The queue of imported shows is kept on Billd's server.", "no_server"); },
       async reviewImport() { throw err("The queue of imported shows is kept on Billd's server.", "no_server"); },
+      async heldPosts() { return []; },  // nothing is held on this device
+      async reviewHeld() { throw err("Held posts are kept on Billd's server.", "no_server"); },
       // the Billd team and moderation need the server
       role: () => null,
       standing: () => ({ status: "active", note: null }),
@@ -166,9 +168,11 @@
       if (/already registered|already exists/i.test(m)) return err("There is already an account with that email. Log in instead.", "exists");
       if (/Email not confirmed/i.test(m)) return err("Confirm your email first: open the link Billd sent you.", "unconfirmed");
       if (/Password should be/i.test(m)) return err("Choose a password of at least 8 characters.", "weak_password");
-      if (e?.hint === "billd_banned_word" || /word that isn't allowed on Billd/i.test(m)) return err("This contains a word that isn't allowed on Billd. Please rephrase.", "banned_word");
+      // the word filter: posts with a listed word are held for the team, but names and bios are refused
+      if (e?.hint === "billd_banned_word" || /filter list|word that isn't allowed on Billd/i.test(m))
+        return err(/filter list/i.test(m) ? m : "Usernames, names and bios can't contain a word on Billd's filter list. Please choose different words.", "banned_word");
       // sign-up: the database refused the new profile (the word filter on usernames and names)
-      if (/Database error saving new user/i.test(m)) return err("Billd couldn't create that account. If your username or name contains a word that isn't allowed on Billd, please choose another.", "signup_refused");
+      if (/Database error saving new user/i.test(m)) return err("Billd couldn't create that account. If your username or name contains a word on Billd's filter list, please choose another: everyone sees names, so they can't wait for the team to check them.", "signup_refused");
       if (/rate limit/i.test(m)) return err("Too many tries. Wait a few minutes and try again.", "rate_limited");
       if (/profiles_username_key|duplicate key.*username/i.test(m)) return err("That username is taken.", "username_taken");
       if (/row-level security|row level security/i.test(m)) return err(standing.status === "suspended" ? "Your account is suspended, so it can't post." : standing.status === "pending" ? "Your account is waiting for approval. You can post once the Billd team approves it."
@@ -221,7 +225,7 @@
     const LOG_SEL = `*,${PROFILE},log_likes(count),log_comments(count)`;
     const shapeList = (l) => ({ ...l, items: (l.list_items || []).sort((a, b) => a.position - b.position), count: l.list_items?.length ?? 0,
                                 likes: l.list_likes?.[0]?.count ?? 0, liked_by_me: false, list_items: undefined, list_likes: undefined });
-    const LIST_SEL = `*,${PROFILE},list_items(play_id,position,note),list_likes(count)`;
+    const LIST_SEL = `*,${PROFILE},list_items(play_id,position,note,held),list_likes(count)`;
     return {
       kind: "supabase",
       ready,
@@ -379,8 +383,12 @@
       async deleteList(listId) { needMe(); check(await sb.from("lists").delete().eq("id", listId).eq("user_id", uid)); },
       async setListItems(listId, items) {
         needMe();
-        check(await sb.from("list_items").delete().eq("list_id", listId));
-        if (items.length) check(await sb.from("list_items").insert(items.map((it, i) => ({ list_id: listId, play_id: it.play_id, note: it.note || null, position: i }))));
+        // shows taken off go; the rest are upserted, so a note the team approved, and not changed, stays approved
+        const keep = [...new Set(items.map((it) => it.play_id))];
+        let del = sb.from("list_items").delete().eq("list_id", listId);
+        if (keep.length) del = del.not("play_id", "in", `(${keep.map((id) => `"${String(id).replace(/["\\]/g, "")}"`).join(",")})`);
+        check(await del);
+        if (items.length) check(await sb.from("list_items").upsert(items.map((it, i) => ({ list_id: listId, play_id: it.play_id, note: it.note || null, position: i })), { onConflict: "list_id,play_id" }));
         check(await sb.from("lists").update({ updated_at: new Date().toISOString() }).eq("id", listId));
       },
       async likeList(listId, on) {
@@ -487,6 +495,22 @@
         return check(await q);
       },
       reviewImport: (id, status, writer, why) => rpc("review_import", { item_id: id, new_status: status, writer: writer || null, why: why || null }),
+      // ---- posts held for the team: they contain a word on the filter list (only the author and the team see them)
+      async heldPosts() {
+        const [logs, comments, lists, items] = await Promise.all([
+          sb.from("logs").select(`id,user_id,play_id,play_title,review,venue,city,visibility,held_at,held_reason,${PROFILE}`).eq("held", true).order("held_at").limit(200),
+          sb.from("log_comments").select(`id,log_id,user_id,body,held_at,held_reason,${PROFILE}`).eq("held", true).order("held_at").limit(200),
+          sb.from("lists").select(`id,user_id,title,description,held_at,held_reason,${PROFILE}`).eq("held", true).order("held_at").limit(200),
+          sb.from("list_items").select(`list_id,play_id,note,held_at,held_reason,list:lists!list_id(id,title,user_id,${PROFILE})`).eq("held", true).order("held_at").limit(200)].map(async (q) => check(await q)));
+        return [
+          ...logs.map((x) => ({ kind: "log", reason: x.held_reason, id: String(x.id), uid: x.user_id, who: x.profile, at: x.held_at, title: x.play_title, play_id: x.play_id,
+                                 text: [x.review, x.venue && `Theatre: ${x.venue}`, x.city && `Town: ${x.city}`].filter(Boolean).join("\n"), link: `#/review/${x.id}`, vis: x.visibility })),
+          ...comments.map((x) => ({ kind: "comment", reason: x.held_reason, id: String(x.id), uid: x.user_id, who: x.profile, at: x.held_at, text: x.body, link: `#/review/${x.log_id}` })),
+          ...lists.map((x) => ({ kind: "list", reason: x.held_reason, id: String(x.id), uid: x.user_id, who: x.profile, at: x.held_at, title: x.title, text: x.description || "", link: `#/list/${x.id}` })),
+          ...items.filter((x) => x.list).map((x) => ({ kind: "list_item", reason: x.held_reason, id: `${x.list_id}:${x.play_id}`, uid: x.list.user_id, who: x.list.profile, at: x.held_at, title: x.list.title, play_id: x.play_id, text: x.note || "", link: `#/list/${x.list_id}` })),
+        ].sort((a, b) => String(a.at).localeCompare(String(b.at)));
+      },
+      reviewHeld: (kind, id, decision, why) => rpc("review_held", { kind, target_id: String(id), decision, why: why || null }),
       // ---- blocking: the database hides the blocked member's posts and stops them following, liking or commenting
       async blocks() {
         if (!uid) return [];

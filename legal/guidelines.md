@@ -4,7 +4,7 @@ Billd is a diary for theatregoers. Reviews can be as sharp as a first-night noti
 
 ## Not allowed
 
-- **Hate and slurs.** Attacking or demeaning people for their race, ethnicity, nationality, religion, caste, disability, sex, gender identity, sexual orientation or age. Billd automatically refuses posts that contain slurs.
+- **Hate and slurs.** Attacking or demeaning people for their race, ethnicity, nationality, religion, caste, disability, sex, gender identity, sexual orientation or age. Posts that contain a word on Billd's list of slurs are held for review: they're saved, but only you and the Billd team can see them until the team has checked them (a review that quotes a play's title, for example, is approved). Usernames, display names and bios can't be held, because everyone sees them, so those are refused if they contain one.
 - **Harassment and threats.** Bullying, threatening, or encouraging others to target a member, an artist or anyone else; posting someone's private information.
 - **Sexual content** that is explicit, and anything that sexualises minors.
 - **Spam and scams.** Advertising, repeated posts, misleading links, fake accounts, or selling or reselling tickets.
