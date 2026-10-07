@@ -341,7 +341,7 @@
     try { const r = await fetch(`legal/${name}.md`, { cache: "no-cache" }); if (!r.ok) throw new Error(r.status); text = await r.text(); }
     catch (e) { if (!stale(tok)) pageEl().innerHTML = `<div class="wrap legal" style="padding-top:30px"><h1 class="h1">${LEGAL[name]}</h1><p class="empty">This page couldn't be loaded. Check your connection and try again.</p></div>`; return; }
     if (stale(tok)) return;
-    const draft = name !== "guidelines" && !termsState().live;
+    const draft = name === "terms" && !termsState().live;  // the Privacy Policy is in force (7 Oct 2026); the Terms wait for the lawyer
     pageEl().innerHTML = `<div class="wrap legal" style="padding-top:30px">${draft ? `<p class="banner draft"><b>Draft.</b> These aren't in force yet: Billd's ${name === "terms" ? "Terms of Use are" : "Privacy Policy is"} being finalised.</p>` : ""}
       ${legalHTML(text)}
       <p class="foot-links" style="margin-top:30px">${Object.entries(LEGAL).filter(([k]) => k !== name).map(([k, n]) => `<a href="#/${k}">${n}</a>`).join(" · ")}${name === "privacy" ? ` · <a href="#/delete-account">Deleting your account</a>` : ""}</p></div>`;
