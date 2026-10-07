@@ -23,3 +23,6 @@ Billd is a diary for theatregoers. Reviews can be as sharp as a first-night noti
 The team reviews reports **within 24 hours** and removes posts that break these guidelines. Members who break them can be suspended or have their account closed; anyone who posts hate, threats or sexual content involving minors is removed straight away. If you think the team got something wrong, use **Send feedback** at the bottom of any page.
 
 These guidelines are part of Billd's [Terms of Use](#/terms).
+
+## Contact
+Write to **support@billd.theater** about anything on Billd: a problem with your account, a post you want looked at, or a question about these guidelines.

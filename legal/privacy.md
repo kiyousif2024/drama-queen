@@ -2,7 +2,7 @@
 
 > DRAFT, not yet in force. For the owner to review; every [BRACKETED] item still needs filling in. It describes what Billd does today (October 2026). Not legal advice.
 
-**Last updated:** [DATE] · **Who runs Billd:** [OPERATOR] · **Contact:** [CONTACT EMAIL]
+**Last updated:** [DATE] · **Who runs Billd:** [OPERATOR] · **Contact:** support@billd.theater
 
 ## What Billd collects
 
@@ -30,7 +30,7 @@ Your profile, public diary entries, reviews, lists, follows and likes are public
 
 ## Your choices and rights
 
-You can edit or delete your posts, download your data (Settings → Download my data), and delete your account and everything you posted yourself (Settings → Delete my account; see [Deleting your account](#/delete-account)). If you can't log in, ask us at [CONTACT EMAIL]. Depending on where you live (for example the EU/UK under the GDPR, or California under the CCPA) you may have further rights, such as access, correction and objection; write to us to use them. [If in the EU/UK: our lawful bases are contract (running your account) and legitimate interests (moderation, security).]
+You can edit or delete your posts, download your data (Settings → Download my data), and delete your account and everything you posted yourself (Settings → Delete my account; see [Deleting your account](#/delete-account)). If you can't log in, ask us at support@billd.theater. Depending on where you live (for example the EU/UK under the GDPR, or California under the CCPA) you may have further rights, such as access, correction and objection; write to us to use them. [If in the EU/UK: our lawful bases are contract (running your account) and legitimate interests (moderation, security).]
 
 ## Keeping and protecting data
 

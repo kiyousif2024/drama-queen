@@ -40,4 +40,4 @@ Billd is provided "as is", without warranties. To the extent the law allows, [OP
 
 ## Changes and contact
 
-We may update these terms and will note the date above; when they change significantly, members are asked to accept them again before posting. Questions: [CONTACT EMAIL]. These terms are governed by the laws of [STATE/COUNTRY].
+We may update these terms and will note the date above; when they change significantly, members are asked to accept them again before posting. Questions: support@billd.theater. These terms are governed by the laws of [STATE/COUNTRY].
