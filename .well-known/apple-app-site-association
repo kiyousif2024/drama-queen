@@ -1,0 +1,12 @@
+{
+  "applinks": {
+    "details": [
+      {
+        "appIDs": ["TODO_APPLE_TEAM_ID.theater.billd.app"],
+        "components": [
+          { "/": "/auth/*", "comment": "Email links: confirm your address, reset your password (docs/app-build.md)" }
+        ]
+      }
+    ]
+  }
+}

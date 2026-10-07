@@ -967,3 +967,23 @@ input:focus, textarea:focus, select:focus { border-bottom-color: var(--gold); ou
 .term-list button { border: 0; background: none; cursor: pointer; color: var(--muted); font-size: 16px; line-height: 1; padding: 2px 6px; }
 #adm-word-add { flex-wrap: wrap; }
 #adm-word-add input { flex: 1 1 100%; }
+
+/* ---------------- the offline diary: changes kept on this device until they reach Billd (outbox.js) */
+.sync-bar { background: color-mix(in srgb, var(--pen) 12%, var(--surface)); }
+.sync-bar .linkbtn { margin-left: 6px; color: var(--gold); font-weight: 600; }
+.pending-note { margin: 6px 0; padding: 4px 9px; border-left: 3px solid var(--pen); border-radius: 4px; background: color-mix(in srgb, var(--pen) 10%, transparent);
+  color: var(--ink); font: 500 12.5px/1.45 var(--font-ui); }
+.pending-note.sm { margin: 4px 0 0; padding: 2px 7px; font-size: 11.5px; }
+.outbox-list { list-style: none; margin: 0; padding: 0; }
+.outbox-list li { padding: 10px 0; border-bottom: 1px dotted var(--line); display: flex; flex-wrap: wrap; gap: 6px 10px; align-items: baseline; }
+.outbox-list li > span { flex: 1 1 220px; }
+.outbox-list small { display: block; color: var(--muted); }
+
+/* ---------------- plans: a date to see a show */
+.stub-acts { display: flex; flex-wrap: wrap; gap: 6px; }
+.stub.past .stub-d { background: linear-gradient(180deg, #2b3a67, #1d2848); }
+.act-line.planned { color: var(--pen); font-weight: 600; }
+
+/* ---------------- inside the iPhone and Android apps (html.native-app, set by app/scripts/assemble.mjs) */
+.native-app .install-card, .native-app #install-wrap { display: none !important; }
+.native-app body { -webkit-tap-highlight-color: transparent; }

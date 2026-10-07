@@ -47,6 +47,7 @@
       async signIn() { throw err("Accounts are not set up on this site yet.", "no_server"); },
       async signOut() {},
       async resetPassword() { throw err("Accounts are not set up on this site yet.", "no_server"); },
+      async handleAuthLink() { throw err("Accounts are not set up on this copy of Billd.", "no_server"); },
       async updateProfile(p) { Object.assign(db.profile, p); save(); emit(me()); return me(); },
       async getProfile(username) { return username === db.profile.username ? me() : null; },
       async members() { return [me()]; },
@@ -155,13 +156,25 @@
       document.head.appendChild(s);
     });
   }
+  // Email links (confirm your address, reset your password) come back to the page that asked for
+  // them. Inside the iPhone and Android apps the page's own address (capacitor://localhost,
+  // https://localhost) can't be opened from an email, so they name billd.theater's link page,
+  // which the app also catches (web/native.js, docs/app-build.md). The website is unchanged.
+  const N = window.BilldNative || { isApp: false };
+  const APP = (window.DQ_CONFIG || {}).app || {};
+  const returnTo = (hash = "") => (N.isApp ? APP.authReturn || "https://billd.theater/auth/confirm.html" : location.origin + location.pathname + hash);
+  const OTP_TYPES = new Set(["signup", "invite", "magiclink", "recovery", "email_change", "email"]);
+  const ME_KEY = "billd-me-v1";  // the signed-in member's profile, for opening Billd offline
+
   function supabaseBackend() {
     const { listeners, emit } = bus();
     let sb = null, profile = null, uid = null;
+    let offline = false;  // signed in from the saved session while the server can't be reached
     let role = null, standing = { status: "active", note: null };  // the signed-in member's team role and standing
     let termsVersion = null;  // the Terms members must have accepted to post, while they are switched on
     const PROFILE = "profile:profiles!user_id(id,username,display_name)";
-    const check = ({ data, error }) => { if (error) throw friendly(error); return data; };
+    // the HTTP status travels with the error, so the offline diary can tell "log in again" (401) from a refusal
+    const check = ({ data, error, status }) => { if (error) throw Object.assign(friendly(error), { status }); return data; };
     function friendly(e) {
       const m = e?.message || String(e);
       if (/Invalid login credentials/i.test(m)) return err("That email and password don't match an account.", "bad_login");
@@ -196,22 +209,59 @@
         sb.from("staff").select("role").eq("user_id", uid).maybeSingle(),
         sb.from("member_status").select("status,note").eq("user_id", uid).maybeSingle()]);
       profile = data || null;
+      // no connection: the profile saved last time, so the diary still opens offline
+      const unreachable = [st, ms].some((r) => /Failed to fetch|NetworkError|Load failed/i.test(r.error?.message || "")) || (!data && !navigator.onLine);
+      if (!profile && unreachable && cachedProfile()) return profile;
       role = st.data?.role || null;  // the tables are missing on a project not yet updated: no role
       standing = ms.data ? { status: ms.data.status, note: ms.data.note } : { status: "active", note: null };
+      if (profile) { offline = false; try { localStorage.setItem(ME_KEY, JSON.stringify({ profile, role, standing })); } catch (e) { /* not kept */ } }
       return profile;
     }
     const rpc = async (fn, args) => { needMe(); check(await sb.rpc(fn, args)); };
+    function cachedProfile() {
+      try {
+        const c = JSON.parse(localStorage.getItem(ME_KEY) || "null");
+        if (uid && c?.profile?.id === uid) { profile = c.profile; role = c.role || null; standing = c.standing || standing; offline = true; return true; }
+      } catch (e) { /* none saved */ }
+      return false;
+    }
+    // back online (or the session renewed): load the member properly, and say so (outbox.js then sends what waited)
+    async function recover() {
+      if (!offline || !sb || !navigator.onLine) return;
+      const { data } = await sb.auth.getSession();
+      if (!data.session?.user?.id) return;
+      uid = data.session.user.id; await loadProfile();
+      if (!offline) emit(profile);
+    }
+    function savedSessionUser() {
+      try {
+        const key = `sb-${new URL(cfg.url).hostname.split(".")[0]}-auth-token`;  // supabase-js's default storage key
+        return JSON.parse(localStorage.getItem(key) || "null")?.user?.id || null;
+      } catch (e) { return null; }
+    }
     const ready = loadScript(SUPABASE_JS).then(async () => {
       sb = window.supabase.createClient(cfg.url, cfg.anonKey, { auth: { persistSession: true, autoRefreshToken: true, detectSessionInUrl: true } });
-      const { data } = await sb.auth.getSession();
-      uid = data.session?.user?.id || null;
-      await loadProfile();
+      // Without a connection, renewing an expired session keeps retrying for up to half a minute, and
+      // every query waits for it; so after a few seconds Billd opens offline from the kept session and
+      // the profile saved last time (writes wait in the offline diary, web/outbox.js). supabase-js keeps
+      // the session and renews it once the connection is back; recover() then loads the member properly.
+      const got = sb.auth.getSession();
+      const first = await Promise.race([got, new Promise((ok) => setTimeout(() => ok(null), navigator.onLine ? 8000 : 1500))]);
+      uid = first?.data?.session?.user?.id || null;
+      if (uid) await loadProfile();
+      else if (!first || first.error || !navigator.onLine) {
+        uid = savedSessionUser();
+        if (uid && !cachedProfile()) uid = null;  // nothing saved to show: signed out until the connection is back
+        got.then(({ data }) => { if (data.session?.user?.id) recover(); }).catch(() => {});
+      } else await loadProfile();
       // supabase-js holds a lock while this runs, so the queries wait until it returns
       sb.auth.onAuthStateChange((_ev, session) => {
         const next = session?.user?.id || null;
-        if (next === uid && (profile || !next)) return;
+        if (next === uid && (profile || !next)) { if (offline && next) setTimeout(recover, 0); return; }
         setTimeout(async () => { uid = next; await loadProfile(); emit(profile); }, 0);
       });
+      window.addEventListener("online", () => setTimeout(recover, 500));
+      N.onResume?.(() => recover());
     });
     const shapeLog = (l) => ({ ...l, likes: l.log_likes?.[0]?.count ?? 0, comments: l.log_comments?.[0]?.count ?? 0,
                                liked_by_me: false, log_likes: undefined, log_comments: undefined });
@@ -231,12 +281,14 @@
       ready,
       me: () => profile,
       isLocalData: () => false,
+      isOffline: () => offline,
+      recover: () => recover(),
       async signUp(email, password, username, displayName, termsAccepted) {
         username = String(username || "").toLowerCase();
         if (!USERNAME.test(username)) throw err("Usernames are 3 to 20 letters, numbers or underscores.", "bad_username");
         const taken = check(await sb.from("profiles").select("id").eq("username", username).maybeSingle());
         if (taken) throw err("That username is taken.", "username_taken");
-        const { data, error } = await sb.auth.signUp({ email, password, options: { data: { username, display_name: (displayName || "").trim().slice(0, 50) || undefined, terms_version: termsAccepted || undefined }, emailRedirectTo: location.origin + location.pathname } });
+        const { data, error } = await sb.auth.signUp({ email, password, options: { data: { username, display_name: (displayName || "").trim().slice(0, 50) || undefined, terms_version: termsAccepted || undefined }, emailRedirectTo: returnTo() } });
         if (error) throw friendly(error);
         if (!data.session) return { confirm: true };  // the project asks new members to confirm their email
         uid = data.user.id; await loadProfile(); emit(profile); return { confirm: false };
@@ -246,10 +298,43 @@
         if (error) throw friendly(error);
         uid = data.user.id; await loadProfile(); emit(profile);
       },
-      async signOut() { await sb.auth.signOut(); uid = null; profile = null; emit(null); },
+      async signOut() {
+        // supabase-js keeps the saved session when it can't reach the server to end it (signed in
+        // offline with an expired token): then it's removed here, or the device would sign back in
+        let failed = false;
+        try { const { error } = await sb.auth.signOut(); failed = !!error; } catch (e) { failed = true; }
+        if (failed) {
+          try { const pre = `sb-${new URL(cfg.url).hostname.split(".")[0]}-auth-token`; Object.keys(localStorage).filter((k) => k.startsWith(pre)).forEach((k) => localStorage.removeItem(k)); }
+          catch (e) { /* blocked */ }
+        }
+        uid = null; profile = null; role = null; standing = { status: "active", note: null }; offline = false;
+        try { localStorage.removeItem(ME_KEY); } catch (e) { /* none */ }
+        emit(null);
+      },
       async resetPassword(email) {
-        const { error } = await sb.auth.resetPasswordForEmail(email, { redirectTo: location.origin + location.pathname + "#/settings" });
+        const { error } = await sb.auth.resetPasswordForEmail(email, { redirectTo: returnTo("#/settings") });
         if (error) throw friendly(error);
+      },
+      // An email link that opened the app (or web/auth/confirm.html): either the newer form,
+      // https://billd.theater/auth/confirm.html?token_hash=…&type=…, verified here, or the current one,
+      // where Supabase has already verified it and sends the session in the address (#access_token=…).
+      // Resolves with { type: "recovery" | "signup" | … }.
+      async handleAuthLink(href) {
+        await ready;
+        const u = new URL(href);
+        const q = u.searchParams, h = new URLSearchParams(u.hash.replace(/^#/, ""));
+        if (q.get("error_description") || h.get("error_description")) throw err("That link didn't work (it may have expired). Try logging in, or ask for a new link.", "bad_link");
+        const type = q.get("type") || h.get("type") || "";
+        if (q.get("token_hash")) {
+          const { error } = await sb.auth.verifyOtp({ token_hash: q.get("token_hash"), type: OTP_TYPES.has(type) ? type : "email" });
+          if (error) throw err("That link didn't work (it may have expired, or been used already). Try logging in, or ask for a new link.", "bad_link");
+        } else if (h.get("access_token") && h.get("refresh_token")) {
+          const { error } = await sb.auth.setSession({ access_token: h.get("access_token"), refresh_token: h.get("refresh_token") });
+          if (error) throw err("That link didn't work (it may have expired). Try logging in, or ask for a new link.", "bad_link");
+        } else throw err("That isn't a Billd sign-in link.", "bad_link");
+        const { data } = await sb.auth.getSession();
+        uid = data.session?.user?.id || null; await loadProfile(); emit(profile);
+        return { type: type || "signup" };
       },
       async setPassword(password) { const { error } = await sb.auth.updateUser({ password }); if (error) throw friendly(error); },
       async updateProfile(p) {
@@ -543,7 +628,9 @@
           throw err(msg, "delete_failed");
         }
         try { await sb.auth.signOut({ scope: "local" }); } catch (e) { /* the session is gone with the account */ }
-        uid = null; profile = null; role = null; standing = { status: "active", note: null }; emit(null);
+        uid = null; profile = null; role = null; standing = { status: "active", note: null };
+        try { localStorage.removeItem(ME_KEY); } catch (e) { /* none */ }
+        emit(null);
       },
       async report(kind, targetId, reason) {
         needMe();

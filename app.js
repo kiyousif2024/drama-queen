@@ -12,6 +12,11 @@
   const fold = (s) => String(s ?? "").normalize("NFKD").replace(/[̀-ͯ]/g, "").toLowerCase();
   const S = window.BilldSocial;
   const CFG = window.DQ_CONFIG || {};
+  // the iPhone and Android apps (web/native.js); on the website APP is false and N's calls do what the site always did
+  const N = window.BilldNative;
+  const APP = !!N.isApp;
+  const OB = window.BilldOutbox;
+  const DEVICE = APP ? "phone" : "device";
 
   // lookups without a prototype, so an id such as "constructor" or "__proto__" finds nothing
   const dict = () => Object.create(null);
@@ -86,12 +91,21 @@
   const playUrl = (id) => "#/play/" + encodeURIComponent(id);
 
   // ---------------------------------------------------------------- data
-  function load() {
-    if (window.PLAYS_DATA) return Promise.resolve(window.PLAYS_DATA);
+  // the app's downloaded catalogue (web/native.js), or null: the files beside the page
+  let dataSrc = null;
+  async function load() {
+    if (window.PLAYS_DATA) return window.PLAYS_DATA;
+    if (APP) {  // a newer catalogue downloaded from billd.theater, else the one the app was built with
+      try { dataSrc = await N.catalogue.source(); if (dataSrc) return await dataSrc.json("index.json"); }
+      catch (e) { console.warn("catalogue: using the bundled copy", e); dataSrc = null; }
+    }
     // ask the server each time (GitHub Pages lets browsers reuse the index for 10 minutes), so a new publish shows at once
     const get = (url) => fetch(url, { cache: "no-cache" }).then((r) => { if (!r.ok) throw new Error(r.status); return r.json(); });
     return get("data/index.json").catch(() => get("plays.json"));
   }
+  // a file of the catalogue (a shard, the credits): named with the build's date, so a cached copy is always right
+  const dataJSON = (path) => (dataSrc ? dataSrc.json(path)
+    : fetch(`data/${path}?v=${encodeURIComponent(D.meta.generated)}`).then((r) => { if (!r.ok) throw new Error(r.status); return r.json(); }));
   // The split site (build_db.py --site) ships a compact index and loads each play's
   // description and productions from a shard when the play is opened.
   function expandIndex(data) {
@@ -127,7 +141,7 @@
   function loadCredits() {
     if (creditsLoaded || !D?.meta?.generated || !D.shards) return;
     creditsLoaded = true;
-    fetch(`data/credits.json?v=${encodeURIComponent(D.meta.generated)}`).then((r) => (r.ok ? r.json() : null)).then((c) => {
+    dataJSON("credits.json").then((c) => {
       if (!c) return;
       const names = c.names.map((n) => fold(n));
       for (const [id, list] of Object.entries(c.works)) {
@@ -141,7 +155,7 @@
   function loadDetail(w) {
     if (!w._lazy || w._loaded) return Promise.resolve(w);
     const n = String(w._shard).padStart(2, "0");
-    shardCache[n] = shardCache[n] || fetch(`data/d/${n}.json?v=${encodeURIComponent(D.meta.generated)}`).then((r) => { if (!r.ok) throw new Error(r.status); return r.json(); });
+    shardCache[n] = shardCache[n] || dataJSON(`d/${n}.json`);
     return shardCache[n].then((sh) => {
       Object.entries(sh._people || {}).forEach(([slug, r]) => {
         if (!ppl[slug]) ppl[slug] = { slug, name: r[0], name_native: r[1] ?? null, birth_year: r[2] ?? null, death_year: r[3] ?? null, dates_approx: !!r[4] };
@@ -191,6 +205,8 @@
     $("#loading").hidden = true;
     loadCredits();
     route();
+    // the app: fetch a newer catalogue from billd.theater in the background, for the next launch
+    if (APP && !window.PLAYS_DATA) setTimeout(() => N.catalogue.refresh().catch((e) => console.warn("catalogue refresh:", e.message)), 5000);
   }
 
   // ---------------------------------------------------------------- posters
@@ -418,7 +434,7 @@
       credits: renderCredits, copyright: renderCopyright, "delete-account": () => renderDeleteAccount(b),
       terms: () => renderLegal("terms"), privacy: () => renderLegal("privacy"), guidelines: () => renderLegal("guidelines"),
     }[a || ""] || renderNotFound;
-    Promise.resolve(go()).then(settle).catch((e) => { console.error(e); if (stale(tok)) return; pageEl().innerHTML = `<div class="wrap"><p class="empty">Something went wrong: ${esc(e.message)}</p></div>`; });
+    Promise.resolve(go()).then(settle).catch((e) => { console.error(e); if (stale(tok)) return; pageEl().innerHTML = `<div class="wrap"><p class="empty">${e?.code === "no_copy" ? esc(e.message) : `Something went wrong: ${esc(e.message)}`}</p></div>`; });
   }
   window.addEventListener("hashchange", route);
   function renderNotFound() {
@@ -485,11 +501,11 @@
     document.title = "Billd: a diary for theatregoers";
     const now = onNow();
     const intro = !me || S.kind === "local" ? `
-      <section class="hero">
+      <section class="hero${APP ? " hero-app" : ""}">
         ${stageHTML(`<h1>Your <em>show biz.</em></h1>
             <p>Every play you've watched, from your first school trip to last night's preview, kept in one place, with the plays of every culture and era to browse between curtains.</p>
             <div class="acts">${S.kind === "local" ? `<button class="btn" type="button" data-log>Log a show</button>` : `<button class="btn" type="button" data-auth-open="up">Join Billd</button>`}
-              <a class="btn ghost" href="#/onstage">What's on now</a></div>`)}
+              ${APP && S.kind !== "local" ? `<button class="btn ghost" type="button" data-auth-open="in">Log in</button>` : `<a class="btn ghost" href="#/onstage">What's on now</a>`}</div>`)}
         <div class="lets" aria-label="What you can do on Billd">
           <div class="let">${ICONS.ticket}<p>Find out what's playing tonight in your city, with links to buy seats</p></div>
           <div class="let">${ICONS.cal}<p>Note the date, the theatre and the company for each performance, so your theatregoing history is never lost</p></div>
@@ -500,17 +516,32 @@
       </section>` : `<section class="hero hero-member">${stageHTML(`<h1>Welcome back, <em>${who(me)}.</em></h1>
             <div class="acts"><button class="btn" type="button" data-log>Log a show</button><a class="btn ghost" href="#/onstage">What's on now</a>
               <a class="btn ghost" href="#/u/${esc(me.username)}/diary">Your diary</a></div>`)}</section>`;
-    pageEl().innerHTML = `<div class="wrap">${installCardHTML()}${intro}
-      <section class="sec"><div class="sec-head"><h2>On stage now</h2><a href="#/onstage">All ${now.length.toLocaleString()} →</a></div>
-        <div class="row-scroll">${now.slice(0, 18).map((w) => cell(w, `<div class="cell-cap">${esc(nowWhere(w))}</div>`)).join("") || `<p class="empty">No current listings.</p>`}</div></section>
-      <section class="sec" id="home-pop" hidden><div class="sec-head"><h2>Popular on Billd this week</h2></div><div class="row-scroll" id="home-pop-row"></div></section>
-      <section class="sec" id="home-friends" hidden><div class="sec-head"><h2>New from friends</h2><a href="#/activity">More →</a></div><div class="row-scroll" id="home-friends-row"></div></section>
-      <section class="sec" id="home-rev" hidden><div class="sec-head"><h2>Recent reviews</h2><a href="#/activity/everyone">More →</a></div><ul class="reviews" id="home-rev-list"></ul></section>
-      <section class="sec"><div class="sec-head"><h2>Explore the archive</h2><a href="#/browse">Browse ${works.length.toLocaleString()} plays →</a></div>
+    const ahead = signedIn() ? comingUp() : [];
+    const sec = {
+      plans: ahead.length ? `<section class="sec" id="home-plans"><div class="sec-head"><h2>Coming up</h2></div><ul class="stubs">${ahead.map(planStubHTML).join("")}</ul></section>` : "",
+      // the app opens on the member's own diary (App Store guideline 4.2: a diary, not a page of ticket links)
+      diary: APP && signedIn() ? `<section class="sec" id="home-diary"><div class="sec-head"><h2>Recently in your diary</h2><a href="#/u/${esc((me || S.me()).username)}/diary">Diary →</a></div><div class="scraps" id="home-diary-row"><p class="hint">Loading…</p></div></section>` : "",
+      onstage: `<section class="sec"><div class="sec-head"><h2>On stage now</h2><a href="#/onstage">All ${now.length.toLocaleString()} →</a></div>
+        <div class="row-scroll">${now.slice(0, 18).map((w) => cell(w, `<div class="cell-cap">${esc(nowWhere(w))}</div>`)).join("") || `<p class="empty">No current listings.</p>`}</div></section>`,
+      pop: `<section class="sec" id="home-pop" hidden><div class="sec-head"><h2>Popular on Billd this week</h2></div><div class="row-scroll" id="home-pop-row"></div></section>`,
+      friends: `<section class="sec" id="home-friends" hidden><div class="sec-head"><h2>New from friends</h2><a href="#/activity">More →</a></div><div class="row-scroll" id="home-friends-row"></div></section>`,
+      rev: `<section class="sec" id="home-rev" hidden><div class="sec-head"><h2>Recent reviews</h2><a href="#/activity/everyone">More →</a></div><ul class="reviews" id="home-rev-list"></ul></section>`,
+      explore: `<section class="sec"><div class="sec-head"><h2>Explore the archive</h2><a href="#/browse">Browse ${works.length.toLocaleString()} plays →</a></div>
         <p class="lead">Plays from every culture and era, from Sophocles to this season, with where and when they were staged.</p>
-        <div class="row-scroll" style="margin-top:16px">${classics().map((w) => cell(w)).join("")}</div></section>
-    </div>`;
+        <div class="row-scroll" style="margin-top:16px">${classics().map((w) => cell(w)).join("")}</div></section>`,
+    };
+    const order = APP ? ["plans", "diary", "friends", "rev", "onstage", "pop", "explore"] : ["plans", "onstage", "pop", "friends", "rev", "explore"];
+    pageEl().innerHTML = `<div class="wrap">${installCardHTML()}${intro}${order.map((k) => sec[k]).join("")}</div>`;
     // members' activity fills in as it arrives
+    if (sec.diary) {
+      const who0 = me || S.me();
+      S.logsForUser(who0.id).then((logs) => {
+        if (stale(tok) || !$("#home-diary-row")) return;
+        const recent = logs.filter((l) => byId[l.play_id]).slice(0, 6);
+        $("#home-diary-row").innerHTML = recent.length ? recent.map((l) => scrapHTML(l, true)).join("")
+          : `<p class="empty">Nothing logged yet. <button class="linkbtn" type="button" data-log>Log the last show you saw.</button></p>`;
+      }).catch(() => { if ($("#home-diary-row")) $("#home-diary-row").innerHTML = `<p class="empty">Your diary couldn't be loaded. Check your connection.</p>`; });
+    }
     try {
       const pop = Object.keys(popular).map((id) => byId[id]).filter(Boolean).slice(0, 18);
       if (pop.length >= 4) { $("#home-pop-row").innerHTML = pop.map((w) => cell(w)).join(""); $("#home-pop").hidden = false; }
@@ -1127,6 +1158,7 @@
   }
   function renderPlayActions(w) {
     const s = myStatus[w.id] || {};
+    const plan = signedIn() ? planOf(w.id) : null;
     const html = !signedIn() ? `<div class="actions"><div class="act-signin">Log, rate and review the shows you see, and keep a list of what you want to see.<button class="btn" type="button" data-auth-open="up">Create a free account</button><br><button class="linkbtn" type="button" data-auth-open="in" style="margin-top:10px">Log in</button></div></div>`
       : `<div class="actions">
         <div class="act-row">
@@ -1137,6 +1169,7 @@
         <div class="act-rate"><span class="label" id="rate-l">${s.rating ? "Rated" : "Rate"}</span>${rateHTML("prate", s.rating || 0)}</div>
         <button type="button" class="act-line" data-log-play>${(s.seen ? "Log again or review…" : "Log or review…")}</button>
         <button type="button" class="act-line" data-addlist>Add to lists…</button>
+        <button type="button" class="act-line${plan ? " planned" : ""}" data-plan="${esc(w.id)}">${plan ? `Going ${esc(planWhen(plan))} · change` : "Plan a date to see it…"}</button>
         <button type="button" class="act-line" data-addprod>Add a production…</button>
         <button type="button" class="act-line" data-share>Share</button>
       </div>`;
@@ -1216,7 +1249,12 @@
     if (t.closest("[data-pv-more]") && w) { pv.shown += 20; $("#prod-list").innerHTML = prodListHTML(w); return; }
     if (t.closest("[data-pv-clear]") && w) { Object.assign(pv, { city: "", period: "", q: "", shown: 10 }); return refreshProds(w); }
     if (t.closest("[data-addlist]") && w) return openListPicker(w.id);
-    if (t.closest("[data-share]") && w) return share(`${w.title} on Billd`, location.href);
+    if (t.closest("[data-share]") && w) return share(`${w.title} on Billd`, playUrl(w.id));
+    const sr = t.closest("[data-share-review]"); if (sr) return share(sr.dataset.title, `#/review/${sr.dataset.shareReview}`);
+    const pl = t.closest("[data-plan]"); if (pl) return openPlan(pl.dataset.plan);
+    const pi = t.closest("[data-plan-ics]"); if (pi) { const p = planOf(pi.dataset.planIcs); return p && calendarFile(p); }
+    const pg = t.closest("[data-plan-log]"); if (pg) { const p = planOf(pg.dataset.planLog); return p && openLog(p.play_id, null, { seen_on: p.date, venue: p.venue, city: p.city, fromPlan: true }); }
+    const pr = t.closest("[data-plan-rm]"); if (pr) { await removePlan(pr.dataset.planRm); toast("Plan removed"); return route(); }
     if (t.closest("[data-fix]") && w) return openFeedback({ id: w.id, title: w.title });
     const tr = t.closest("[data-trad]"); if (tr) return filterTradition(tr.dataset.trad);
     const pe = t.closest("[data-person]");
@@ -1233,9 +1271,11 @@
     if (t.closest("[data-log]")) return openLog(null);
     const ao = t.closest("[data-auth-open]"); if (ao) return openAuth(ao.dataset.authOpen);
   });
-  async function share(title, url) {
-    try { if (navigator.share) { await navigator.share({ title, url }); return; } } catch (e) { if (e.name === "AbortError") return; }
-    try { await navigator.clipboard.writeText(url); toast("Link copied"); } catch (e) { prompt("Copy this link", url); }
+  // the phone's share sheet in the app; Web Share or copy the link on the website. Links always
+  // name the public site (inside the app the page's own address is a local one).
+  async function share(title, hash) {
+    const how = await N.share({ title, url: N.publicUrl(hash) });
+    if (how === "copied") toast("Link copied");
   }
 
   // ---------------------------------------------------------------- reviews
@@ -1245,6 +1285,9 @@
   const HELD_SAVED = "Saved. Only you and the Billd team can see it until the team approves it: it contains a word that needs a check.";
   const heldNote = (x, tag = "p") => (x?.held ? `<${tag} class="held-note">${HELD_TEXT}.${me && x.user_id && x.user_id !== me.id ? " Only its author and the Billd team can see it." : ""}</${tag}>` : "");
   const VIS_TITLE = { friends: "Only the people this member follows can see this", private: "Only you can see this" };
+  // an entry made or changed offline, waiting on this device (outbox.js)
+  const PENDING_TEXT = () => `Saved on this ${DEVICE} · will sync when you're online`;
+  const isLocalId = (id) => String(id).startsWith("local-");
   function reviewHTML(l, { poster: withPoster = true, full = false } = {}) {
     const w = byId[l.play_id];
     const mine = me && l.user_id === me.id;
@@ -1254,11 +1297,12 @@
       <div>${withPoster ? `<h3 class="review-title"><a href="${playUrl(l.play_id)}">${esc(w?.title || l.play_title)}</a>${w && fmtDate(w) ? `<small>${esc(fmtDate(w))}</small>` : ""}</h3>` : ""}
         <div class="review-head">${avatar(l.profile, "sm")}<a href="#/u/${esc(l.profile?.username)}">${who(l.profile)}</a>${l.rating ? `<span class="stars" aria-label="${starsLabel(l.rating)}">${stars(l.rating)}</span>` : ""}${l.liked ? `<span class="heart" title="Liked it">♥</span>` : ""}${l.rewatch ? `<span title="Seen before">↻</span>` : ""}
           <span>${l.seen_on ? `Seen ${esc(fmtPartial(l.seen_on))}` : ago(l.created_at)}${l.venue ? ` · ${esc(l.venue)}` : ""}</span>${VIS_LABEL[l.visibility] ? `<span class="vis" title="${VIS_TITLE[l.visibility]}">${VIS_LABEL[l.visibility]}</span>` : ""}</div>
-        ${heldNote(l)}${body}
+        ${heldNote(l)}${l.pending ? `<p class="pending-note">${PENDING_TEXT()}</p>` : ""}${body}
         <div class="review-foot">
-          ${S.kind !== "local" ? `<button type="button" data-like-log="${l.id}" aria-pressed="${!!l.liked_by_me}">♥ <span>${l.likes ? l.likes.toLocaleString() : ""}</span> ${l.liked_by_me ? "Liked" : "Like"}</button>
-          <a href="#/review/${l.id}">${l.comments ? plural(l.comments, "comment") : "Comment"}</a>` : ""}
-          ${mine ? `<button type="button" data-edit-log="${l.id}">Edit</button>` : l.review ? modButton("review", l.id, l.user_id) : ""}
+          ${S.kind !== "local" && !isLocalId(l.id) ? `<button type="button" data-like-log="${esc(l.id)}" aria-pressed="${!!l.liked_by_me}">♥ <span>${l.likes ? l.likes.toLocaleString() : ""}</span> ${l.liked_by_me ? "Liked" : "Like"}</button>
+          <a href="#/review/${esc(l.id)}">${l.comments ? plural(l.comments, "comment") : "Comment"}</a>` : ""}
+          ${full && S.kind !== "local" && !isLocalId(l.id) && (l.visibility || "public") === "public" && !l.held ? `<button type="button" data-share-review="${esc(l.id)}" data-title="${esc(`${l.profile?.display_name || cap(l.profile?.username) || "A member"}'s review of ${w?.title || l.play_title} on Billd`)}">Share</button>` : ""}
+          ${mine ? `<button type="button" data-edit-log="${esc(l.id)}">Edit</button>` : l.review ? modButton("review", l.id, l.user_id) : ""}
         </div></div></li>`;
   }
   async function likeLog(btn) {
@@ -1276,6 +1320,7 @@
     const l = await S.getLog(id);
     if (stale(tok)) return;
     if (!l) return renderNotFound();
+    if (isLocalId(l.id)) { location.replace(playUrl(l.play_id)); return; }  // not on the server yet: nothing to comment on
     const w = byId[l.play_id];
     document.title = `${l.profile?.display_name || l.profile?.username || "A member"}'s review of ${w?.title || l.play_title} · Billd`;
     pageEl().innerHTML = `<div class="wrap" style="max-width:820px;padding-top:30px"><ul class="reviews">${reviewHTML(l, { full: true })}</ul>
@@ -1300,11 +1345,13 @@
   }
 
   // ---------------------------------------------------------------- log dialog
-  const logState = { play: null, edit: null, liked: false, rating: 0 };
-  function openLog(playId, edit) {
+  const logState = { play: null, edit: null, liked: false, rating: 0, fromPlan: null };
+  // prefill: the date and theatre of a plan (openPlan) being logged after the show
+  function openLog(playId, edit, prefill) {
     if (!requireMe("Log in to keep a diary of the shows you see.")) return;
     const d = $("#logd");
     logState.edit = edit || null;
+    logState.fromPlan = prefill?.fromPlan ? playId : null;
     // a new entry starts from the rating and like already given to the show
     const st = playId ? myStatus[playId] : null;
     logState.liked = edit ? !!edit.liked : !!st?.liked; logState.rating = edit ? (edit.rating || 0) : (st?.rating || 0);
@@ -1313,9 +1360,9 @@
     $("#log-pick").value = ""; $("#log-pick-list").innerHTML = "";
     $("#log-note").hidden = true;
     if (playId) setLogPlay(playId); else { $("#log-title").textContent = "What did you see?"; $("#log-meta").textContent = ""; $("#log-poster").innerHTML = ""; $("#log-kicker").textContent = "Log a show"; }
-    $("#log-date").value = edit ? (edit.seen_on || "") : localToday();
+    $("#log-date").value = edit ? (edit.seen_on || "") : prefill?.seen_on && prefill.seen_on <= localToday() ? prefill.seen_on : localToday();
     $("#log-date").max = localToday();
-    $("#log-venue").value = edit?.venue || ""; $("#log-city").value = edit?.city || "";
+    $("#log-venue").value = edit?.venue || prefill?.venue || ""; $("#log-city").value = edit?.city || prefill?.city || "";
     $("#log-review").value = edit?.review || "";
     $("#log-spoil").checked = !!edit?.spoilers; $("#log-rewatch").checked = !!edit?.rewatch;
     $("#log-del").hidden = !edit;
@@ -1377,17 +1424,191 @@
       const patch = { seen: true }; if (row.rating) patch.rating = row.rating; if (row.liked) patch.liked = true;
       if (row.visibility) patch.visibility = row.visibility;  // the show's rating and marks follow the entry
       const s = await S.setStatus(w.id, patch); if (s) myStatus[w.id] = s;
+      if (logState.fromPlan === w.id) await removePlan(w.id);  // seen: the plan has done its job
       $("#logd").close();
-      toast(saved?.held ? HELD_SAVED : logState.edit ? "Entry updated" : row.review && S.kind !== "local" ? "Review posted" : "Added to your diary");
+      // no connection: kept on this device by outbox.js, and sent when it's back
+      toast(saved?.pending ? `Saved on this ${DEVICE}. It will sync when you're back online.` : saved?.held ? HELD_SAVED
+        : logState.edit ? "Entry updated" : row.review && S.kind !== "local" ? "Review posted" : "Added to your diary");
       route();
     } catch (err) { note("#log-note", err.message, true); }
     finally { $("#log-save").disabled = false; }
   });
   $("#log-del").addEventListener("click", async () => {
     if (!logState.edit || !confirm("Delete this diary entry? This can't be undone.")) return;
-    try { await S.deleteLog(logState.edit.id); $("#logd").close(); toast("Entry deleted"); route(); } catch (e) { note("#log-note", e.message, true); }
+    try { const r = await S.deleteLog(logState.edit.id); $("#logd").close(); toast(r?.queued ? `Entry deleted. Billd will be told when this ${DEVICE} is back online.` : "Entry deleted"); route(); } catch (e) { note("#log-note", e.message, true); }
   });
   function note(sel, msg, isErr, ok) { const n = $(sel); n.textContent = msg || ""; n.hidden = !msg; n.classList.toggle("err", !!isErr); n.classList.toggle("ok", !!ok); }
+
+
+  // ---------------------------------------------------------------- plans: a date to see a show
+  // "I'm going on…": a date (and curtain-up time) for a show, kept on this device (in the app, also in
+  // its own storage). The app can remind the member (a local notification, no server); the app and the
+  // website both make a calendar file (.ics). After the date, the home page asks how it was, to log it.
+  // Plans don't reach Billd's server yet (that needs a column on play_status: docs/app-build.md).
+  const planKey = () => `billd-plans-v1:${me?.id || "local"}`;
+  // only well-formed plans are read back, so a damaged entry can't break the home page
+  function plans() {
+    const out = {};
+    try {
+      const all = JSON.parse(N.prefs.get(planKey()) || "{}");
+      if (all && typeof all === "object") for (const [k, p] of Object.entries(all)) {
+        if (p && typeof p === "object" && p.play_id === k && /^\d{4}-\d{2}-\d{2}$/.test(p.date || "") && (!p.time || /^\d{2}:\d{2}$/.test(p.time))) out[k] = p;
+      }
+    } catch (e) { /* damaged: none */ }
+    return out;
+  }
+  // log out (website) or account deleted: the plans and their reminders go
+  function clearPlans(key = planKey()) {
+    let all = {}; try { all = JSON.parse(N.prefs.get(key) || "{}") || {}; } catch (e) { /* none */ }
+    const ids = Object.values(all).filter((p) => p?.remind && p.play_id).map((p) => remindId(p.play_id));
+    if (ids.length) N.reminders.cancel(ids).catch(() => {});
+    N.prefs.remove(key);
+  }
+  const savePlans = (all) => N.prefs.set(planKey(), JSON.stringify(all));
+  const planOf = (playId) => plans()[playId] || null;
+  const WEEKDAYS = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
+  function fmtTime(t) {
+    const [h, m] = (t || "").split(":").map(Number);
+    return Number.isFinite(h) ? `${((h + 11) % 12) + 1}${m ? ":" + String(m).padStart(2, "0") : ""} ${h < 12 ? "am" : "pm"}` : "";
+  }
+  function planWhen(p) {
+    const dt = new Date(p.date + "T12:00:00Z");
+    return `${WEEKDAYS[dt.getUTCDay()]} ${dt.getUTCDate()} ${MONTHS[dt.getUTCMonth()]}${p.time ? `, ${fmtTime(p.time)}` : ""}`;
+  }
+  // when each kind of reminder goes off, in the phone's own time
+  function remindAt(p, kind) {
+    const [y, m, d] = p.date.split("-").map(Number);
+    if (kind === "eve") return new Date(y, m - 1, d - 1, 18, 0);
+    if (kind === "morning") return new Date(y, m - 1, d, 9, 0);
+    if (kind === "3h" && p.time) { const [hh, mm] = p.time.split(":").map(Number); return new Date(y, m - 1, d, hh - 3, mm || 0); }
+    return null;
+  }
+  const remindId = (playId) => hash("plan:" + playId) || 1;  // one reminder per planned show
+  function reminderText(p, w) {
+    const where = [p.time && `Curtain up ${fmtTime(p.time)}`, p.venue && `at ${p.venue}`].filter(Boolean).join(" ");
+    const title = p.remind === "eve" ? `Tomorrow: ${w.title}` : p.remind === "3h" ? `Tonight: ${w.title}` : `Today: ${w.title}`;
+    return { title, body: where ? where + "." : "Enjoy the show." };
+  }
+  async function removePlan(playId) {
+    const all = plans(); if (!all[playId]) return;
+    if (all[playId].remind) await N.reminders.cancel([remindId(playId)]);
+    delete all[playId]; savePlans(all);
+  }
+  // an iCalendar file: a floating local time (the theatre's own clock), or the whole day without one
+  const icsText = (t) => String(t || "").replace(/\\/g, "\\\\").replace(/[;,]/g, (c) => "\\" + c).replace(/\r?\n/g, "\\n");
+  // RFC 5545: lines of at most 75 octets (UTF-8), continued with a space; never split inside a character
+  const utf8 = new TextEncoder();
+  function icsFold(line) {
+    const out = []; let cur = "", size = 0;
+    for (const ch of line) {
+      const n = utf8.encode(ch).length;
+      if (size + n > (out.length ? 74 : 75)) { out.push(cur); cur = ""; size = 0; }
+      cur += ch; size += n;
+    }
+    out.push(cur);
+    return out.join("\r\n ");
+  }
+  function icsFor(p) {
+    const w = byId[p.play_id];
+    const day = p.date.replace(/-/g, "");
+    const next = new Date(p.date + "T12:00:00Z"); next.setUTCDate(next.getUTCDate() + 1);
+    const stamp = new Date().toISOString().replace(/[-:]/g, "").replace(/\.\d+Z$/, "Z");
+    const lines = ["BEGIN:VCALENDAR", "VERSION:2.0", "PRODID:-//Billd//Theatre diary//EN", "CALSCALE:GREGORIAN", "METHOD:PUBLISH", "BEGIN:VEVENT",
+      `UID:${p.play_id.replace(/[^A-Za-z0-9_-]/g, "")}-${day}@billd.theater`, `DTSTAMP:${stamp}`];
+    if (p.time) lines.push(`DTSTART:${day}T${p.time.replace(":", "").padEnd(4, "0")}00`, "DURATION:PT2H30M");
+    else lines.push(`DTSTART;VALUE=DATE:${day}`, `DTEND;VALUE=DATE:${next.toISOString().slice(0, 10).replace(/-/g, "")}`);
+    lines.push(`SUMMARY:${icsText(w ? w.title : p.title)}`);
+    if (p.venue || p.city) lines.push(`LOCATION:${icsText([p.venue, p.city].filter(Boolean).join(", "))}`);
+    const url = N.publicUrl(playUrl(p.play_id));
+    lines.push(`DESCRIPTION:${icsText(`${w ? byText(w) : ""}${w && byText(w) ? "\n" : ""}On Billd: ${url}`)}`, `URL:${url}`);
+    if (p.time) lines.push("BEGIN:VALARM", "ACTION:DISPLAY", `DESCRIPTION:${icsText(w ? w.title : p.title)}`, "TRIGGER:-PT3H", "END:VALARM");
+    lines.push("END:VEVENT", "END:VCALENDAR");
+    return lines.map(icsFold).join("\r\n") + "\r\n";
+  }
+  async function calendarFile(p) {
+    const name = `${(byId[p.play_id]?.title || "show").toLowerCase().normalize("NFKD").replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, "").slice(0, 40) || "show"}-${p.date}.ics`;
+    try {
+      const how = await N.saveFile(name, icsFor(p), "text/calendar");
+      if (how === "downloaded") toast("Calendar file downloaded: open it to add the show to your calendar");
+    } catch (e) { toast("Couldn't make the calendar file: " + e.message); }
+  }
+  let planPlay = null;
+  function openPlan(playId) {
+    if (!requireMe("Log in to plan the shows you'll see.")) return;
+    const w = byId[playId]; if (!w) return;
+    planPlay = w;
+    const p = planOf(playId);
+    $("#plan-title").textContent = w.title;
+    $("#plan-date").min = localToday(); $("#plan-date").value = p?.date || "";
+    $("#plan-time").value = p?.time || "";
+    $("#plan-venue").value = p?.venue || ""; $("#plan-city").value = p?.city || "";
+    $("#plan-remind-f").hidden = !N.reminders.available;
+    $("#plan-remind").value = p?.remind || "";
+    $("#plan-about").textContent = APP ? "Kept on this phone. After the date, Billd asks how it was, so you can log it."
+      : "Kept in this browser. After the date, Billd asks how it was, so you can log it. In the Billd app, it can remind you too.";
+    $("#plan-del").hidden = !p;
+    note("#plan-note", "");
+    // the theatres it's on at now, as for logging it
+    loadDetail(w).then(() => {
+      const runs = w.productions.flatMap((x) => x.runs).filter((r) => listingStatus(r.checked, r.from, r.to));
+      const seen = new Set();
+      $("#log-venues").innerHTML = runs.map((r) => [venues[r.venue]?.name, places[r.place]?.name]).filter(([v]) => v && !seen.has(v) && seen.add(v))
+        .map(([v, c]) => `<option value="${esc(v)}">${esc(c || "")}</option>`).join("");
+      if (!p && runs[0] && !$("#plan-venue").value) { $("#plan-venue").value = venues[runs[0].venue]?.name || ""; $("#plan-city").value = places[runs[0].place]?.name || ""; }
+    }).catch(() => {});
+    $("#pland").showModal();
+    $("#plan-date").focus();
+  }
+  const planForm = () => ({ play_id: planPlay.id, title: planPlay.title, date: $("#plan-date").value, time: $("#plan-time").value,
+    venue: $("#plan-venue").value.trim(), city: $("#plan-city").value.trim(), remind: N.reminders.available ? $("#plan-remind").value : "" });
+  $("#plan-venue").addEventListener("change", () => {
+    const w = planPlay; if (!w) return;
+    const r = w.productions.flatMap((x) => x.runs).find((x) => venues[x.venue]?.name === $("#plan-venue").value);
+    if (r && places[r.place] && !$("#plan-city").value) $("#plan-city").value = places[r.place].name;
+  });
+  $("#plan-form").addEventListener("submit", async (e) => {
+    e.preventDefault();
+    const w = planPlay; if (!w) return;
+    const p = planForm();
+    if (!p.date) return note("#plan-note", "Choose the date you're going.", true);
+    if (p.date < localToday()) return note("#plan-note", "That date has passed. To log a show you've seen, use Log or review.", true);
+    if (p.remind === "3h" && !p.time) return note("#plan-note", "Add the curtain-up time for a reminder 3 hours before.", true);
+    const all = plans(), old = all[w.id];
+    if (old?.remind) await N.reminders.cancel([remindId(w.id)]);
+    all[w.id] = { ...p, created_at: old?.created_at || new Date().toISOString() };
+    savePlans(all);
+    let msg = `Planned for ${planWhen(p)}`;
+    if (p.remind) {
+      try { await N.reminders.schedule({ id: remindId(w.id), at: remindAt(p, p.remind), ...reminderText(p, w), route: playUrl(w.id) }); msg += ". Billd will remind you."; }
+      catch (err) { all[w.id].remind = ""; savePlans(all); note("#plan-note", `The plan is saved, but not the reminder: ${err.message}`, true); return; }
+    }
+    // a show you're going to see is on your want-to-see list
+    if (!myStatus[w.id]?.want && !myStatus[w.id]?.seen) S.setStatus(w.id, { want: true }).then((st) => { if (st) myStatus[w.id] = st; }).catch(() => {});
+    $("#pland").close(); toast(msg); route();
+  });
+  $("#plan-ics").addEventListener("click", () => {
+    if (!planPlay) return;
+    const p = planForm();
+    if (!p.date) return note("#plan-note", "Choose the date first.", true);
+    calendarFile(p);
+  });
+  $("#plan-del").addEventListener("click", async () => {
+    if (!planPlay) return;
+    await removePlan(planPlay.id); $("#pland").close(); toast("Plan removed"); route();
+  });
+  // the home page's "Coming up": plans ahead, and those just past, to log
+  function planStubHTML(p) {
+    const w = byId[p.play_id]; if (!w) return "";
+    const dt = new Date(p.date + "T12:00:00Z"), past = p.date < localToday();
+    return `<li class="stub${past ? " past" : ""}"><div class="stub-d"><span>${past ? "Seen?" : WEEKDAYS[dt.getUTCDay()]}</span><b>${dt.getUTCDate()}</b><span>${MONTHS[dt.getUTCMonth()]}</span></div>
+      <div class="stub-i"><h3><a href="${playUrl(w.id)}">${esc(w.title)}</a></h3><p>${esc([p.time && fmtTime(p.time), p.venue, p.city].filter(Boolean).join(" · ") || byText(w))}</p>
+        <div class="stub-acts">${past ? `<button class="btn sm" type="button" data-plan-log="${esc(w.id)}">How was it? Log it</button><button class="btn ghost sm" type="button" data-plan-rm="${esc(w.id)}">I didn't go</button>`
+          : `<button class="btn ghost sm" type="button" data-plan-ics="${esc(w.id)}">Add to calendar</button><button class="btn ghost sm" type="button" data-plan="${esc(w.id)}">${p.remind ? "Reminder set · change" : N.reminders.available ? "Remind me" : "Change"}</button>`}</div></div></li>`;
+  }
+  function comingUp() {
+    const month = new Date(Date.now() - 30 * 864e5).toISOString().slice(0, 10);
+    return Object.values(plans()).filter((p) => byId[p.play_id] && p.date >= month).sort((a, b) => a.date.localeCompare(b.date) || (a.time || "").localeCompare(b.time || ""));
+  }
 
   // ---------------------------------------------------------------- add a production
   // A member pastes a production's page; the server function fetches it and web/extract.js
@@ -1511,7 +1732,7 @@
       message: [`${row.play_title} at ${row.venue}, ${row.city}`, [row.date_from, row.date_to].filter(Boolean).join(" to "),
         row.directors && `Director: ${row.directors}`, row.cast_list && `Cast: ${row.cast_list}`, row.adapters && `Adapted by: ${row.adapters}`,
         row.notes, row.url && `Link: ${row.url}`, "", "Review it with: python3 scripts/production_suggestions.py"].filter((x) => x !== null && x !== undefined && x !== false).join("\n"),
-      name: me ? `${me.display_name || ""} @${me.username}`.trim() : "", play_link: location.origin + location.pathname + playUrl(row.play_id) };
+      name: me ? `${me.display_name || ""} @${me.username}`.trim() : "", play_link: N.publicUrl(playUrl(row.play_id)) };
     fetch(web.endpoint, { method: "POST", headers: { "Content-Type": "application/json", Accept: "application/json" }, body: JSON.stringify(body) }).catch(() => { /* the suggestion is saved either way */ });
   }
   $("#log-addprod").addEventListener("click", () => {
@@ -1585,7 +1806,7 @@
       </div>
       <ul class="list-items${l.ranked ? " ranked" : ""}">${l.items.map((i) => byId[i.play_id] ? `<li>${cell(byId[i.play_id], i.note ? `<div class="cell-cap">${esc(i.note)}</div>${heldNote({ held: i.held, user_id: l.user_id }, "div")}` : "")}</li>` : "").join("") || `<li class="empty">This list is empty.</li>`}</ul></div>`;
     $("#edit-list")?.addEventListener("click", () => editList(l));
-    $("#share-list").addEventListener("click", () => share(`${l.title}, a list on Billd`, location.href));
+    $("#share-list").addEventListener("click", () => share(`${l.title}, a list on Billd`, `#/list/${l.id}`));
     $("#like-list")?.addEventListener("click", async (e) => {
       if (!requireMe("Log in to like lists.")) return;
       try { await S.likeList(l.id, !l.liked_by_me); route(); } catch (err) { toast(err.message); }
@@ -1727,7 +1948,7 @@
     pageEl().innerHTML = `<div class="prof-mast"><div class="wrap">
       <header class="prof">${avatar(p, "lg")}
         <div class="prof-main"><h1>${who(p)}’s Show Diary</h1><div class="handle">@${esc(p.username)}${S.kind === "local" ? " · saved on this device" : ""} ${roleBadge(p.id)}</div>${p.bio ? `<p class="bio">${esc(p.bio)}</p>` : ""}
-          <div style="margin-top:12px;display:flex;gap:8px;flex-wrap:wrap">${mine ? `<a class="btn ghost sm" href="#/settings">Edit profile</a>` : S.kind !== "local" && !blocked ? `<button class="btn sm${fset.has(p.id) ? " on" : ""}" type="button" data-follow="${p.id}" data-on="${fset.has(p.id)}">${fset.has(p.id) ? "Following" : "Follow"}</button>` : ""}
+          <div style="margin-top:12px;display:flex;gap:8px;flex-wrap:wrap">${mine ? `<a class="btn ghost sm" href="#/settings">Edit profile</a>${S.kind !== "local" ? `<button class="btn ghost sm" type="button" data-logout>Log out</button>` : ""}` : S.kind !== "local" && !blocked ? `<button class="btn sm${fset.has(p.id) ? " on" : ""}" type="button" data-follow="${p.id}" data-on="${fset.has(p.id)}">${fset.has(p.id) ? "Following" : "Follow"}</button>` : ""}
             ${!mine && me && S.kind !== "local" ? (outranks(p.id) ? `<button class="btn ghost sm" type="button" data-manage="${p.id}">Manage</button>` : `<button class="btn ghost sm" type="button" data-report="profile:${p.id}:${p.id}">Report</button>`) : ""}
             ${!mine && me && S.kind !== "local" ? `<button class="btn ghost sm${blocked ? "" : " danger"}" type="button" data-block="${p.id}" data-name="${esc(p.display_name || p.username)}">${blocked ? "Unblock" : "Block"}</button>` : ""}
             <button class="btn ghost sm" type="button" id="share-prof">Share</button></div></div>
@@ -1738,7 +1959,7 @@
       <nav class="tabs" aria-label="Profile">${tabs.map(([k, n]) => `<a href="${base}${k ? "/" + k : ""}"${k === (tab || "") ? ' aria-current="page"' : ""}>${n}</a>`).join("")}</nav>
       ${body}</div>`;
     $('.tabs a[aria-current="page"]')?.scrollIntoView({ inline: "center", block: "nearest" });
-    $("#share-prof").addEventListener("click", () => share(`${p.display_name || p.username} on Billd`, location.href));
+    $("#share-prof").addEventListener("click", () => share(`${p.display_name || p.username} on Billd`, "#/u/" + encodeURIComponent(p.username)));
     $("#edit-favs")?.addEventListener("click", () => editProfile());
     $("#new-list2")?.addEventListener("click", () => editList(null));
   }
@@ -1753,9 +1974,9 @@
     const isLog = !!l._log || "seen_on" in l;
     return `<article class="scrap"><a href="${playUrl(l.play_id)}" aria-label="${esc(w?.title || l.play_title || "")}">${w ? poster(w, { tag: "span", badge: false }) : ""}</a>
       <div class="scrap-meta">${day ? `<time datetime="${esc(d)}">${esc(day)}</time>` : "<span></span>"}${l.rating ? `<span class="stars" aria-label="${starsLabel(l.rating)}">${stars(l.rating)}</span>` : ""}</div>
-      ${note ? `<p class="scrap-note"><a href="#/review/${esc(l.id)}">${esc(note.length > 110 ? note.slice(0, 108).trimEnd() + "…" : note)}</a></p>` : ""}
-      ${l.venue ? `<p class="scrap-venue">${esc(l.venue)}</p>` : ""}${l.held ? `<p class="held-note sm" title="${HELD_TEXT}">Waiting for approval</p>` : ""}
-      <div class="scrap-foot">${l.liked ? `<span class="heart" title="Liked" aria-label="Liked">♥</span>` : ""}${l.rewatch ? `<span title="Seen before" aria-label="Seen before">↻</span>` : ""}${note ? `<a href="#/review/${esc(l.id)}">Review</a>` : ""}${mine && isLog && l.id ? `<button class="end" type="button" data-edit-log="${esc(l.id)}" aria-label="Edit entry">✎</button>` : ""}</div></article>`;
+      ${note ? `<p class="scrap-note">${isLocalId(l.id) ? esc(note.length > 110 ? note.slice(0, 108).trimEnd() + "…" : note) : `<a href="#/review/${esc(l.id)}">${esc(note.length > 110 ? note.slice(0, 108).trimEnd() + "…" : note)}</a>`}</p>` : ""}
+      ${l.venue ? `<p class="scrap-venue">${esc(l.venue)}</p>` : ""}${l.held ? `<p class="held-note sm" title="${HELD_TEXT}">Waiting for approval</p>` : ""}${l.pending ? `<p class="pending-note sm" title="${PENDING_TEXT()}">Saved on this ${DEVICE} · will sync</p>` : ""}
+      <div class="scrap-foot">${l.liked ? `<span class="heart" title="Liked" aria-label="Liked">♥</span>` : ""}${l.rewatch ? `<span title="Seen before" aria-label="Seen before">↻</span>` : ""}${note && !isLocalId(l.id) ? `<a href="#/review/${esc(l.id)}">Review</a>` : ""}${mine && isLog && l.id ? `<button class="end" type="button" data-edit-log="${esc(l.id)}" aria-label="Edit entry">✎</button>` : ""}</div></article>`;
   }
   // A show on the want-to-see list that is on stage: a ticket stub dated by its closing or opening night
   function stubHTML(w) {
@@ -1848,9 +2069,56 @@
         ${l.seen && l.rating ? ` <span class="stars" aria-label="${starsLabel(l.rating)}">${stars(l.rating)}</span>` : ""}${l.seen && l.liked ? ` <span class="heart">♥</span>` : ""}</div><time datetime="${esc(l.created_at)}">${ago(l.created_at)}</time></li>`;
     }
     const verb = l.review ? "reviewed" : l.rewatch ? "saw again" : "saw";
-    return `<li>${poster(w, { badge: false })}<div class="what"><a href="#/u/${esc(l.profile?.username)}">${who(l.profile)}</a> ${verb} <a href="${l.review ? `#/review/${l.id}` : playUrl(w.id)}">${esc(w.title)}</a>
+    return `<li>${poster(w, { badge: false })}<div class="what"><a href="#/u/${esc(l.profile?.username)}">${who(l.profile)}</a> ${verb} <a href="${l.review ? `#/review/${esc(l.id)}` : playUrl(w.id)}">${esc(w.title)}</a>
       ${l.rating ? ` <span class="stars" aria-label="${starsLabel(l.rating)}">${stars(l.rating)}</span>` : ""}${l.liked ? ` <span class="heart">♥</span>` : ""}${l.venue ? ` <small class="hint">at ${esc(l.venue)}</small>` : ""}${heldNote(l)}</div><time datetime="${esc(l.created_at)}">${ago(l.created_at)}</time></li>`;
   }
+
+
+  // ---------------------------------------------------------------- the offline diary (outbox.js)
+  // Changes made without a connection wait on this device; a bar says so until they're sent.
+  const OP_TEXT = { insert: "Logged", update: "Edited your entry for", delete: "Deleted a diary entry", status: "Marked" };
+  const opTitle = (o) => byId[o.play_id || o.row?.play_id || o.prev?.play_id]?.title || o.row?.play_title || o.prev?.play_title || "";
+  const opLine = (o) => `${OP_TEXT[o.kind] || "Changed"}${o.kind === "delete" ? "" : ` <b>${esc(opTitle(o))}</b>`} <small>${ago(o.at)} on this ${DEVICE}</small>`;
+  function renderSyncBar() {
+    const el = $("#sync-bar");
+    let n = 0, bad = 0;
+    try { if (me && S.kind !== "local") { n = OB.count(); bad = OB.problems().length; } } catch (e) { console.warn(e); }  // never in the way of opening
+    el.hidden = !n && !bad;
+    if (el.hidden) return;
+    el.innerHTML = n && OB.waitingForLogin?.() ? `${plural(n, "change")} saved on this ${DEVICE}, waiting for your login to renew: ${n === 1 ? "it's" : "they're"} sent as soon as it does.`
+      : n ? `${plural(n, "change")} saved on this ${DEVICE}${navigator.onLine ? `, waiting to sync. <button class="linkbtn" type="button" id="sync-now">Sync now</button>` : `: ${n === 1 ? "it" : "they"}'ll sync when you're back online.`}${bad ? ` <a class="linkbtn" href="#/settings">${plural(bad, "change")} need${bad === 1 ? "s" : ""} a look</a>` : ""}`
+      : `${plural(bad, "change")} made on this ${DEVICE} couldn't be saved to Billd. <a class="linkbtn" href="#/settings">Have a look</a>`;
+  }
+  $("#sync-bar").addEventListener("click", (e) => { if (e.target.closest("#sync-now")) OB.flush(); });
+  OB.onChange((info) => {
+    renderSyncBar();
+    if (info.sent) {
+      toast(`${plural(info.sent, "change")} from this ${DEVICE} synced to Billd${info.notices?.includes("held") ? ". " + HELD_SAVED : ""}`);
+      S.myStatuses().then((m) => { myStatus = m; }).catch(() => {});
+      route();
+    }
+    if (info.notices?.includes("readded")) setTimeout(() => toast("An entry you edited offline had been deleted on another device, so it was saved again as a new entry."), 3000);
+  });
+  window.addEventListener("online", renderSyncBar);
+  window.addEventListener("offline", renderSyncBar);
+  function syncSettingsHTML() {
+    if (!me || S.kind === "local") return "";
+    const items = OB.items(), probs = OB.problems();
+    if (!items.length && !probs.length) return "";
+    return `<section class="sec" id="st-sync"><div class="sec-head"><h2>Saved on this ${DEVICE}</h2></div>
+      ${items.length ? `<p class="hint">Made without a connection; sent to Billd when it's back.</p><ul class="outbox-list">${items.map((o) => `<li><span>${opLine(o)}</span></li>`).join("")}</ul>
+        <p style="margin-top:10px"><button class="btn ghost sm" type="button" data-ob-flush>Sync now</button></p>` : ""}
+      ${probs.length ? `<p class="hint" style="margin-top:14px">These changes couldn't be saved as they were. Nothing has been thrown away: choose what to do with each.</p><ul class="outbox-list">${probs.map((o) => `<li><span>${opLine(o)}<small>${esc(o.note || "")}</small></span>
+        ${o.problem === "conflict" ? `<button class="btn sm" type="button" data-ob-mine="${esc(o.id)}">Use this ${DEVICE}'s version</button><button class="btn ghost sm" type="button" data-ob-drop="${esc(o.id)}">Keep the other</button>`
+          : `<button class="btn sm" type="button" data-ob-retry="${esc(o.id)}">Try again</button><button class="btn ghost sm danger" type="button" data-ob-drop="${esc(o.id)}">Discard</button>`}</li>`).join("")}</ul>` : ""}</section>`;
+  }
+  pageEl().addEventListener("click", async (e) => {
+    const t = e.target;
+    if (t.closest("[data-ob-flush]")) { await OB.flush(); return renderSettings(); }
+    const r = t.closest("[data-ob-retry]"); if (r) { await OB.retry(r.dataset.obRetry); return renderSettings(); }
+    const m = t.closest("[data-ob-mine]"); if (m) { await OB.keepMine(m.dataset.obMine); return renderSettings(); }
+    const d = t.closest("[data-ob-drop]"); if (d && confirm("Discard this change? It hasn't reached Billd, and it can't be brought back.")) { OB.discard(d.dataset.obDrop); renderSettings(); }
+  });
 
   // ---------------------------------------------------------------- settings
   function renderSettings() {
@@ -1860,7 +2128,9 @@
     pageEl().innerHTML = `<div class="wrap" style="padding-top:30px;max-width:720px"><h1 class="h1">Settings</h1>
       ${me ? `<section class="sec"><div class="sec-head"><h2>Profile</h2></div><button class="btn ghost" type="button" id="st-prof">Edit profile and favourites</button></section>` : ""}
       ${myRank() ? `<section class="sec"><div class="sec-head"><h2>Billd team</h2></div><p class="hint" style="margin-bottom:10px">You're ${myRank() === 1 ? "a moderator" : myRank() === 2 ? "an admin" : "the owner"}.</p><a class="btn ghost" href="#/admin">Open Admin</a></section>` : ""}
+      ${syncSettingsHTML()}
       ${canInstall() ? `<section class="sec"><div class="sec-head"><h2>The app</h2></div><p class="hint" style="margin-bottom:10px">Put Billd on your home screen and open it like an app.</p><button class="btn ghost" type="button" data-install>Install the app</button></section>` : ""}
+      ${APP ? `<section class="sec"><div class="sec-head"><h2>The catalogue</h2></div><p class="hint" style="margin-bottom:10px">The plays and what's on stage are kept on this phone, so Billd works offline. This copy was made ${esc(fmtPartial((D.meta.generated || "").slice(0, 10)))}${N.catalogue.using?.from === "downloaded" ? ", downloaded from billd.theater" : ", when the app was built"}. Newer copies download by themselves on Wi-Fi.</p><button class="btn ghost" type="button" id="st-data">Check for a newer catalogue</button></section>` : ""}
       <section class="sec"><div class="sec-head"><h2>Appearance</h2></div>
         <div class="seg" role="radiogroup" aria-label="Theme">${[["light", "Programme (light)"], ["dark", "Velvet (dark)"]].map(([k, n]) => `<button type="button" role="radio" data-theme-set="${k}" aria-selected="${theme === k}" aria-checked="${theme === k}">${n}</button>`).join("")}</div></section>
       ${local && me ? `<section class="sec"><div class="sec-head"><h2>Diary saved on this device</h2></div><p>This device has shows you logged before you had an account. <button class="btn sm" type="button" id="st-import">Move them to my account</button></p></section>` : ""}
@@ -1889,7 +2159,13 @@
       renderSettings();
     }));
     $("#st-export")?.addEventListener("click", exportData);
-    $("#st-out")?.addEventListener("click", async () => { await S.signOut(); toast("Logged out"); location.hash = "#/"; });
+    $("#st-data")?.addEventListener("click", async (e) => {
+      e.target.disabled = true; e.target.textContent = "Checking…";
+      try { const gen = await N.catalogue.refresh({ force: true }); toast(gen ? `Downloaded the catalogue of ${fmtPartial(gen.slice(0, 10))}. Billd uses it the next time you open it.` : navigator.onLine ? "You have the latest catalogue." : "You're offline. Try again with a connection."); }
+      catch (err) { toast("The catalogue couldn't be downloaded: " + err.message); }
+      finally { e.target.disabled = false; e.target.textContent = "Check for a newer catalogue"; }
+    });
+    $("#st-out")?.addEventListener("click", logOut);
     $("#st-pw")?.addEventListener("submit", async (e) => { e.preventDefault(); try { await S.setPassword($("#st-pass").value); $("#st-pass").value = ""; toast("Password changed"); } catch (err) { toast(err.message); } });
     $("#st-delete")?.addEventListener("click", openDeleteAccount);
     if ($("#st-blocks")) S.blocks().then((rows) => {
@@ -1910,11 +2186,24 @@
       catch (err) { toast(err.message); e.target.disabled = false; }
     });
   }
+  // Log out: changes made without a connection that haven't reached Billd are sent first if possible;
+  // otherwise the member chooses (they're cleared with the rest of the member's copy on this device).
+  async function logOut(e) {
+    const b = e?.currentTarget; if (b) b.disabled = true;
+    try {
+      let n = OB.count();
+      if (n && navigator.onLine) { await OB.flush().catch(() => {}); n = OB.count(); }
+      const bad = OB.problems().length;  // refused or conflicting changes waiting in Settings for the member to choose
+      const what = [n ? `${n === 1 ? "A change" : `${n} changes`} you made without a connection ${n === 1 ? "hasn't" : "haven't"} reached Billd yet.` : "",
+        bad ? `${bad === 1 ? "A change" : `${bad} changes`} made on this ${APP ? "phone" : "device"} couldn't be saved and ${bad === 1 ? "is" : "are"} waiting for you in Settings.` : ""].filter(Boolean).join(" ");
+      if ((n || bad) && !confirm(`${what} Logging out discards ${n + bad === 1 ? "it" : "them"}.\n\nOK: log out and discard. Cancel: stay logged in${n ? `; waiting changes are sent when you're back online` : ""}.`)) return;
+      if (!APP) clearPlans();  // a shared computer keeps nothing of the member's (the app keeps plans and their reminders)
+      await S.signOut(); toast("Logged out"); location.hash = "#/";
+    } finally { if (b) b.disabled = false; }
+  }
   async function exportData() {
     const [logs, statuses, lists] = await Promise.all([S.logsForUser(me.id, { limit: 5000 }), S.statusesFor(me.id), S.listsForUser(me.id)]);
-    const blob = new Blob([JSON.stringify({ profile: me, exported: new Date().toISOString(), statuses, logs, lists }, null, 2)], { type: "application/json" });
-    const a = document.createElement("a"); a.href = URL.createObjectURL(blob); a.download = `billd-${me.username}-${TODAY}.json`; a.click();
-    setTimeout(() => URL.revokeObjectURL(a.href), 2000);
+    await N.saveFile(`billd-${me.username}-${TODAY}.json`, JSON.stringify({ profile: me, exported: new Date().toISOString(), statuses, logs, lists }, null, 2), "application/json");
   }
   // ---- delete my account (Apple 5.1.1(v), Google Play): explained, then confirmed by typing the username
   function openDeleteAccount() {
@@ -1958,7 +2247,9 @@
       if (typed !== word) return;
       $("#del-go").disabled = true; note("#del-note", "");
       try {
+        const planned = planKey();
         await S.deleteAccount(typed);
+        clearPlans(planned);
         myStatus = {}; blockedSet = new Set(); followingSet = null;
         $("#editd").close();
         if (local) { me = S.me(); toast("Erased"); location.hash = "#/"; route(); return; }
@@ -2635,7 +2926,7 @@
     const name = $("#fb-name").value.trim() || (me ? `${me.display_name || ""} @${me.username}`.trim() : "");
     if (name) body.name = name;
     if (!fb.ctx && rating) body.rating = rating;
-    if (fb.ctx) { body.play = fb.ctx.title; body.play_link = location.origin + location.pathname + playUrl(fb.ctx.id); }
+    if (fb.ctx) { body.play = fb.ctx.title; body.play_link = N.publicUrl(playUrl(fb.ctx.id)); }
     fb.busy = true; $("#fb-send").disabled = true; note("#fb-note", "Sending…");
     try {
       // kept for the Billd team's Admin page, and emailed to the owner; sent if either works
@@ -2654,7 +2945,8 @@
   });
 
   // ---------------------------------------------------------------- installable app
-  if ("serviceWorker" in navigator && /^https?:$/.test(location.protocol) && !window.claude && window.top === window) {
+  // not inside the app: its files are already on the phone (Android's web view would otherwise register it)
+  if ("serviceWorker" in navigator && /^https?:$/.test(location.protocol) && !window.claude && window.top === window && !APP) {
     window.addEventListener("load", () => { navigator.serviceWorker.register("sw.js").catch(() => { /* offline support is optional */ }); });
   }
   // Android's Chrome offers to install the site (beforeinstallprompt); iPhones never do, so
@@ -2664,7 +2956,7 @@
   const IOS = /iPhone|iPad|iPod/.test(UA) || (navigator.platform === "MacIntel" && navigator.maxTouchPoints > 1);
   const ANDROID = /Android/.test(UA);
   const PHONE = IOS || ANDROID || matchMedia("(max-width: 860px) and (pointer: coarse)").matches;
-  const installed = () => matchMedia("(display-mode: standalone)").matches || navigator.standalone === true;
+  const installed = () => APP || matchMedia("(display-mode: standalone)").matches || navigator.standalone === true;
   const canInstall = () => !installed() && (PHONE || !!installPrompt);
   function showInstallLinks() { $("#install-wrap").hidden = !canInstall(); }
   window.addEventListener("beforeinstallprompt", (e) => { e.preventDefault(); installPrompt = e; showInstallLinks(); if (location.hash === "" || location.hash === "#/") route(); });
@@ -2686,6 +2978,7 @@
     $("#installd").showModal();
   }
   document.addEventListener("click", (e) => {
+    const out = e.target.closest("[data-logout]"); if (out) logOut({ currentTarget: out });
     if (e.target.closest("[data-install]")) { e.preventDefault(); install(); }
     const d = e.target.closest("[data-install-dismiss]");
     if (d) { try { localStorage.setItem("billd-install-dismissed", "1"); } catch (err) { /* not kept */ } d.closest(".install-card")?.remove(); }
@@ -2705,16 +2998,30 @@
   async function loadSocial() {
     try { await S.ready; } catch (e) { console.warn(e); toast(e.message); }
     me = S.me();
-    try { dbSettings = S.kind !== "local" ? await S.settings() : {}; } catch (e) { dbSettings = {}; }
+    // opened without a connection (signed in from the kept session): only what this device holds
+    const offline = !!S.isOffline?.();
+    try { dbSettings = S.kind !== "local" && !offline ? await S.settings() : {}; } catch (e) { dbSettings = {}; }
     S.setTermsVersion(termsState().live ? termsState().version : null);
-    await Promise.all([loadTeam(), loadBlocks()]);
-    renderAcct(); renderStanding(); renderTermsBar();
+    if (!offline) await Promise.all([loadTeam(), loadBlocks()]);
+    renderAcct(); renderStanding(); renderTermsBar(); renderSyncBar();
     try { myStatus = me ? await S.myStatuses() : {}; } catch (e) { myStatus = {}; }
+    if (offline) return;
     try { (await S.popular(60)).forEach((r, i) => (popular[r.play_id] = 1000 - i)); } catch (e) { /* none yet */ }
     try { (await S.ratedPlays()).forEach((r) => (rated[r.play_id] = { avg: r.avg_rating != null ? Number(r.avg_rating) : null, n: r.ratings, seen: r.seen })); } catch (e) { /* none yet */ }
   }
+  // An email link (confirm your address, reset your password) that opened the app: web/native.js
+  // catches https://billd.theater/auth/… and social.js signs in from it.
+  N.onAuthLink(async (url) => {
+    try {
+      const r = await S.handleAuthLink(url);
+      if (r.type === "recovery") { location.hash = "#/settings"; setTimeout(() => toast("Choose a new password below"), 400); }
+      else { location.hash = "#/"; toast("Your email address is confirmed. Welcome to Billd"); }
+    } catch (e) { toast(e.message); }
+  });
+  // web/auth/confirm.html verified a password-reset link and sent the member here
+  try { if (sessionStorage.getItem("billd-recovery")) { sessionStorage.removeItem("billd-recovery"); setTimeout(() => toast("Choose a new password below"), 1200); } } catch (e) { /* storage blocked */ }
   S.onAuth(async (p) => {
-    me = p; followingSet = null; await Promise.all([loadTeam(), loadBlocks()]); renderAcct(); renderStanding(); renderTermsBar();
+    me = p; followingSet = null; await Promise.all([loadTeam(), loadBlocks()]); renderAcct(); renderStanding(); renderTermsBar(); renderSyncBar();
     try { myStatus = me ? await S.myStatuses() : {}; } catch (e) { myStatus = {}; }
     if (D) { if (FACETS.length) totals(); route(); }
   });

@@ -47,6 +47,8 @@
 <div class="standing" id="standing" role="status" hidden></div>
 <!-- Members who joined before the Terms were switched on accept them once -->
 <div class="standing terms-bar" id="terms-bar" role="status" hidden></div>
+<!-- Diary changes made offline, waiting on this device to be sent (outbox.js) -->
+<div class="standing sync-bar" id="sync-bar" role="status" aria-live="polite" hidden></div>
 
 <main id="main" tabindex="-1">
   <div class="loading" id="loading"><span class="spot" aria-hidden="true"></span>Raising the curtain…</div>
@@ -220,6 +222,39 @@
   </form>
 </dialog>
 
+<!-- Plan a date to see a show: a reminder on the phone, and a calendar file -->
+<dialog class="dlg" id="pland" aria-labelledby="plan-title">
+  <button class="close" type="button" data-close aria-label="Close">×</button>
+  <p class="kicker">I'm going to see…</p>
+  <h2 id="plan-title"></h2>
+  <form id="plan-form" novalidate>
+    <div class="log-grid">
+      <div class="field"><label for="plan-date">Date</label><input id="plan-date" type="date" required></div>
+      <div class="field"><label for="plan-time">Curtain up <span class="opt">(optional)</span></label><input id="plan-time" type="time"></div>
+    </div>
+    <div class="log-grid">
+      <div class="field"><label for="plan-venue">Theatre <span class="opt">(optional)</span></label><input id="plan-venue" list="log-venues" maxlength="160" autocomplete="off"></div>
+      <div class="field"><label for="plan-city">City <span class="opt">(optional)</span></label><input id="plan-city" maxlength="120" autocomplete="off"></div>
+    </div>
+    <div class="field" id="plan-remind-f" hidden>
+      <label for="plan-remind">Remind me</label>
+      <select id="plan-remind">
+        <option value="">No reminder</option>
+        <option value="eve">The evening before (6 pm)</option>
+        <option value="morning">The morning of the show (9 am)</option>
+        <option value="3h">3 hours before curtain up</option>
+      </select>
+    </div>
+    <p class="hint" id="plan-about">Kept on this device. After the date, Billd asks how it was, so you can log it.</p>
+    <p class="note" id="plan-note" role="status" aria-live="polite" hidden></p>
+    <div class="acts">
+      <button class="linkbtn danger" type="button" id="plan-del" hidden>Remove plan</button>
+      <button class="btn ghost" type="button" id="plan-ics">Add to calendar</button>
+      <button class="btn" type="submit" id="plan-save">Save</button>
+    </div>
+  </form>
+</dialog>
+
 <!-- Add to a list -->
 <dialog class="dlg" id="listd" aria-labelledby="listd-title">
   <button class="close" type="button" data-close aria-label="Close">×</button>
@@ -386,7 +421,9 @@
 </dialog>
 
 <script src="config.js"></script>
+<script src="native.js"></script>
 <script src="social.js"></script>
+<script src="outbox.js"></script>
 <script src="extract.js"></script>
 <script src="app.js"></script>
 </body>

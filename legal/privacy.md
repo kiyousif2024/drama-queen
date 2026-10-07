@@ -11,6 +11,11 @@
 - **Messages you send through forms**: feedback, corrections and copyright reports (your comment and, if you give it, your name; when you're logged in, your display name and username are added) are kept for the Billd team and emailed to [OPERATOR].
 - **Pages fetched for you**: when you use "Add a production", Billd's server fetches the web page you give and keeps what it read from it with your suggestion.
 - **On your device**: Billd stores your theme, last choices and (before you join) your preview diary in your browser's local storage, and your login session if you join. Billd sets no advertising or tracking cookies and uses no analytics. If you install Billd as an app, its pages and play data are cached on your device so it works offline.
+- **Your diary when you're offline**: so you can log a show without a connection, Billd keeps changes you make offline on your device until they reach Billd's server, and keeps your own profile (as you see it in Billd, including your role on the Billd team if you have one, and any account status or note the team has set on it) so it can open while offline.
+  - **On the website**, a copy of your own diary, marks, lists and follows (including entries only you or your friends can see) is kept only in the tab you're using: closing the tab removes it. Browsers that reopen your tabs after a restart may bring it back with them.
+  - **In the Billd app for iPhone and Android**, that copy stays on your phone so your diary opens offline. The app excludes it from phone backups.
+  - **Shows you plan to see** (a date, time and theatre, and reminders in the app) are kept only on your device.
+  - **Logging out** removes your diary copy, your saved login details and any changes that haven't been sent. This applies to every Billd tab or window open in that browser. Billd warns you first if some haven't been sent or are waiting for you in Settings. On the website, logging out also removes your plans. If your login simply expires, the waiting changes stay on the device and are sent when you log in again. **Deleting your account** removes all of these from the device you delete it on.
 - **Server logs**: our hosting providers (GitHub Pages, Supabase) keep standard request logs, including IP addresses, for security and operations, under their own retention rules.
 
 ## Who processes it
