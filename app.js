@@ -2119,6 +2119,7 @@
     else if (x.action.startsWith("feedback ")) s = `${a} marked feedback #${esc(d.id)} ${esc(x.action.slice(9))}`;
     else if (x.action.startsWith("play ")) s = `${a} ${esc(x.action.slice(5))} ${t}'s suggested play #${esc(d.id)}`;
     else if (x.action.startsWith("suggestion ")) s = `${a} ${esc(x.action.slice(11))} ${t}'s production suggestion #${esc(d.id)}`;
+    else if (x.action.startsWith("import ")) s = `${a} ${x.action === "import pending" ? "sent back to waiting" : esc(x.action.slice(7))} the imported show ${d.title ? `<b>${esc(d.title)}</b>` : `#${esc(d.id)}`}${d.writer ? ` (by ${esc(d.writer)})` : ""}`;
     else if (x.action === "setting") s = `${a} ${d.require_approval ? "turned on" : "turned off"} approval for new members`;
     else s = `${a}: ${esc(x.action)}`;
     return `<li class="adm-log">${s}${noteTxt} <time class="hint" datetime="${esc(x.created_at)}">${ago(x.created_at)}</time></li>`;
@@ -2136,7 +2137,7 @@
     const tok = routeSeq;
     if (!me || !myRank()) return renderNotFound();
     document.title = "Admin · Billd";
-    const tabs = [["", "Queue"], ["suggestions", "Suggestions"], ["members", "Members"], ["team", "Team"], ["log", "Log"], ["settings", "Settings"]];
+    const tabs = [["", "Queue"], ["suggestions", "Suggestions"], ["imports", "New shows"], ["members", "Members"], ["team", "Team"], ["log", "Log"], ["settings", "Settings"]];
     pageEl().innerHTML = `<div class="wrap admin" style="padding-top:30px;max-width:900px"><p class="kicker">Billd team · ${ROLE_NAME[S.role()]}</p><h1 class="h1">Admin</h1>
       <nav class="tabs" aria-label="Admin">${tabs.map(([k, n]) => `<a href="#/admin${k ? "/" + k : ""}"${k === tab ? ' aria-current="page"' : ""}>${n}</a>`).join("")}</nav>
       <div id="adm"><p class="hint">Loading…</p></div></div>`;
@@ -2199,6 +2200,28 @@
             <dl class="adm-dl">${field("Theatre", x.venue)}${field("City", x.city)}${field("Dates", [x.date_from, x.date_to].filter(Boolean).map(fmtPartial).join(" to "))}${field("Director", x.directors)}${field("Cast", x.cast_list)}${link(x.url)}${field("Team note", x.review_note)}</dl>${acts("s", x)}</li>`), "None.")}
         ${fs ? admSection("Feedback and corrections", notes.length, notes.map(feedbackItem), "None.") : ""}`;
       el.querySelectorAll("[data-sugg-status]").forEach((b) => b.addEventListener("click", () => { admSugg.status = b.dataset.suggStatus; again(); }));
+    } else if (tab === "imports") {
+      // shows the box-office importers found that Billd can't match to a play it knows (scripts/import_review.py)
+      let waiting, decided;
+      try { [waiting, decided] = await Promise.all([S.importReviewFor("pending"), S.importReviewFor("decided")]); }
+      catch (err) {
+        if (stale(tok)) return;
+        el.innerHTML = `<p class="hint">${err.code === "no_server" ? "The queue of imported shows needs Billd's server." : `The queue couldn't be loaded: ${esc(err.message)}`}</p>`;
+        return;
+      }
+      if (stale(tok)) return;
+      const field = (k, v) => (v ? `<dt>${k}</dt><dd>${esc(v)}</dd>` : "");
+      const dates = (x) => [x.date_from, x.date_to].filter(Boolean).map(fmtPartial).join(" to ");
+      const link = (u) => (safeUrl(u) ? `<dt>Source</dt><dd><a href="${esc(safeUrl(u))}" target="_blank" rel="noopener nofollow">${esc(safeUrl(u).replace(/^https?:\/\/(www\.)?/i, "").slice(0, 80))}</a></dd>` : "");
+      const where = (x) => [x.theatre, x.city].filter(Boolean).map(esc).join(", ");
+      const item = (x, acts) => `<li class="adm-item"><div class="adm-meta"><b>${esc(x.title)}</b>${where(x) ? ` · ${where(x)}` : ""}${x.status !== "pending" ? ` <span class="badge${x.status === "approved" ? " now" : ""}">${esc(x.status)}</span>` : ""}</div>
+          <dl class="adm-dl">${x.venue && x.venue !== x.theatre ? field("Venue", x.venue) : ""}${field("Dates", dates(x))}${link(x.source_url)}${field("Found by", x.origin)}
+            ${x.status === "pending" ? field("First seen", fmtPartial(x.first_seen || "")) : ""}${x.status === "approved" ? field("Writer", x.playwright || "not known yet") : ""}${x.status === "pending" && x.notes ? field("Note", x.notes) : ""}
+            ${x.status !== "pending" ? `${field("Note", x.notes)}<dt>Decided</dt><dd>${x.decider ? nameLink(x.decider) + " · " : ""}${x.decided_at ? ago(x.decided_at) : ""}</dd>` : ""}</dl>${acts}</li>`;
+      el.innerHTML = `<p class="hint" style="max-width:62ch;margin-bottom:6px">Box-office calendars mix plays with stand-up, concerts and classes. Shows that match a play Billd knows are listed automatically;
+          these didn't match, so they wait here. Approve a play (add its writer if the page names one) and it's listed after the next data update; reject anything that isn't a play and it's never listed.</p>
+        ${admSection("Waiting for review", waiting.length, waiting.map((x) => item(x, `<div class="adm-acts"><button class="btn sm" type="button" data-adm="approve-i" data-id="${x.id}">Approve</button><button class="btn ghost sm" type="button" data-adm="reject-i" data-id="${x.id}">Reject</button></div>`)), "Nothing waiting.")}
+        ${admSection("Recently decided", 0, decided.map((x) => item(x, `<div class="adm-acts"><button class="btn ghost sm" type="button" data-adm="reopen-i" data-id="${x.id}">Back to waiting</button></div>`)), "Nothing decided yet.")}`;
     } else if (tab === "members") {
       el.innerHTML = `<form id="adm-find" class="inline-new" role="search"><label class="vh" for="adm-q">Find a member</label><input id="adm-q" type="search" placeholder="Find a member by name or username" autocomplete="off"><button class="btn" type="submit">Find</button></form>
         <ul class="adm-list" id="adm-res"></ul><div id="adm-susp"></div>`;
@@ -2279,6 +2302,13 @@
           run: async (w) => { await S.reviewPlaySuggestion(+b.dataset.id, "declined", w); toast("Declined"); again(); } });
         if (k === "reopen-s" || k === "reopen-p") { b.disabled = true; await (k === "reopen-s" ? S.reviewSuggestion(+b.dataset.id, "pending", null) : S.reviewPlaySuggestion(+b.dataset.id, "pending", null)); toast("Back to waiting"); return again(); }
         if (k === "fb-done" || k === "fb-dismiss" || k === "fb-open") { b.disabled = true; await S.resolveFeedback(+b.dataset.id, { "fb-done": "done", "fb-dismiss": "dismissed", "fb-open": "open" }[k]); toast("Saved"); return again(); }
+        if (k === "approve-i") return teamAction({ title: "Approve this show?", go: "Approve", why: "Writer, as the source credits it",
+          body: `<p class="hint">Check on the source page that it's a play (not stand-up, a concert or a class) and isn't on Billd under another title. It's added and listed at the next data update.</p>`,
+          run: async (w) => { await S.reviewImport(+b.dataset.id, "approved", w, null); toast("Approved"); again(); } });
+        if (k === "reject-i") return teamAction({ title: "Reject this show?", go: "Reject", danger: true, why: "Note for the team",
+          body: `<p class="hint">It won't be listed, now or when the calendars show it again.</p>`,
+          run: async (w) => { await S.reviewImport(+b.dataset.id, "rejected", null, w); toast("Rejected"); again(); } });
+        if (k === "reopen-i") { b.disabled = true; await S.reviewImport(+b.dataset.id, "pending", null, null); toast("Back to waiting"); return again(); }
         if (k === "decline-s") return teamAction({ title: "Decline this production?", go: "Decline", danger: true, required: true, why: "Reason (the member sees this)",
           run: async (w) => { await S.reviewSuggestion(+b.dataset.id, "declined", w); toast("Declined"); again(); } });
       } catch (err) { toast(err.message); b.disabled = false; }

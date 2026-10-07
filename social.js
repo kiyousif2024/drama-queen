@@ -123,6 +123,8 @@
       async suggestPlay() { throw err("Suggesting plays needs Billd's server.", "no_server"); },
       async saveFeedback() { throw err("No server.", "no_server"); },
       async myPlaySuggestions() { return []; },
+      async importReviewFor() { throw err("The queue of imported shows is kept on Billd's server.", "no_server"); },
+      async reviewImport() { throw err("The queue of imported shows is kept on Billd's server.", "no_server"); },
       // the Billd team and moderation need the server
       role: () => null,
       standing: () => ({ status: "active", note: null }),
@@ -464,6 +466,14 @@
       clearProfile: (userId, why) => rpc("moderate_profile", { target: userId, why: why || null }),
       resolveReport: (id, status) => rpc("resolve_report", { report_id: id, new_status: status }),
       reviewSuggestion: (id, status, why) => rpc("review_suggestion", { suggestion_id: id, new_status: status, why: why || null }),
+      // shows the importers found that Billd can't match to a play (scripts/import_review.py fills the queue)
+      async importReviewFor(status = "pending") {
+        let q = sb.from("import_review").select("id,title,theatre,venue,city,date_from,date_to,source_url,origin,first_seen,status,playwright,decided_at,notes,decider:profiles!decided_by(id,username,display_name)");
+        q = status === "pending" ? q.eq("status", "pending").order("first_seen").order("id").limit(300)
+          : q.in("status", ["approved", "rejected"]).order("decided_at", { ascending: false }).limit(50);
+        return check(await q);
+      },
+      reviewImport: (id, status, writer, why) => rpc("review_import", { item_id: id, new_status: status, writer: writer || null, why: why || null }),
       async report(kind, targetId, reason) {
         needMe();
         check(await sb.from("reports").insert({ reporter: uid, kind, target_id: String(targetId), reason }));
