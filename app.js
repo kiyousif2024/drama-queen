@@ -545,7 +545,7 @@
         <div class="row-scroll" style="margin-top:16px">${classics().map((w) => cell(w)).join("")}</div></section>`,
     };
     const order = APP ? ["plans", "diary", "friends", "rev", "onstage", "pop", "explore"] : ["plans", "onstage", "pop", "friends", "rev", "explore"];
-    pageEl().innerHTML = `<div class="wrap">${installCardHTML()}${intro}${order.map((k) => sec[k]).join("")}</div>`;
+    pageEl().innerHTML = `<div class="wrap">${intro}${order.map((k) => sec[k]).join("")}</div>`;
     // members' activity fills in as it arrives
     if (sec.diary) {
       const who0 = me || S.me();
