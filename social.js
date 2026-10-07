@@ -131,6 +131,14 @@
       async team() { return []; },
       async settings() { return { require_approval: false }; },
       async report() { throw err("Reporting needs Billd's server.", "no_server"); },
+      // blocking, the word list and the Terms need the server; deleting the account erases this device's diary
+      async blocks() { return []; },
+      async block() { throw err("Blocking needs Billd's server.", "no_server"); },
+      async acceptTerms() {},
+      setTermsVersion() {},
+      async moderationTerms() { throw err("The word filter is kept on Billd's server.", "no_server"); },
+      async setModerationTerm() { throw err("The word filter is kept on Billd's server.", "no_server"); },
+      async deleteAccount() { db = empty(); save(); emit(me()); },
       exportLocal: () => JSON.parse(JSON.stringify(db)),
       clearLocal() { db = empty(); save(); emit(me()); },
       onAuth(f) { listeners.add(f); return () => listeners.delete(f); },
@@ -149,6 +157,7 @@
     const { listeners, emit } = bus();
     let sb = null, profile = null, uid = null;
     let role = null, standing = { status: "active", note: null };  // the signed-in member's team role and standing
+    let termsVersion = null;  // the Terms members must have accepted to post, while they are switched on
     const PROFILE = "profile:profiles!user_id(id,username,display_name)";
     const check = ({ data, error }) => { if (error) throw friendly(error); return data; };
     function friendly(e) {
@@ -157,9 +166,13 @@
       if (/already registered|already exists/i.test(m)) return err("There is already an account with that email. Log in instead.", "exists");
       if (/Email not confirmed/i.test(m)) return err("Confirm your email first: open the link Billd sent you.", "unconfirmed");
       if (/Password should be/i.test(m)) return err("Choose a password of at least 8 characters.", "weak_password");
+      if (e?.hint === "billd_banned_word" || /word that isn't allowed on Billd/i.test(m)) return err("This contains a word that isn't allowed on Billd. Please rephrase.", "banned_word");
+      // sign-up: the database refused the new profile (the word filter on usernames and names)
+      if (/Database error saving new user/i.test(m)) return err("Billd couldn't create that account. If your username or name contains a word that isn't allowed on Billd, please choose another.", "signup_refused");
       if (/rate limit/i.test(m)) return err("Too many tries. Wait a few minutes and try again.", "rate_limited");
       if (/profiles_username_key|duplicate key.*username/i.test(m)) return err("That username is taken.", "username_taken");
-      if (/row-level security|row level security/i.test(m)) return err(standing.status === "suspended" ? "Your account is suspended, so it can't post." : standing.status === "pending" ? "Your account is waiting for approval. You can post once the Billd team approves it." : "You can't change that.", "forbidden");
+      if (/row-level security|row level security/i.test(m)) return err(standing.status === "suspended" ? "Your account is suspended, so it can't post." : standing.status === "pending" ? "Your account is waiting for approval. You can post once the Billd team approves it."
+        : termsVersion && profile && profile.terms_version !== termsVersion ? "Accept Billd's Terms of Use first: see the note at the top of the page." : "You can't do that. (If you blocked this member, or they blocked you, you can't follow, like or comment.)", "forbidden");
       if (/Failed to fetch|NetworkError|Load failed/i.test(m)) return err("Could not reach the Billd server. Check your connection.", "unavailable");
       return err(m, e?.code || "error");
     }
@@ -214,12 +227,12 @@
       ready,
       me: () => profile,
       isLocalData: () => false,
-      async signUp(email, password, username, displayName) {
+      async signUp(email, password, username, displayName, termsAccepted) {
         username = String(username || "").toLowerCase();
         if (!USERNAME.test(username)) throw err("Usernames are 3 to 20 letters, numbers or underscores.", "bad_username");
         const taken = check(await sb.from("profiles").select("id").eq("username", username).maybeSingle());
         if (taken) throw err("That username is taken.", "username_taken");
-        const { data, error } = await sb.auth.signUp({ email, password, options: { data: { username, display_name: (displayName || "").trim().slice(0, 50) || undefined }, emailRedirectTo: location.origin + location.pathname } });
+        const { data, error } = await sb.auth.signUp({ email, password, options: { data: { username, display_name: (displayName || "").trim().slice(0, 50) || undefined, terms_version: termsAccepted || undefined }, emailRedirectTo: location.origin + location.pathname } });
         if (error) throw friendly(error);
         if (!data.session) return { confirm: true };  // the project asks new members to confirm their email
         uid = data.user.id; await loadProfile(); emit(profile); return { confirm: false };
@@ -474,6 +487,40 @@
         return check(await q);
       },
       reviewImport: (id, status, writer, why) => rpc("review_import", { item_id: id, new_status: status, writer: writer || null, why: why || null }),
+      // ---- blocking: the database hides the blocked member's posts and stops them following, liking or commenting
+      async blocks() {
+        if (!uid) return [];
+        return check(await sb.from("blocks").select("blocked,created_at,profile:profiles!blocked(id,username,display_name)").eq("blocker", uid).order("created_at", { ascending: false }));
+      },
+      async block(userId, on) {
+        needMe();
+        if (on) { const { error } = await sb.from("blocks").insert({ blocker: uid, blocked: userId }); if (error && error.code !== "23505") throw friendly(error); }  // 23505: already blocked
+        else check(await sb.from("blocks").delete().eq("blocker", uid).eq("blocked", userId));
+      },
+      // ---- the Terms of Use: accepted at sign-up, or once by members who joined earlier
+      setTermsVersion(v) { termsVersion = v || null; },
+      async acceptTerms(version) {
+        await rpc("accept_terms", { version });
+        if (profile) profile = { ...profile, terms_version: version, terms_accepted_at: new Date().toISOString() };
+      },
+      // ---- the word filter (admins): the list isn't readable through the API, only through these functions
+      async moderationTerms() { needMe(); return check(await sb.rpc("moderation_terms_list")); },
+      async setModerationTerm(term, severity, remove) {
+        needMe();
+        return check(await sb.rpc("set_moderation_term", { new_term: String(term || ""), new_severity: severity || "block", remove: !!remove }));
+      },
+      // ---- delete my account: the server function checks the session and the typed username, then deletes everything
+      async deleteAccount(username) {
+        needMe();
+        const { data, error } = await sb.functions.invoke("delete-account", { body: { username } });
+        if (error || !data?.ok) {
+          let msg = data?.error || "Your account couldn't be deleted. Try again later.";
+          try { const b = await error?.context?.json?.(); if (b?.error) msg = b.error; } catch (e) { /* keep the general message */ }
+          throw err(msg, "delete_failed");
+        }
+        try { await sb.auth.signOut({ scope: "local" }); } catch (e) { /* the session is gone with the account */ }
+        uid = null; profile = null; role = null; standing = { status: "active", note: null }; emit(null);
+      },
       async report(kind, targetId, reason) {
         needMe();
         check(await sb.from("reports").insert({ reporter: uid, kind, target_id: String(targetId), reason }));

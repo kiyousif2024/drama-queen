@@ -18,6 +18,10 @@
   let D, works = [], byId = dict(), trad = dict(), reg = dict(), lang = dict(), ppl = dict(), genre = dict();
   let places = dict(), venues = dict(), orgs = dict();
   let me = null, myStatus = {}, rated = {}, popular = {};
+  // members the signed-in member blocked: the database already hides their posts from everyone but the
+  // Billd team; the page also leaves them out (for the team's own feeds, and as a second line)
+  let blockedSet = new Set(), dbSettings = {};
+  const notBlocked = (rows, key = "user_id") => (blockedSet.size ? rows.filter((r) => !blockedSet.has(r[key] ?? r.profile?.id)) : rows);
 
   // ---------------------------------------------------------------- formatting
   const TODAY = new Date().toISOString().slice(0, 10);  // UTC: for listings, checked in UTC
@@ -277,6 +281,55 @@
       <p>Billd closes the accounts of members who repeatedly post material that infringes others' copyright.</p></div>`;
     $("#cr-fb").addEventListener("click", () => openFeedback({ id: "copyright", title: "Copyright report" }));
   }
+  // #/terms, #/privacy, #/guidelines: the texts in web/legal/*.md, shown as plain text. Only headings (#),
+  // bullets (-), **bold** and links to Billd's own pages or to https addresses are recognised; everything
+  // else is escaped, so the files can't add HTML to the page.
+  const LEGAL = { terms: "Terms of Use", privacy: "Privacy Policy", guidelines: "Community Guidelines" };
+  function inlineMD(t) {
+    let out = "", last = 0;
+    for (const m of t.matchAll(/\*\*(.+?)\*\*|\[([^\]]+)\]\(([^)\s]+)\)/g)) {
+      out += esc(t.slice(last, m.index));
+      if (m[1] != null) out += `<b>${esc(m[1])}</b>`;
+      else {
+        const href = /^#\/[\w/-]*$/.test(m[3]) ? m[3] : safeUrl(m[3]);
+        out += href ? `<a href="${esc(href)}"${href.startsWith("#") ? "" : ' target="_blank" rel="noopener"'}>${esc(m[2])}</a>` : esc(m[2]);
+      }
+      last = m.index + m[0].length;
+    }
+    return out + esc(t.slice(last));
+  }
+  function legalHTML(md) {
+    const out = []; let para = [], list = null;
+    const flush = () => {
+      if (para.length) { out.push(`<p>${inlineMD(para.join(" "))}</p>`); para = []; }
+      if (list) { out.push(`<ul>${list.map((x) => `<li>${inlineMD(x)}</li>`).join("")}</ul>`); list = null; }
+    };
+    for (const raw of String(md).replace(/\r/g, "").split("\n")) {
+      const line = raw.trim();
+      const h = /^(#{1,3})\s+(.*)$/.exec(line), li = /^[-*]\s+(.*)$/.exec(line);
+      if (!line) flush();
+      else if (h) { flush(); const n = h[1].length; out.push(n === 1 ? `<h1 class="h1">${inlineMD(h[2])}</h1>` : `<h${n}>${inlineMD(h[2])}</h${n}>`); }
+      else if (li) { if (para.length) flush(); (list = list || []).push(li[1]); }
+      else if (list && /^\s{2,}/.test(raw)) list[list.length - 1] += " " + line;  // a bullet continued on the next line
+      else { if (list) flush(); para.push(line.replace(/^>\s?/, "")); }
+    }
+    flush();
+    return out.join("\n");
+  }
+  async function renderLegal(name) {
+    const tok = routeSeq;
+    document.title = `${LEGAL[name]} · Billd`;
+    pageEl().innerHTML = `<div class="wrap legal" style="padding-top:30px"><p class="hint">Loading…</p></div>`;
+    let text = "";
+    try { const r = await fetch(`legal/${name}.md`, { cache: "no-cache" }); if (!r.ok) throw new Error(r.status); text = await r.text(); }
+    catch (e) { if (!stale(tok)) pageEl().innerHTML = `<div class="wrap legal" style="padding-top:30px"><h1 class="h1">${LEGAL[name]}</h1><p class="empty">This page couldn't be loaded. Check your connection and try again.</p></div>`; return; }
+    if (stale(tok)) return;
+    const draft = name !== "guidelines" && !termsState().live;
+    pageEl().innerHTML = `<div class="wrap legal" style="padding-top:30px">${draft ? `<p class="banner draft"><b>Draft.</b> These aren't in force yet: Billd's ${name === "terms" ? "Terms of Use are" : "Privacy Policy is"} being finalised.</p>` : ""}
+      ${legalHTML(text)}
+      <p class="foot-links" style="margin-top:30px">${Object.entries(LEGAL).filter(([k]) => k !== name).map(([k, n]) => `<a href="#/${k}">${n}</a>`).join(" · ")}${name === "privacy" ? ` · <a href="#/delete-account">Deleting your account</a>` : ""}</p></div>`;
+  }
+
   // a poster with the viewer's own marks under it (seen, rating, like)
   function cell(w, extra = "") {
     const s = myStatus[w.id];
@@ -301,7 +354,8 @@
     if (a === "browse") return "Shows";
     if (a === "play") return byId[b]?.title || "Back";
     if (a === "u") return `@${b}`;
-    return { activity: "Activity", lists: "Lists", members: "Members", me: "My diary", list: "List", review: "Review" }[a] || "Back";
+    return { activity: "Activity", lists: "Lists", members: "Members", me: "My diary", list: "List", review: "Review", settings: "Settings",
+             terms: "Terms of Use", privacy: "Privacy Policy", guidelines: "Community Guidelines", "delete-account": "Deleting your account" }[a] || "Back";
   }
   document.addEventListener("click", (e) => {
     const a = e.target.closest("a[data-back='1']");
@@ -360,7 +414,8 @@
       "": renderHome, onstage: () => renderOnStage(b), play: () => renderPlay(b), u: () => renderProfile(b, c), me: renderMe,
       lists: renderLists, list: () => renderList(b), review: () => renderReview(b), members: renderMembers,
       activity: () => renderActivity(b), settings: renderSettings, about: renderAbout, admin: () => renderAdmin(b),
-      credits: renderCredits, copyright: renderCopyright,
+      credits: renderCredits, copyright: renderCopyright, "delete-account": () => renderDeleteAccount(b),
+      terms: () => renderLegal("terms"), privacy: () => renderLegal("privacy"), guidelines: () => renderLegal("guidelines"),
     }[a || ""] || renderNotFound;
     Promise.resolve(go()).then(settle).catch((e) => { console.error(e); if (stale(tok)) return; pageEl().innerHTML = `<div class="wrap"><p class="empty">Something went wrong: ${esc(e.message)}</p></div>`; });
   }
@@ -460,14 +515,14 @@
       if (pop.length >= 4) { $("#home-pop-row").innerHTML = pop.map((w) => cell(w)).join(""); $("#home-pop").hidden = false; }
       if (me && S.kind !== "local") {
         const [lg, mk] = await Promise.all([S.feed(30), S.recentMarks(30, { friends: true }).catch(() => [])]);
-        const feed = withMarks(lg.filter((l) => byId[l.play_id]), mk.filter((m) => m.seen)).filter((l) => l.user_id !== me.id);
+        const feed = notBlocked(withMarks(lg.filter((l) => byId[l.play_id]), mk.filter((m) => m.seen)).filter((l) => l.user_id !== me.id));
         if (stale(tok)) return;
         if (feed.length) {
           $("#home-friends-row").innerHTML = feed.slice(0, 18).map((l) => cell(byId[l.play_id], `<div class="cell-meta">${avatar(l.profile, "sm")}${l.rating ? `<span class="stars">${stars(l.rating)}</span>` : ""}${l.liked ? `<span class="heart">♥</span>` : ""}</div>`)).join("");
           $("#home-friends").hidden = false;
         }
       }
-      const revs = (await S.recentReviews(6)).filter((l) => byId[l.play_id]);
+      const revs = notBlocked((await S.recentReviews(6)).filter((l) => byId[l.play_id]));
       if (stale(tok)) return;
       if (revs.length && S.kind !== "local") { $("#home-rev-list").innerHTML = revs.map((l) => reviewHTML(l)).join(""); $("#home-rev").hidden = false; }
     } catch (e) { console.warn(e); }
@@ -1107,7 +1162,7 @@
   async function renderPlaySocial(w, tok) {
     refreshStats(w, tok);
     try {
-      const logs = (await S.logsForPlay(w.id)).filter((l) => l.review || l.rating);
+      const logs = notBlocked((await S.logsForPlay(w.id)).filter((l) => l.review || l.rating));
       if (stale(tok)) return;
       const el = $("#play-rev-list"); if (!el) return;
       const withText = logs.filter((l) => l.review);
@@ -1116,7 +1171,7 @@
       const mine = await S.mySuggestions(w.id).catch(() => []);
       if (stale(tok)) return;
       if (mine.length && $("#play-suggest")) $("#play-suggest").innerHTML = suggestionsHTML(mine, "Productions you suggested for this play");
-      const lists = await S.listsWithPlay(w.id);
+      const lists = notBlocked(await S.listsWithPlay(w.id));
       if (stale(tok)) return;
       if (lists.length && $("#play-lists")) {
         $("#play-lists").innerHTML = `<h3>In ${plural(lists.length, "list")}</h3><ul class="minilists">${lists.slice(0, 6).map((l) => `<li><a href="#/list/${l.id}">${esc(l.title)}</a><small>by ${who(l.profile)} · ${plural(l.count, "show")}</small></li>`).join("")}</ul>`;
@@ -1169,7 +1224,8 @@
     const sp = t.closest("[data-reveal]"); if (sp) { const b = sp.closest(".review").querySelector(".review-body"); b.hidden = false; sp.remove(); return; }
     const ed = t.closest("[data-edit-log]"); if (ed) { const l = await S.getLog(ed.dataset.editLog); if (l) openLog(l.play_id, l); return; }
     const fo = t.closest("[data-follow]"); if (fo) return follow(fo);
-    const rp = t.closest("[data-report]"); if (rp) { const [k, id] = rp.dataset.report.split(":"); return openReport(k, id); }
+    const rp = t.closest("[data-report]"); if (rp) { const [k, id, uid] = rp.dataset.report.split(":"); return openReport(k, id, uid); }
+    const bl = t.closest("[data-block]"); if (bl) return toggleBlock(bl.dataset.block, bl.dataset.name);
     const mr = t.closest("[data-mod-remove]"); if (mr) { const [k, id] = mr.dataset.modRemove.split(":"); if (k !== "list") return removePost(k, id);
       return removePost(k, id, () => { location.hash = "#/lists"; }); }
     const mg = t.closest("[data-manage]"); if (mg) { const p = await S.profileById(mg.dataset.manage); if (p) manageMember(p); return; }
@@ -1222,7 +1278,7 @@
       ${signedIn() && S.kind !== "local" ? `<form class="comment-form" id="cm-form"><label class="vh" for="cm-body">Add a comment</label><input id="cm-body" maxlength="2000" placeholder="Add a comment…" required><button class="btn" type="submit">Post</button></form>` : S.kind !== "local" ? `<p class="hint"><button class="linkbtn" type="button" data-auth-open="in">Log in</button> to comment.</p>` : ""}</section>
       ${w ? `<p style="margin-top:30px"><a class="linkbtn" href="${playUrl(w.id)}">More about ${esc(w.title)} →</a></p>` : ""}</div>`;
     const draw = async () => {
-      const cs = await S.comments(l.id);
+      const cs = notBlocked(await S.comments(l.id));
       if (stale(tok)) return;
       $("#cm-list").innerHTML = cs.length ? cs.map((c) => `<li><a class="who" href="#/u/${esc(c.profile?.username)}">${who(c.profile)}</a>${esc(c.body)}<time datetime="${esc(c.created_at)}">${ago(c.created_at)}</time>${me && c.user_id === me.id ? ` <button class="linkbtn danger" type="button" data-del-c="${c.id}">Delete</button>` : ` ${modButton("comment", c.id, c.user_id, "linkbtn")}`}</li>`).join("") : `<li class="hint">No comments yet.</li>`;
     };
@@ -1502,7 +1558,7 @@
       ${S.kind !== "local" ? `<section class="sec"><div class="sec-head"><h2>Recently updated</h2></div><div class="lists-grid" id="all-lists"><p class="hint">Loading…</p></div></section>` : ""}</div>`;
     $("#new-list")?.addEventListener("click", () => editList(null));
     if (signedIn()) { const ls = await S.listsForUser(me.id); if (stale(tok)) return; $("#my-lists").innerHTML = ls.map(listCard).join("") || `<p class="empty">No lists yet. Start one from any show with “Add to lists”, or with New list.</p>`; }
-    if (S.kind !== "local") { const ls = await S.recentLists(); if (stale(tok)) return; $("#all-lists").innerHTML = ls.map(listCard).join("") || `<p class="empty">No lists yet.</p>`; }
+    if (S.kind !== "local") { const ls = notBlocked(await S.recentLists()); if (stale(tok)) return; $("#all-lists").innerHTML = ls.map(listCard).join("") || `<p class="empty">No lists yet.</p>`; }
   }
   async function renderList(id) {
     const tok = routeSeq;
@@ -1611,7 +1667,8 @@
     const mine = me && p.id === me.id;
     document.title = `${p.display_name || p.username} · Billd`;
     const [logs, statuses, lists] = await Promise.all([S.logsForUser(p.id), S.statusesFor(p.id), S.listsForUser(p.id)]);
-    const [following, followers] = S.kind === "local" ? [[], []] : await Promise.all([S.following(p.id), S.followers(p.id)]);
+    const [following, followers] = S.kind === "local" ? [[], []] : (await Promise.all([S.following(p.id), S.followers(p.id)])).map((ps) => notBlocked(ps, "id"));
+    const blocked = !mine && blockedSet.has(p.id);
     const fset = await myFollowing();
     if (stale(tok)) return;
     const seen = statuses.filter((s) => s.seen), want = statuses.filter((s) => s.want && !s.seen), liked = statuses.filter((s) => s.liked);
@@ -1665,12 +1722,14 @@
     pageEl().innerHTML = `<div class="prof-mast"><div class="wrap">
       <header class="prof">${avatar(p, "lg")}
         <div class="prof-main"><h1>${who(p)}’s Show Diary</h1><div class="handle">@${esc(p.username)}${S.kind === "local" ? " · saved on this device" : ""} ${roleBadge(p.id)}</div>${p.bio ? `<p class="bio">${esc(p.bio)}</p>` : ""}
-          <div style="margin-top:12px;display:flex;gap:8px;flex-wrap:wrap">${mine ? `<a class="btn ghost sm" href="#/settings">Edit profile</a>` : S.kind !== "local" ? `<button class="btn sm${fset.has(p.id) ? " on" : ""}" type="button" data-follow="${p.id}" data-on="${fset.has(p.id)}">${fset.has(p.id) ? "Following" : "Follow"}</button>` : ""}
-            ${!mine && me && S.kind !== "local" ? (outranks(p.id) ? `<button class="btn ghost sm" type="button" data-manage="${p.id}">Manage</button>` : `<button class="btn ghost sm" type="button" data-report="profile:${p.id}">Report</button>`) : ""}
+          <div style="margin-top:12px;display:flex;gap:8px;flex-wrap:wrap">${mine ? `<a class="btn ghost sm" href="#/settings">Edit profile</a>` : S.kind !== "local" && !blocked ? `<button class="btn sm${fset.has(p.id) ? " on" : ""}" type="button" data-follow="${p.id}" data-on="${fset.has(p.id)}">${fset.has(p.id) ? "Following" : "Follow"}</button>` : ""}
+            ${!mine && me && S.kind !== "local" ? (outranks(p.id) ? `<button class="btn ghost sm" type="button" data-manage="${p.id}">Manage</button>` : `<button class="btn ghost sm" type="button" data-report="profile:${p.id}:${p.id}">Report</button>`) : ""}
+            ${!mine && me && S.kind !== "local" ? `<button class="btn ghost sm${blocked ? "" : " danger"}" type="button" data-block="${p.id}" data-name="${esc(p.display_name || p.username)}">${blocked ? "Unblock" : "Block"}</button>` : ""}
             <button class="btn ghost sm" type="button" id="share-prof">Share</button></div></div>
         <div class="prof-stats"><a href="${base}/seen"><b>${seen.length.toLocaleString()}</b><span>Shows</span></a><a href="${base}/diary"><b>${year.toLocaleString()}</b><span>This year</span></a><a href="${base}/lists"><b>${lists.length}</b><span>Lists</span></a>
           ${S.kind !== "local" ? `<a href="${base}/following"><b>${following.length}</b><span>Following</span></a><a href="${base}/followers"><b>${followers.length}</b><span>Followers</span></a>` : ""}</div>
       </header></div></div><div class="wrap">
+      ${blocked ? `<p class="banner" style="margin:0 0 16px"><b>You've blocked ${who(p)}.</b> You don't see their diary, reviews, comments or lists, and they can't follow you or like or comment on your reviews.</p>` : ""}
       <nav class="tabs" aria-label="Profile">${tabs.map(([k, n]) => `<a href="${base}${k ? "/" + k : ""}"${k === (tab || "") ? ' aria-current="page"' : ""}>${n}</a>`).join("")}</nav>
       ${body}</div>`;
     $('.tabs a[aria-current="page"]')?.scrollIntoView({ inline: "center", block: "nearest" });
@@ -1748,7 +1807,7 @@
       <form id="mem-form" role="search" style="max-width:420px;margin-bottom:20px"><label class="vh" for="mem-q">Find members</label><input id="mem-q" type="search" placeholder="Find members by name or username"></form>
       <ul class="members" id="mem-list"><li class="hint">Loading…</li></ul></div>`;
     const tok = routeSeq;
-    const draw = async (q) => { const fset = await myFollowing(); const ms = await S.members(q); if (stale(tok)) return; $("#mem-list").innerHTML = ms.map((m) => memberHTML(m, fset)).join("") || `<li class="empty">No members found.</li>`; };
+    const draw = async (q) => { const fset = await myFollowing(); const ms = notBlocked(await S.members(q), "id"); if (stale(tok)) return; $("#mem-list").innerHTML = ms.map((m) => memberHTML(m, fset)).join("") || `<li class="empty">No members found.</li>`; };
     draw();
     let t; $("#mem-q").addEventListener("input", (e) => { clearTimeout(t); t = setTimeout(() => draw(e.target.value.trim()), 250); });
     $("#mem-form").addEventListener("submit", (e) => e.preventDefault());
@@ -1762,7 +1821,7 @@
       <ul class="feed" id="feed"><li class="hint">Loading…</li></ul></div>`;
     try {
       const [lg, mk] = await Promise.all([everyone ? S.recentLogs(60) : S.feed(60), S.recentMarks(60, { friends: !everyone }).catch(() => [])]);
-      const logs = withMarks(lg.filter((l) => byId[l.play_id]), mk).slice(0, 80);
+      const logs = notBlocked(withMarks(lg.filter((l) => byId[l.play_id]), mk)).slice(0, 80);
       if (stale(tok)) return;
       $("#feed").innerHTML = logs.length ? logs.map(feedItem).join("") : `<li class="empty">${everyone ? `Nothing yet. <button class="linkbtn" type="button" data-log>Log a show</button> to get things started.` : `Nothing from people you follow yet. <a class="linkbtn" href="#/members">Find members to follow</a>.`}</li>`;
     } catch (e) { if (!stale(tok)) $("#feed").innerHTML = `<li class="empty">${esc(e.message)}</li>`; }
@@ -1802,9 +1861,14 @@
       ${local && me ? `<section class="sec"><div class="sec-head"><h2>Diary saved on this device</h2></div><p>This device has shows you logged before you had an account. <button class="btn sm" type="button" id="st-import">Move them to my account</button></p></section>` : ""}
       ${me && S.kind !== "local" ? `<section class="sec" id="st-sugg" hidden></section>` : ""}
       <section class="sec"><div class="sec-head"><h2>Your data</h2></div><p class="hint" style="margin-bottom:10px">Download everything you've logged, rated, reviewed and listed, as a JSON file.</p><button class="btn ghost" type="button" id="st-export"${me ? "" : " disabled"}>Download my data</button></section>
+      ${me && S.kind !== "local" ? `<section class="sec" id="st-blocks"><div class="sec-head"><h2>Blocked members</h2></div><p class="hint">Loading…</p></section>` : ""}
       ${me && S.kind !== "local" ? `<section class="sec"><div class="sec-head"><h2>Account</h2></div><form id="st-pw" style="display:flex;gap:8px;flex-wrap:wrap;max-width:460px"><label class="vh" for="st-pass">New password</label><input id="st-pass" type="password" minlength="8" placeholder="New password" autocomplete="new-password" style="flex:1"><button class="btn ghost" type="submit">Change password</button></form>
         <p style="margin-top:18px"><button class="btn ghost" type="button" id="st-out">Log out</button></p></section>` : ""}
-      ${S.kind === "local" ? `<section class="sec"><div class="sec-head"><h2>Preview mode</h2></div><p class="hint">Billd isn't connected to its server yet, so your diary lives in this browser. Clearing your browser data would erase it; download it above to keep a copy.</p><p><button class="linkbtn danger" type="button" id="st-clear">Erase the diary on this device</button></p></section>` : ""}
+      ${S.kind === "local" ? `<section class="sec"><div class="sec-head"><h2>Preview mode</h2></div><p class="hint">Billd isn't connected to its server yet, so your diary lives in this browser. Clearing your browser data would erase it; download it above to keep a copy.</p></section>` : ""}
+      ${me ? `<section class="sec"><div class="sec-head"><h2>${S.kind === "local" ? "Delete my data" : "Delete my account"}</h2></div><div class="danger-zone">
+        <p>${S.kind === "local" ? "Erase every show, rating, review and list saved on this device." : "Delete your account and everything you've posted on Billd: your diary, reviews, ratings, comments, lists, likes and follows. This can't be undone."} <a href="#/delete-account">What happens</a></p>
+        <button class="btn ghost danger" type="button" id="st-delete">${S.kind === "local" ? "Erase the diary on this device" : "Delete my account"}</button></div></section>` : ""}
+      <section class="sec"><div class="sec-head"><h2>Terms and policies</h2></div><p class="foot-links" style="margin:0"><a href="#/terms">Terms of Use</a> · <a href="#/privacy">Privacy Policy</a> · <a href="#/guidelines">Community Guidelines</a></p></section>
     </div>`;
     $("#st-prof")?.addEventListener("click", editProfile);
     if ($("#st-sugg")) Promise.all([S.mySuggestions(), S.myPlaySuggestions().catch(() => [])]).then(([list, plays]) => {
@@ -1822,7 +1886,19 @@
     $("#st-export")?.addEventListener("click", exportData);
     $("#st-out")?.addEventListener("click", async () => { await S.signOut(); toast("Logged out"); location.hash = "#/"; });
     $("#st-pw")?.addEventListener("submit", async (e) => { e.preventDefault(); try { await S.setPassword($("#st-pass").value); $("#st-pass").value = ""; toast("Password changed"); } catch (err) { toast(err.message); } });
-    $("#st-clear")?.addEventListener("click", () => { if (confirm("Erase every show, rating, review and list saved on this device?")) { S.clearLocal(); myStatus = {}; toast("Erased"); route(); } });
+    $("#st-delete")?.addEventListener("click", openDeleteAccount);
+    if ($("#st-blocks")) S.blocks().then((rows) => {
+      const el = $("#st-blocks"); if (!el) return;
+      blockedSet = new Set(rows.map((r) => r.blocked));
+      el.innerHTML = `<div class="sec-head"><h2>Blocked members</h2></div>${rows.length ? `<ul class="blocked-list">${rows.map((r) => `<li>${avatar(r.profile, "sm")}<div><a href="#/u/${esc(r.profile?.username || "")}">${who(r.profile)}</a><small>@${esc(r.profile?.username || "")} · blocked ${ago(r.created_at)}</small></div>
+          <button class="btn ghost sm" type="button" data-unblock="${esc(r.blocked)}" data-name="${esc(r.profile?.display_name || r.profile?.username || "")}">Unblock</button></li>`).join("")}</ul>`
+        : `<p class="hint">You haven't blocked anyone. To block a member, open their profile and choose Block. Blocked members can't follow you or comment on or like your reviews, and you won't see their posts.</p>`}`;
+      el.onclick = async (e) => {
+        const b = e.target.closest("[data-unblock]"); if (!b) return;
+        b.disabled = true;
+        try { await S.block(b.dataset.unblock, false); blockedSet.delete(b.dataset.unblock); toast(`Unblocked ${b.dataset.name}`); renderSettings(); } catch (err) { toast(err.message); b.disabled = false; }
+      };
+    }).catch(() => { if ($("#st-blocks")) $("#st-blocks").hidden = true; });
     $("#st-import")?.addEventListener("click", async (e) => {
       e.target.disabled = true;
       try { await S.importLocal(S.local.exportLocal()); S.local.clearLocal(); myStatus = await S.myStatuses(); toast("Moved to your account"); route(); }
@@ -1834,6 +1910,91 @@
     const blob = new Blob([JSON.stringify({ profile: me, exported: new Date().toISOString(), statuses, logs, lists }, null, 2)], { type: "application/json" });
     const a = document.createElement("a"); a.href = URL.createObjectURL(blob); a.download = `billd-${me.username}-${TODAY}.json`; a.click();
     setTimeout(() => URL.revokeObjectURL(a.href), 2000);
+  }
+  // ---- delete my account (Apple 5.1.1(v), Google Play): explained, then confirmed by typing the username
+  function openDeleteAccount() {
+    if (!me) return;
+    const local = S.kind === "local";
+    const word = local ? "erase" : me.username;
+    $("#edit-title").textContent = local ? "Erase the diary on this device?" : "Delete your account?";
+    const step1 = () => {
+      $("#edit-form").innerHTML = local
+        ? `<p style="margin:0">Every show, rating, review and list saved in this browser will be erased. Nothing of yours is kept anywhere else.</p>
+          <p class="hint">Download a copy first if you might want it: <button class="linkbtn" type="button" data-del="export">Download my data</button></p>
+          <div class="acts"><button class="btn ghost" type="button" data-close>Cancel</button><button class="btn danger" type="button" data-del="next">Continue</button></div>`
+        : `<p style="margin:0">This deletes your Billd account <b>@${esc(me.username)}</b> straight away, and with it:</p>
+          <ul class="del-steps"><li>your diary, ratings and reviews, and the likes and comments on them;</li><li>your comments, likes and lists;</li>
+            <li>who you follow and who follows you, and anyone you blocked;</li><li>your profile, suggestions and messages to the team.</li></ul>
+          <p class="hint">Reports you sent stay with the Billd team without your name, and the team's log notes that an account was deleted, not whose. It can't be undone, and you can join again later with the same email. <a href="#/delete-account" target="_blank" rel="noopener">More about deleting</a></p>
+          <p class="hint">Want a copy first? <button class="linkbtn" type="button" data-del="export">Download my data</button></p>
+          <div class="acts"><button class="btn ghost" type="button" data-close>Cancel</button><button class="btn danger" type="button" data-del="next">Continue</button></div>`;
+    };
+    const step2 = () => {
+      $("#edit-form").innerHTML = `<p style="margin:0">${local ? "To confirm, type <b>erase</b> below." : `To confirm, type your username, <b>${esc(me.username)}</b>, below. Your account and everything you posted are deleted at once, and this can't be undone.`}</p>
+        <div class="field"><label for="del-confirm">${local ? "Confirm" : "Your username"}</label>
+          <input id="del-confirm" autocomplete="off" autocapitalize="none" spellcheck="false"></div>
+        <p class="note err" id="del-note" hidden></p>
+        <div class="acts"><button class="btn ghost" type="button" data-close>Cancel</button><button class="btn danger" type="submit" id="del-go" disabled>${local ? "Erase everything" : "Delete my account"}</button></div>`;
+      const inp = $("#del-confirm");
+      inp.addEventListener("input", () => { $("#del-go").disabled = inp.value.trim().replace(/^@/, "").toLowerCase() !== word; });
+      inp.focus();
+    };
+    step1();
+    const form = $("#edit-form");
+    form.oninput = null;
+    form.onclick = (e) => {
+      const b = e.target.closest("[data-del]"); if (!b) return;
+      if (b.dataset.del === "export") exportData();
+      if (b.dataset.del === "next") step2();
+    };
+    form.onsubmit = async (e) => {
+      e.preventDefault();
+      const typed = $("#del-confirm")?.value.trim().replace(/^@/, "").toLowerCase();
+      if (typed !== word) return;
+      $("#del-go").disabled = true; note("#del-note", "");
+      try {
+        await S.deleteAccount(typed);
+        myStatus = {}; blockedSet = new Set(); followingSet = null;
+        $("#editd").close();
+        if (local) { me = S.me(); toast("Erased"); location.hash = "#/"; route(); return; }
+        me = null; renderAcct(); renderStanding(); renderTermsBar();
+        location.hash = "#/delete-account/done";
+      } catch (err) { note("#del-note", err.message, true); $("#del-go").disabled = false; }
+    };
+    $("#editd").showModal();
+  }
+  // #/delete-account: how to delete an account, for everyone (Google Play asks for a web page)
+  function renderDeleteAccount(sub) {
+    document.title = "Delete your account · Billd";
+    const mail = CFG.contact?.support || CFG.contact?.privacy || "";
+    if (sub === "done") {
+      pageEl().innerHTML = `<div class="wrap prose" style="padding-top:30px"><h1 class="h1">Your account has been deleted</h1>
+        <p>Your Billd account and everything you posted are gone, and you've been logged out on this device. Thank you for using Billd.</p>
+        <p>You can keep browsing the plays, and you're welcome to join again any time.</p><p><a class="btn ghost" href="#/">Go to the home page</a></p></div>`;
+      return;
+    }
+    const local = S.kind === "local";
+    pageEl().innerHTML = `<div class="wrap prose" style="padding-top:30px"><h1 class="h1">Deleting your Billd account</h1>
+      ${local ? `<p>On this copy of Billd there are no accounts: your diary is saved only in this browser. Erase it in <a href="#/settings">Settings</a> → <b>Delete my data</b>, or by clearing this site's data in your browser.</p>`
+      : `<p>You can delete your account yourself, at any time, on the website or in the app:</p>
+      <ol class="steps"><li>Log in to Billd.</li><li>Open <a href="#/settings">Settings</a> (from your profile picture, or the Profile tab).</li><li>Choose <b>Delete my account</b>, then type your username to confirm.</li></ol>
+      ${me ? `<p><button class="btn danger" type="button" id="da-go">Delete my account</button></p>` : `<p><button class="btn ghost" type="button" data-auth-open="in">Log in</button></p>`}
+      <h2>What's deleted</h2>
+      <p>Straight away: your account and login, your profile, your diary entries, ratings and reviews (with the likes and comments other members left on them), your comments, likes and lists, who you follow and who follows you, the members you blocked, the plays and productions you suggested, and the feedback you sent.</p>
+      <h2>What's kept</h2>
+      <ul><li>Reports you sent about other members' posts stay with the Billd team, without your name, so the team can still act on them.</li>
+        <li>The team's moderation log keeps a line saying an account was deleted, without your name, and drops the words of any of your posts it had recorded.</li>
+        <li>Facts you suggested that were already added to Billd's catalogue (a production's dates or cast) stay, without your name.</li>
+        <li>Our database provider's backups are overwritten on their normal schedule.</li></ul>
+      <h2>Can't log in?</h2>
+      <p>${mail ? `Email <a href="mailto:${esc(mail)}?subject=${encodeURIComponent("Delete my Billd account")}">${esc(mail)}</a> from the address on your account, with your username, or` : "Reset your password from the Log in window, or"} <button class="linkbtn" type="button" id="da-ask">ask the Billd team to delete it</button>${mail ? "" : " (include your username and the email address on the account)"}. We'll confirm it with you by email and delete it within 30 days, usually much sooner.</p>`}
+    </div>`;
+    $("#da-go")?.addEventListener("click", openDeleteAccount);
+    $("#da-ask")?.addEventListener("click", () => {
+      openFeedback(null);
+      $("#fb-title").textContent = "Delete my account";
+      $("#fb-text").value = "Please delete my Billd account.\nUsername: \nEmail address on the account: ";
+    });
   }
   function editProfile() {
     const favs = [...(me.favorites || [])];
@@ -1899,6 +2060,7 @@
   function openAuth(mode = "in", why) {
     if (S.kind === "local") { toast("Accounts arrive when Billd's server is connected. Your diary is saved on this device."); return; }
     setAuthMode(mode);
+    $("#auth-terms").checked = false;
     note("#auth-note", why || "");
     $("#auth").showModal();
     (mode === "up" ? $("#auth-user") : $("#auth-email")).focus();
@@ -1913,6 +2075,7 @@
     $("#auth-pass").autocomplete = mode === "up" ? "new-password" : "current-password";
     $("#auth-go").textContent = mode === "up" ? "Create account" : mode === "reset" ? "Email me a reset link" : "Log in";
     $("#auth-forgot").hidden = mode !== "in";
+    $("#auth-terms-f").hidden = !(mode === "up" && termsState().live);
     note("#auth-note", "");
   }
   $$("[data-auth]").forEach((b) => b.addEventListener("click", () => setAuthMode(b.dataset.auth)));
@@ -1922,10 +2085,12 @@
     const email = $("#auth-email").value.trim(), pass = $("#auth-pass").value, user = $("#auth-user").value.trim().toLowerCase();
     if (!/^\S+@\S+\.\S+$/.test(email)) return note("#auth-note", "Enter your email address.", true);
     if (authMode !== "reset" && pass.length < 8) return note("#auth-note", "Passwords are at least 8 characters.", true);
+    const terms = termsState();
+    if (authMode === "up" && terms.live && !$("#auth-terms").checked) return note("#auth-note", "Tick the box to agree to the Terms of Use and Community Guidelines.", true);
     $("#auth-go").disabled = true;
     try {
       if (authMode === "up") {
-        const r = await S.signUp(email, pass, user, $("#auth-name").value);
+        const r = await S.signUp(email, pass, user, $("#auth-name").value, terms.live ? terms.version : null);
         if (r.confirm) { note("#auth-note", "Almost there: open the link we emailed you to confirm your address, then log in.", false, true); return; }
         $("#auth").close(); toast(`Welcome to Billd, ${$("#auth-name").value.trim() || cap(user)}`);
       } else if (authMode === "reset") {
@@ -1989,8 +2154,32 @@
   function modButton(kind, id, uid, cls = "") {
     if (!me || S.kind === "local" || uid === me.id) return "";
     return outranks(uid) ? `<button type="button" class="${cls}" data-mod-remove="${kind}:${id}">Remove</button>`
-                         : `<button type="button" class="${cls}" data-report="${kind}:${id}">Report</button>`;
+                         : `<button type="button" class="${cls}" data-report="${kind}:${id}:${esc(uid || "")}">Report</button>`;
   }
+  // ---- the Terms of Use: on when the published site config (terms.live) or the database setting says so
+  // (Admin -> Settings); the database setting is what stops members who haven't accepted from posting
+  function termsState() {
+    const c = CFG.terms || {}, d = dbSettings.terms || {};
+    return { live: c.live === true || d.live === true, version: String((d.live === true ? d.version : c.version || d.version) || "") };
+  }
+  const needsTerms = () => { const t = termsState(); return !!(me && S.kind !== "local" && t.live && t.version && me.terms_version !== t.version); };
+  function renderTermsBar() {
+    const el = $("#terms-bar");
+    if (!needsTerms()) { el.hidden = true; el.innerHTML = ""; return; }
+    el.innerHTML = `<b>Please accept Billd's Terms of Use.</b> You can read everything, but you can't post, comment or follow until you do. <button class="linkbtn" type="button" data-terms-open>Read and accept</button>`;
+    el.hidden = false;
+    // asked once a visit; the bar stays until they accept
+    let asked = false; try { asked = sessionStorage.getItem("billd-terms-asked") === termsState().version; sessionStorage.setItem("billd-terms-asked", termsState().version); } catch (e) { /* ask */ }
+    if (!asked && !document.querySelector("dialog[open]")) openTerms();
+  }
+  function openTerms() { $("#terms-agree").checked = false; note("#terms-note", ""); $("#termsd").showModal(); }
+  $("#terms-bar").addEventListener("click", (e) => { if (e.target.closest("[data-terms-open]")) openTerms(); });
+  $("#terms-form").addEventListener("submit", async (e) => {
+    e.preventDefault();
+    if (!$("#terms-agree").checked) return note("#terms-note", "Tick the box to accept.", true);
+    try { await S.acceptTerms(termsState().version); me = S.me(); $("#termsd").close(); renderTermsBar(); toast("Thank you. You're all set"); }
+    catch (err) { note("#terms-note", err.message, true); }
+  });
   function renderStanding() {
     const el = $("#standing");
     const st = me && S.kind !== "local" ? S.standing() : null;
@@ -2030,8 +2219,10 @@
 
   const REPORT_REASONS = ["Spam or advertising", "Harassment or hate", "Spoilers without a warning", "Offensive or explicit", "Copyright infringement", "Something else"];
   const KIND_NAME = { review: "review", comment: "comment", list: "list", profile: "member" };
-  function openReport(kind, id) {
+  function openReport(kind, id, uid) {
     if (!requireMe("Log in to report something.")) return;
+    const canBlock = !!uid && uid !== me.id && !blockedSet.has(uid);
+    $("#rep-block-f").hidden = !canBlock; $("#rep-block").checked = false;
     $("#rep-title").textContent = `Report this ${KIND_NAME[kind]}`;
     $("#rep-what").textContent = "Reports go to the Billd team. Only the team sees them.";
     $("#rep-reasons").innerHTML = REPORT_REASONS.map((r) => `<label><input type="radio" name="rep-r" value="${esc(r)}"> ${esc(r)}</label>`).join("");
@@ -2042,10 +2233,32 @@
       const r = $("input[name=rep-r]:checked")?.value;
       if (!r) return note("#rep-note", "Choose what's wrong.", true);
       const more = $("#rep-more").value.trim();
-      try { await S.report(kind, id, more ? `${r}: ${more}` : r); $("#reportd").close(); toast("Reported. Thank you"); }
-      catch (err) { note("#rep-note", err.message, true); }
+      try {
+        await S.report(kind, id, more ? `${r}: ${more}` : r);
+        const alsoBlock = canBlock && $("#rep-block").checked;
+        if (alsoBlock) { await S.block(uid, true); blockedSet.add(uid); followingSet = null; }
+        $("#reportd").close(); toast(alsoBlock ? "Reported and blocked. Thank you" : "Reported. Thank you");
+        if (alsoBlock) route();
+      } catch (err) { note("#rep-note", err.message, true); }
     };
     $("#reportd").showModal();
+  }
+
+  // ---- blocking: confirmed, since it also ends following both ways
+  async function loadBlocks() {
+    try { blockedSet = new Set(me && S.kind !== "local" ? (await S.blocks()).map((r) => r.blocked) : []); } catch (e) { blockedSet = new Set(); }
+  }
+  function toggleBlock(uid, name) {
+    if (!requireMe("Log in to block members.")) return;
+    if (blockedSet.has(uid)) {
+      return S.block(uid, false).then(() => { blockedSet.delete(uid); toast(`Unblocked ${name}`); route(); }, (e) => toast(e.message));
+    }
+    teamAction({ title: `Block ${name}?`, go: "Block", danger: true, why: "",
+      body: `<ul class="del-steps"><li>You won't see their diary, reviews, comments or lists anywhere on Billd.</li>
+        <li>They can't follow you, or like or comment on your reviews and lists.</li>
+        <li>You stop following each other.</li><li>They aren't notified, though they may notice they can no longer follow you or comment. You can unblock them from their profile or in Settings.</li></ul>
+        <p class="hint" style="margin-top:10px">If they're breaking the <a href="#/guidelines" target="_blank" rel="noopener">Community Guidelines</a>, report them too, so the Billd team can act.</p>`,
+      run: async () => { await S.block(uid, true); blockedSet.add(uid); followingSet = null; toast(`Blocked ${name}`); route(); } });
   }
 
   const STANDING_NAME = { active: "Active", pending: "Waiting for approval", suspended: "Suspended" };
@@ -2120,7 +2333,12 @@
     else if (x.action.startsWith("play ")) s = `${a} ${esc(x.action.slice(5))} ${t}'s suggested play #${esc(d.id)}`;
     else if (x.action.startsWith("suggestion ")) s = `${a} ${esc(x.action.slice(11))} ${t}'s production suggestion #${esc(d.id)}`;
     else if (x.action.startsWith("import ")) s = `${a} ${x.action === "import pending" ? "sent back to waiting" : esc(x.action.slice(7))} the imported show ${d.title ? `<b>${esc(d.title)}</b>` : `#${esc(d.id)}`}${d.writer ? ` (by ${esc(d.writer)})` : ""}`;
+    else if (x.action === "setting" && d.terms) s = `${a} ${d.terms.live ? "switched on" : "switched off"} the Terms of Use (version ${esc(d.terms.version)})`;
     else if (x.action === "setting") s = `${a} ${d.require_approval ? "turned on" : "turned off"} approval for new members`;
+    else if (x.action === "account deleted") s = `${d.team ? "A member of the Billd team" : "A member"} deleted their account`;
+    else if (x.action === "word block") s = `${a} added “${esc(d.term)}” to the word filter`;
+    else if (x.action === "word allow") s = `${a} allowed “${esc(d.term)}” as an exception to the word filter`;
+    else if (x.action === "word removed") s = `${a} removed “${esc(d.term)}” from the word filter`;
     else s = `${a}: ${esc(x.action)}`;
     return `<li class="adm-log">${s}${noteTxt} <time class="hint" datetime="${esc(x.created_at)}">${ago(x.created_at)}</time></li>`;
   }
@@ -2278,11 +2496,54 @@
         <p class="hint" style="max-width:62ch">The data was last updated ${esc(fmtPartial((D.meta.generated || "").slice(0, 10)))}. Two scheduled Claude routines keep it current:
           <b>Billd weekly refresh</b> (Mondays: Ticketmaster and re-checking every listing and cast list) and
           <b>Billd monthly refresh</b> (the 1st: research for newly announced shows and casts). Open them in Claude Code to run one now, change its schedule or pause it.</p>
-        <p style="margin-top:10px"><a class="btn sm" href="https://claude.ai/code" target="_blank" rel="noopener">Open routines in Claude Code</a></p></section>` : ""}`;
+        <p style="margin-top:10px"><a class="btn sm" href="https://claude.ai/code" target="_blank" rel="noopener">Open routines in Claude Code</a></p></section>` : ""}
+        <section class="sec"><div class="sec-head"><h2>Terms of Use</h2></div>
+          <label class="check"><input type="checkbox" id="adm-terms"${cfg.terms?.live ? " checked" : ""}${myRank() >= 2 ? "" : " disabled"}> Members must accept the Terms to post</label>
+          <div class="inline-new" style="margin-top:10px;max-width:420px"><label class="vh" for="adm-terms-v">Version</label><input id="adm-terms-v" value="${esc(cfg.terms?.version || "")}" placeholder="Version, e.g. 2026-11-01"${myRank() >= 2 ? "" : " disabled"}></div>
+          <p class="hint" style="max-width:62ch;margin-top:8px">When this is on, new members tick a box to accept the <a href="#/terms">Terms</a> and <a href="#/guidelines">Community Guidelines</a> when they join, and existing members are asked once; until they accept they can read but not post.
+            Change the version when the Terms change, and everyone is asked again. Turn it on only once the Terms are final, together with <code>terms.live</code> in the published site settings (the site config ${CFG.terms?.live ? "has it on" : "has it off"}).${myRank() >= 2 ? "" : " Only admins can change this."}</p></section>
+        <section class="sec" id="adm-words"><div class="sec-head"><h2>Word filter</h2></div>
+          <p class="hint" style="max-width:62ch">Reviews, comments, list titles and descriptions, list notes, usernames, display names and bios that contain one of these words are refused with “This contains a word that isn't allowed on Billd. Please rephrase.” Words match whole, ignoring capitals, accents, spacing (s p a c e d) and numbers for letters (n0t). Keep it to unambiguous slurs: ordinary words found in play titles (kill, hell, bastard) would stop members writing about those plays. <b>Allowed</b> phrases are exceptions, such as a play's title that contains a listed word. Existing posts aren't changed.</p>
+          <div id="adm-words-body"><p class="hint">${myRank() >= 2 ? "Loading…" : "Only admins can see and change the list."}</p></div></section>`;
       $("#adm-appr").addEventListener("change", async (e) => {
         try { await S.setSetting("require_approval", e.target.checked); toast(e.target.checked ? "New members now need approval" : "New members can post straight away"); }
         catch (err) { e.target.checked = !e.target.checked; toast(err.message); }
       });
+      const saveTerms = async () => {
+        const live = $("#adm-terms").checked, version = $("#adm-terms-v").value.trim();
+        if (!/^[A-Za-z0-9._-]{1,40}$/.test(version)) { toast("Give the Terms a version: letters, numbers, dots or dashes"); $("#adm-terms").checked = !!cfg.terms?.live; return; }
+        try {
+          await S.setSetting("terms", { version, live });
+          if (live) await S.acceptTerms(version).catch(() => {});  // the admin who switches them on accepts them too
+          cfg.terms = dbSettings.terms = { version, live };
+          S.setTermsVersion(live ? version : null); me = S.me(); renderTermsBar();
+          toast(live ? "Members must now accept the Terms to post" : "The Terms are switched off");
+        } catch (err) { $("#adm-terms").checked = !!cfg.terms?.live; toast(err.message); }
+      };
+      $("#adm-terms").addEventListener("change", saveTerms);
+      $("#adm-terms-v").addEventListener("change", () => { if (cfg.terms?.live) saveTerms(); });
+      if (myRank() >= 2) {
+        const words = async () => {
+          let rows;
+          try { rows = await S.moderationTerms(); } catch (err) { if (!stale(tok)) $("#adm-words-body").innerHTML = `<p class="hint">${esc(err.message)}</p>`; return; }
+          if (stale(tok)) return;
+          const chips = (sev) => rows.filter((r) => r.severity === sev).map((r) => `<li class="${sev}">${esc(r.term)}<button type="button" data-word-rm="${esc(r.term)}" aria-label="Remove ${esc(r.term)}">×</button></li>`).join("");
+          $("#adm-words-body").innerHTML = `<h3 class="label" style="margin:14px 0 8px">Not allowed (${rows.filter((r) => r.severity === "block").length})</h3><ul class="term-list">${chips("block") || `<li>None</li>`}</ul>
+            <h3 class="label" style="margin:14px 0 8px">Allowed exceptions</h3><ul class="term-list">${chips("allow") || `<li>None</li>`}</ul>
+            <form id="adm-word-add" class="inline-new" style="margin-top:14px"><label class="vh" for="adm-word">Word or phrase</label><input id="adm-word" maxlength="60" placeholder="Word or phrase" autocomplete="off" autocapitalize="none" spellcheck="false" required>
+              <label class="vh" for="adm-word-sev">Kind</label><select id="adm-word-sev"><option value="block">Not allowed</option><option value="allow">Allowed exception</option></select><button class="btn" type="submit">Add</button></form>`;
+          $("#adm-word-add").addEventListener("submit", async (e) => {
+            e.preventDefault();
+            try { const t = await S.setModerationTerm($("#adm-word").value, $("#adm-word-sev").value, false); toast(`Added “${t}”`); words(); } catch (err) { toast(err.message); }
+          });
+        };
+        $("#adm-words").addEventListener("click", async (e) => {
+          const b = e.target.closest("[data-word-rm]"); if (!b) return;
+          if (!confirm(`Remove “${b.dataset.wordRm}” from the word filter?`)) return;
+          try { await S.setModerationTerm(b.dataset.wordRm, "block", true); toast("Removed"); words(); } catch (err) { toast(err.message); }
+        });
+        words();
+      }
     } else return renderNotFound();
     el.onclick = async (e) => {
       const b = e.target.closest("[data-adm]"); if (!b) return;
@@ -2418,14 +2679,16 @@
   async function loadSocial() {
     try { await S.ready; } catch (e) { console.warn(e); toast(e.message); }
     me = S.me();
-    await loadTeam();
-    renderAcct(); renderStanding();
+    try { dbSettings = S.kind !== "local" ? await S.settings() : {}; } catch (e) { dbSettings = {}; }
+    S.setTermsVersion(termsState().live ? termsState().version : null);
+    await Promise.all([loadTeam(), loadBlocks()]);
+    renderAcct(); renderStanding(); renderTermsBar();
     try { myStatus = me ? await S.myStatuses() : {}; } catch (e) { myStatus = {}; }
     try { (await S.popular(60)).forEach((r, i) => (popular[r.play_id] = 1000 - i)); } catch (e) { /* none yet */ }
     try { (await S.ratedPlays()).forEach((r) => (rated[r.play_id] = { avg: r.avg_rating != null ? Number(r.avg_rating) : null, n: r.ratings, seen: r.seen })); } catch (e) { /* none yet */ }
   }
   S.onAuth(async (p) => {
-    me = p; followingSet = null; await loadTeam(); renderAcct(); renderStanding();
+    me = p; followingSet = null; await Promise.all([loadTeam(), loadBlocks()]); renderAcct(); renderStanding(); renderTermsBar();
     try { myStatus = me ? await S.myStatuses() : {}; } catch (e) { myStatus = {}; }
     if (D) { if (FACETS.length) totals(); route(); }
   });

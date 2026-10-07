@@ -45,6 +45,8 @@
 
 <!-- A member waiting for approval, or suspended, sees why they can't post -->
 <div class="standing" id="standing" role="status" hidden></div>
+<!-- Members who joined before the Terms were switched on accept them once -->
+<div class="standing terms-bar" id="terms-bar" role="status" hidden></div>
 
 <main id="main" tabindex="-1">
   <div class="loading" id="loading"><span class="spot" aria-hidden="true"></span>Raising the curtain…</div>
@@ -109,7 +111,7 @@
 <footer class="foot" id="foot">
   <div class="wrap">
     <p><b>Billd</b> is a diary for theatregoers: plays and musicals from every culture and era, what's on stage now, and what your friends thought.</p>
-    <p class="foot-links"><button class="linkbtn" id="fb-open" type="button" aria-haspopup="dialog">Send feedback</button> · <a href="#/about">About the data</a> · <a href="#/credits">Image credits</a> · <a href="#/copyright">Copyright</a><span id="install-wrap" hidden> · <button class="linkbtn" id="install" type="button" data-install>Install the app</button></span></p>
+    <p class="foot-links"><button class="linkbtn" id="fb-open" type="button" aria-haspopup="dialog">Send feedback</button> · <a href="#/about">About the data</a> · <a href="#/credits">Image credits</a> · <a href="#/copyright">Copyright</a> · <a href="#/terms">Terms</a> · <a href="#/privacy">Privacy</a> · <a href="#/guidelines">Community Guidelines</a><span id="install-wrap" hidden> · <button class="linkbtn" id="install" type="button" data-install>Install the app</button></span></p>
   </div>
 </footer>
 
@@ -141,6 +143,10 @@
     <div class="field" id="auth-pass-f">
       <label for="auth-pass">Password</label>
       <input id="auth-pass" type="password" autocomplete="current-password" minlength="8" required>
+    </div>
+    <div class="terms-ok" id="auth-terms-f" hidden>
+      <input type="checkbox" id="auth-terms">
+      <label for="auth-terms">I agree to Billd's <a href="#/terms" target="_blank" rel="noopener">Terms of Use</a> and <a href="#/guidelines" target="_blank" rel="noopener">Community Guidelines</a>, and I've read the <a href="#/privacy" target="_blank" rel="noopener">Privacy Policy</a>.</label>
     </div>
     <p class="note" id="auth-note" role="status" aria-live="polite" hidden></p>
     <div class="acts">
@@ -264,8 +270,21 @@
     <fieldset class="field"><legend class="label">What's wrong?</legend>
       <div class="radios" id="rep-reasons"></div></fieldset>
     <div class="field"><label for="rep-more">Anything the team should know <span class="opt">(optional)</span></label><textarea id="rep-more" maxlength="800" style="min-height:4em"></textarea></div>
+    <div class="terms-ok" id="rep-block-f" hidden><input type="checkbox" id="rep-block"><label for="rep-block">Also block this member: you won't see their posts, and they can't follow you or like or comment on your reviews.</label></div>
     <p class="note" id="rep-note" hidden></p>
     <div class="acts"><button class="btn ghost" type="button" data-close>Cancel</button><button class="btn" type="submit">Send report</button></div>
+  </form>
+</dialog>
+
+<!-- Accept the Terms of Use (members who joined before they were switched on) -->
+<dialog class="dlg" id="termsd" aria-labelledby="terms-title">
+  <button class="close" type="button" data-close aria-label="Close">×</button>
+  <h2 id="terms-title">Billd's Terms of Use</h2>
+  <form id="terms-form" novalidate>
+    <p style="margin:0">Billd now has <a href="#/terms" target="_blank" rel="noopener">Terms of Use</a> and <a href="#/guidelines" target="_blank" rel="noopener">Community Guidelines</a>. Please read and accept them to keep logging, reviewing, commenting and following. You can still read everything on Billd without accepting.</p>
+    <div class="terms-ok"><input type="checkbox" id="terms-agree"><label for="terms-agree">I agree to the Terms of Use and Community Guidelines</label></div>
+    <p class="note" id="terms-note" hidden></p>
+    <div class="acts"><button class="btn ghost" type="button" data-close>Not now</button><button class="btn" type="submit">Accept</button></div>
   </form>
 </dialog>
 
