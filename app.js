@@ -15,6 +15,28 @@
   // the iPhone and Android apps (web/native.js); on the website APP is false and N's calls do what the site always did
   const N = window.BilldNative;
   const APP = !!N.isApp;
+  // ---- design previews: billd.theater/?look=feed,outline tries a look on this browser only (kept until
+  // ?look=off). "feed": members' home opens on the feed, no stage. "outline": outlined buttons.
+  const LOOKS = ["feed", "outline"];
+  const look = (() => {
+    let v = null;
+    try {
+      const q = new URLSearchParams(location.search).get("look");
+      if (q != null) {
+        v = q === "off" ? [] : q.split(",").filter((x) => LOOKS.includes(x));
+        if (v.length) localStorage.setItem("billd-look", v.join(",")); else localStorage.removeItem("billd-look");
+        history.replaceState(null, "", location.pathname + location.hash);
+      } else v = (localStorage.getItem("billd-look") || "").split(",").filter((x) => LOOKS.includes(x));
+    } catch (e) { v = []; }
+    return new Set(v);
+  })();
+  if (look.size) {
+    document.documentElement.dataset.look = [...look].join(" ");
+    const bar = document.createElement("p");
+    bar.className = "look-bar";
+    bar.innerHTML = `Preview: ${[...look].map((x) => ({ feed: "home opens on the feed", outline: "outlined buttons" }[x])).join(" + ")} · only on this browser · <a href="?look=off">Back to normal</a>`;
+    document.body.prepend(bar);
+  }
   const OB = window.BilldOutbox;
   const DEVICE = APP ? "phone" : "device";
 
@@ -538,8 +560,13 @@
       </section>` : `<section class="hero hero-member">${stageHTML(`<h1>Welcome back, <em>${who(me)}.</em></h1>
             <div class="acts"><button class="btn" type="button" data-log>Log a show</button><a class="btn ghost" href="#/onstage">What's on now</a>
               <a class="btn ghost" href="#/u/${esc(me.username)}/diary">Your diary</a></div>`)}</section>`;
+    const feedHome = look.has("feed") && me && S.kind !== "local";
     const ahead = signedIn() ? comingUp() : [];
     const sec = {
+      feed: feedHome ? `<section class="feed-home"><div class="fh-head"><h1 class="h1">Hello, <em>${who(me)}</em></h1>
+          <div class="acts"><button class="btn" type="button" data-log>Log a show</button><a class="btn ghost" href="#/onstage">What's on now</a><a class="btn ghost" href="#/u/${esc(me.username)}/diary">Your diary</a></div></div>
+          <div class="sec-head"><h2 id="fh-title">From the people you follow</h2><a href="#/activity">All activity →</a></div>
+          <ul class="feed" id="home-feed"><li class="hint">Loading…</li></ul></section>` : "",
       plans: ahead.length ? `<section class="sec" id="home-plans"><div class="sec-head"><h2>Coming up</h2></div><ul class="stubs">${ahead.map(planStubHTML).join("")}</ul></section>` : "",
       // the app opens on the member's own diary (App Store guideline 4.2: a diary, not a page of ticket links)
       diary: APP && signedIn() ? `<section class="sec" id="home-diary"><div class="sec-head"><h2>Recently in your diary</h2><a href="#/u/${esc((me || S.me()).username)}/diary">Diary →</a></div><div class="scraps" id="home-diary-row"><p class="hint">Loading…</p></div></section>` : "",
@@ -552,9 +579,25 @@
         <p class="lead">Plays from every culture and era, from Sophocles to this season, with where and when they were staged.</p>
         <div class="row-scroll" style="margin-top:16px">${classics().map((w) => cell(w)).join("")}</div></section>`,
     };
-    const order = APP ? ["plans", "diary", "friends", "rev", "onstage", "pop", "explore"] : ["plans", "onstage", "pop", "friends", "rev", "explore"];
-    pageEl().innerHTML = `<div class="wrap">${intro}${order.map((k) => sec[k]).join("")}</div>`;
-    settleStage();
+    const order = feedHome ? ["feed", "plans", "onstage", "pop", "explore"]
+      : APP ? ["plans", "diary", "friends", "rev", "onstage", "pop", "explore"] : ["plans", "onstage", "pop", "friends", "rev", "explore"];
+    pageEl().innerHTML = `<div class="wrap">${feedHome ? "" : intro}${order.map((k) => sec[k]).join("")}</div>`;
+    if (feedHome) {
+      // friends first; when they haven't logged anything yet, everyone's latest
+      (async () => {
+        try {
+          let [lg, mk] = await Promise.all([S.feed(40), S.recentMarks(40, { friends: true }).catch(() => [])]);
+          let mine = notBlocked(withMarks(lg.filter((l) => byId[l.play_id]), mk));
+          if (!mine.length) {
+            [lg, mk] = await Promise.all([S.recentLogs(40), S.recentMarks(40, { friends: false }).catch(() => [])]);
+            mine = notBlocked(withMarks(lg.filter((l) => byId[l.play_id]), mk));
+            if ($("#fh-title")) $("#fh-title").textContent = "Latest on Billd";
+          }
+          if (stale(tok) || !$("#home-feed")) return;
+          $("#home-feed").innerHTML = mine.length ? mine.slice(0, 25).map(feedItem).join("") : `<li class="empty">Nothing yet. <button class="linkbtn" type="button" data-log>Log a show</button> to start.</li>`;
+        } catch (e) { if (!stale(tok) && $("#home-feed")) $("#home-feed").innerHTML = `<li class="empty">${esc(e.message)}</li>`; }
+      })();
+    } else settleStage();
     // members' activity fills in as it arrives
     if (sec.diary) {
       const who0 = me || S.me();
