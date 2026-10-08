@@ -510,6 +510,14 @@
           <div class="st-drape l" aria-hidden="true"></div><div class="st-drape r" aria-hidden="true"></div><div class="st-valance" aria-hidden="true"></div>
         </div>`;
   }
+  // once the curtains are open and the lights are up (about 2.5 s), the stage shrinks to a band and the
+  // rows below rise into view; at once for reduced motion. Not if the visitor has already scrolled down.
+  function settleStage() {
+    const st = pageEl().querySelector(".hero .stage");
+    if (!st) return;
+    const still = matchMedia("(prefers-reduced-motion: reduce)").matches;
+    setTimeout(() => { if (st.isConnected && window.scrollY < 40) st.classList.add("settled"); }, still ? 0 : 2700);
+  }
   async function renderHome() {
     const tok = routeSeq;
     document.title = "Billd: a diary for theatregoers";
@@ -546,6 +554,7 @@
     };
     const order = APP ? ["plans", "diary", "friends", "rev", "onstage", "pop", "explore"] : ["plans", "onstage", "pop", "friends", "rev", "explore"];
     pageEl().innerHTML = `<div class="wrap">${intro}${order.map((k) => sec[k]).join("")}</div>`;
+    settleStage();
     // members' activity fills in as it arrives
     if (sec.diary) {
       const who0 = me || S.me();

@@ -949,6 +949,33 @@ input:focus, textarea:focus, select:focus { border-bottom-color: var(--gold); ou
 .hero.hero-member { padding-bottom: 6px; }
 @media (max-width: 640px) { .hero.hero-member .stage { min-height: 400px; } .hero.hero-member .st-copy { padding: 52px 30px 100px; } }
 
+/* after the curtains open and the lights come up, the stage settles into a short band so the
+   rows of plays below rise to fill most of the screen (app.js adds .settled) */
+.hero .stage { transition: min-height 0.9s cubic-bezier(.5, 0, .2, 1); }
+.hero .st-copy, .hero .st-copy h1, .hero .st-copy > p { transition: padding 0.9s cubic-bezier(.5, 0, .2, 1), font-size 0.9s cubic-bezier(.5, 0, .2, 1), max-height 0.6s ease, opacity 0.4s ease, margin 0.9s ease; }
+.hero .st-copy > p { max-height: 12em; overflow: hidden; }
+.hero .stage.settled, .hero.hero-member .stage.settled { min-height: clamp(240px, 34vh, 330px); }
+.hero .stage.settled .st-copy { padding: 30px 20px 84px; }
+.hero .stage.settled .st-copy h1 { font-size: clamp(34px, 5vw, 58px); }
+.hero .stage.settled .st-copy > p { margin-top: 8px; font-size: 15px; }
+.hero .stage.settled + .lets { margin-top: 18px; }
+/* guests: the title clears the valance; the four "what you can do" tiles sit on one row */
+.hero:not(.hero-member) .stage.settled .st-copy { padding-top: 46px; }
+@media (min-width: 900px) {
+  .hero .lets { grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 10px; }
+  .hero .let { padding: 12px 14px; gap: 10px; }
+  .hero .let svg { width: 24px; height: 24px; }
+  .hero .let p { font-size: 13.5px; }
+}
+@media (max-width: 640px) {
+  .hero .stage.settled, .hero.hero-member .stage.settled { min-height: 250px; }
+  .hero .stage.settled .st-copy { padding: 28px 22px 70px; }
+  .hero .stage.settled .st-copy > p { max-height: 0; opacity: 0; margin: 0; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .hero .stage, .hero .st-copy, .hero .st-copy h1, .hero .st-copy > p { transition: none; }
+}
+
 /* store requirements: Terms, blocking, deleting an account, the word filter */
 .terms-ok { display: flex; gap: 10px; align-items: flex-start; font-size: 14px; line-height: 1.45; }
 .terms-ok input { width: 20px; height: 20px; flex: none; margin: 1px 0 0; accent-color: var(--gold); }
