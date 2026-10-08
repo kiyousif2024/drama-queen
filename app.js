@@ -455,7 +455,7 @@
       const name = me.display_name || cap(me.username) || "?";
       el.innerHTML = `${myRank() ? `<a class="btn ghost sm acct-admin" href="#/admin">Admin</a>` : ""}<button class="btn sm" type="button" data-log>+ Log</button>`
         + `<span class="acct-menu"><button class="avatar" type="button" id="acct-btn" style="--hue:${hash(me.username || "") % 360}" aria-haspopup="menu" aria-expanded="false" aria-controls="acct-pop" aria-label="${esc(name)}: your account">${esc(name.trim()[0] || "?")}</button>`
-        + `<div class="acct-pop" id="acct-pop" role="menu" hidden><div class="who">@${esc(me.username)}</div><a role="menuitem" href="#/u/${esc(me.username)}">Your profile and diary</a><a role="menuitem" href="#/settings">Settings</a><button role="menuitem" type="button" data-logout>Log out</button></div></span>`;
+        + `<div class="acct-pop" id="acct-pop" role="menu" hidden><div class="who">@${esc(me.username)}</div><a role="menuitem" href="#/u/${esc(me.username)}">Your profile and diary</a>${myRank() ? `<a role="menuitem" href="#/admin">Admin</a>` : ""}<a role="menuitem" href="#/settings">Settings</a><button role="menuitem" type="button" data-logout>Log out</button></div></span>`;
     } else if (S.kind === "local") {
       el.innerHTML = `<button class="btn sm" type="button" data-log>+ Log</button>${avatar(S.me())}`;
     } else {
@@ -2723,6 +2723,9 @@
     const again = () => { if (!stale(tok)) renderAdmin(tab); };
     await loadTeam();
     if (stale(tok)) return;
+    try { await renderAdminTab(); }
+    catch (e) { console.error(e); if (!stale(tok)) el.innerHTML = `<p class="note err">This part of Admin couldn't load: ${esc(e.message || String(e))}. Try again, or send this message to the owner.</p>`; }
+    async function renderAdminTab() {
     if (!tab) {
       const [pending, reports, suggs, approved, plays, notes, held] = await Promise.all([S.standings("pending"), S.reports("open"), S.suggestionsFor("pending"), S.suggestionsFor("approved"),
         S.playSuggestionsFor("pending").catch(() => []), S.feedbackFor("open").catch(() => []), S.heldPosts().catch(() => [])]);
@@ -2941,6 +2944,7 @@
           run: async (w) => { await S.reviewSuggestion(+b.dataset.id, "declined", w); toast("Declined"); again(); } });
       } catch (err) { toast(err.message); b.disabled = false; }
     };
+    }
   }
 
   // ---------------------------------------------------------------- feedback
