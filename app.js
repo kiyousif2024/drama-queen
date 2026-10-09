@@ -627,7 +627,7 @@
   }
   function nowWhere(w) {
     const rs = w._runs.filter((r) => r.st);
-    const cities = [...new Set(rs.map((r) => places[r.place]?.name).filter(Boolean))];
+    const cities = [...new Set(rs.map((r) => r.place && cityName(r.place)).filter(Boolean))];
     const d = rs.find((r) => r.district)?.district;
     return d && cities.length === 1 ? d : cities.length > 2 ? `${cities.slice(0, 2).join(", ")} +${cities.length - 2}` : cities.join(", ");
   }
@@ -718,7 +718,8 @@
     const L = lookups(), since = Date.now() - 7 * DAY;
     return Object.keys(L).filter((id) => L[id].length >= 2 && Math.max(...L[id]) > since).sort((a, b) => Math.max(...L[b]) - Math.max(...L[a]));
   }
-  const cityName = (id) => places[id]?.name || id;
+  // for what's on now, the city's current name: "Tokyo", not the catalogue's "Tokyo (Edo)"
+  const cityName = (id) => (places[id]?.name || id).replace(/ \([^)]*\)$/, "");
   // a play's listing in one city (on now if any is), and a city's plays: on now there first, then the soonest to open
   const runIn = (w, id) => w._runs.find((r) => r.st === "now" && r.place === id) || w._runs.filter((r) => r.st && r.place === id).sort((a, b) => (a.from || "").localeCompare(b.from || ""))[0];
   function cityShows(now, id) {
@@ -821,7 +822,7 @@
     const shown = sel ? cityShows(now, sel) : now, st = (w) => (sel ? runIn(w, sel).st : w._now);
     const soon = shown.filter((w) => st(w) === "soon"), playing = shown.filter((w) => st(w) === "now");
     pageEl().innerHTML = `<div class="wrap" style="padding-top:30px">
-      <h1 class="h1">On stage ${sel ? `in ${esc(places[sel]?.name)}` : "now"}</h1>
+      <h1 class="h1">On stage ${sel ? `in ${esc(cityName(sel))}` : "now"}</h1>
       <p class="count" style="margin:8px 0 18px">${plural(playing.length, "show")} playing${soon.length ? `, ${soon.length} coming soon` : ""}. From the theatres' listings and Ticketmaster, checked in the last ${STALE_DAYS} days.</p>
       <label class="city-pick"><span>City</span>
         <select id="city-pick" aria-label="City">
@@ -837,7 +838,7 @@
   });
   function soonWhen(w, city) {
     const r = w._runs.filter((x) => x.st === "soon" && (!city || x.place === city)).sort((a, b) => (a.from || "").localeCompare(b.from || ""))[0];
-    return r ? `${fmtPartial(r.from)} · ${places[r.place]?.name || ""}` : "";
+    return r ? `${fmtPartial(r.from)} · ${(r.place ? cityName(r.place) : "")}` : "";
   }
 
   // ---------------------------------------------------------------- browse
