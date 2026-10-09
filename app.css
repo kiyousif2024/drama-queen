@@ -192,6 +192,15 @@ select { width: auto; padding: 6px 10px; background: var(--surface); }
 .cities { display: flex; gap: 6px; flex-wrap: wrap; margin: -4px 0 14px; }
 .city-pick { display: flex; align-items: center; gap: 10px; margin: -4px 0 16px; font-weight: 600; }
 .city-pick select { flex: 1; min-width: 0; width: 100%; max-width: 360px; min-height: 44px; font-size: 16px; border-radius: 10px; }
+/* the home row's city: how it was picked, and the picker under it */
+.near { margin: -8px 0 14px; font-size: 13px; color: var(--muted); }
+.near .linkbtn, .near a { font-size: inherit; }
+.near a { color: var(--muted); font-weight: 600; }
+.near a:hover { color: var(--ink); }
+.near-pick { display: flex; flex-wrap: wrap; align-items: center; gap: 10px 14px; margin: 0 0 18px; }
+.near-pick .city-pick { margin: 0; flex: 1 1 260px; max-width: 420px; }
+.near-pick .hint { flex-basis: 100%; }
+.near-pick .hint:empty { display: none; }
 .back { display: inline-block; margin: 14px 0 4px; padding: 8px 0; min-height: 40px; color: var(--muted, inherit); text-decoration: none; font-weight: 600; }
 .back:hover { text-decoration: underline; }
 .chip { text-decoration: none; display: inline-flex; align-items: center; gap: 6px; min-height: 32px; padding: 4px 12px; border-radius: 999px; border: 1px solid var(--line);
@@ -571,7 +580,7 @@ legend { padding: 0; margin-bottom: 8px; }
   .rail.open .rail-done { display: flex; position: sticky; bottom: calc(76px + env(safe-area-inset-bottom, 0px)); width: 100%; margin-top: 12px; box-shadow: var(--shadow); }
   /* fingers need room: at least 40px to tap */
   .chip, .facet .chip, .seg button, .when button, .btn.sm, .sort select { min-height: 40px; }
-  .sec-head a, .sec-head button, .foot-links a, .foot-links .linkbtn, .rail-head .linkbtn, .facet-clear, .facet-more, .prof-main .linkbtn { display: inline-block; padding: 10px 0; margin: -10px 0; }
+  .sec-head a, .sec-head button, .foot-links a, .foot-links .linkbtn, .rail-head .linkbtn, .facet-clear, .facet-more, .prof-main .linkbtn, .near .linkbtn, .near a { display: inline-block; padding: 10px 0; margin: -10px 0; }
   .act-rate .rate { --s: 34px; }
   .pills { gap: 5px; } .pills label { min-width: 40px; padding: 8px 10px; }
 

@@ -239,7 +239,8 @@
     ["#5b2a3a", "#fbeef3", "#f0d48c"], ["#5a4a2a", "#f6f0dc", "#f0d48c"], ["#16494d", "#eef3ef", "#e3c27a"],
   ];
   // tag "span" when the poster sits inside another link (a list row, a list card): links can't nest
-  function poster(w, { badge = true, cls = "", tag = "a" } = {}) {
+  // now: the badge for one city's listings (a play on now in New York may only be coming soon to Detroit)
+  function poster(w, { badge = true, cls = "", tag = "a", now = w?._now } = {}) {
     if (!w) return `<div class="fav-empty">Not found</div>`;
     const h = hash(w.id);
     const [bg, fg, acc] = PALETTE[h % PALETTE.length];
@@ -247,7 +248,7 @@
     const t = w.title, len = t.length;
     const size = len > 46 ? " xlong" : len > 26 ? " long" : "";
     const top = trad[w.tradition]?.name || regionName(w.region) || "";
-    const nb = badge && w._now ? `<span class="p-badge${w._now === "soon" ? " soon" : ""}">${w._now === "now" ? "On now" : "Soon"}</span>` : "";
+    const nb = badge && now ? `<span class="p-badge${now === "soon" ? " soon" : ""}">${now === "now" ? "On now" : "Soon"}</span>` : "";
     // a real picture when there is one (a free Commons image, never a production's artwork); the designed
     // cover stays underneath and shows again if the picture can't load
     const img = w.image && w.image[1] === "commons" ? `<img class="p-img" src="${esc(safeUrl(w.image[0]))}" alt="" loading="lazy" decoding="async" referrerpolicy="no-referrer">` : "";
@@ -370,10 +371,10 @@
   }
 
   // a poster with the viewer's own marks under it (seen, rating, like)
-  function cell(w, extra = "") {
+  function cell(w, extra = "", now) {
     const s = myStatus[w.id];
     const mine = s ? `${s.seen ? `<span class="seen-i" title="Seen">●</span>` : ""}${s.rating ? `<span class="stars" aria-label="${starsLabel(s.rating)}">${stars(s.rating)}</span>` : ""}${s.liked ? `<span class="heart" title="Liked">♥</span>` : ""}${s.want && !s.seen ? `<span title="Want to see">◷</span>` : ""}` : "";
-    return `<div class="cell">${poster(w)}${extra || `<div class="cell-meta">${mine}</div>`}</div>`;
+    return `<div class="cell">${poster(w, now ? { now } : {})}${extra || `<div class="cell-meta">${mine}</div>`}</div>`;
   }
 
   // ---------------------------------------------------------------- routing
@@ -404,7 +405,7 @@
   });
   // Pages load members' data asynchronously; each render checks, after every wait, that the
   // visitor hasn't moved on, so a slow page never draws over the one now showing.
-  let routeSeq = 0;
+  let routeSeq = 0, freshView = false;
   const stale = (tok) => tok !== routeSeq;
   function route() {
     if (!D) return;
@@ -445,7 +446,7 @@
       if (navStack.length > 1 && navStack[navStack.length - 2] === key) { navStack.pop(); restore = scrollAt[key]; }
       else navStack.push(key);
     }
-    lastRoute = key;
+    lastRoute = key; freshView = !sameView;
     const settle = () => { if (restore != null && !stale(tok)) requestAnimationFrame(() => window.scrollTo(0, restore)); };
     if (isBrowse) { applyBrowse(); document.title = "Shows · Billd"; if (restore != null) settle(); else if (!sameView) window.scrollTo(0, 0); return; }
     if (!sameView) window.scrollTo(0, 0);
@@ -570,8 +571,7 @@
       plans: ahead.length ? `<section class="sec" id="home-plans"><div class="sec-head"><h2>Coming up</h2></div><ul class="stubs">${ahead.map(planStubHTML).join("")}</ul></section>` : "",
       // the app opens on the member's own diary (App Store guideline 4.2: a diary, not a page of ticket links)
       diary: APP && signedIn() ? `<section class="sec" id="home-diary"><div class="sec-head"><h2>Recently in your diary</h2><a href="#/u/${esc((me || S.me()).username)}/diary">Diary →</a></div><div class="scraps" id="home-diary-row"><p class="hint">Loading…</p></div></section>` : "",
-      onstage: `<section class="sec"><div class="sec-head"><h2>On stage now</h2><a href="#/onstage">All ${now.length.toLocaleString()} →</a></div>
-        <div class="row-scroll">${now.slice(0, 18).map((w) => cell(w, `<div class="cell-cap">${esc(nowWhere(w))}</div>`)).join("") || `<p class="empty">No current listings.</p>`}</div></section>`,
+      onstage: homeOnstageHTML(now),
       pop: `<section class="sec" id="home-pop" hidden><div class="sec-head"><h2>Popular on Billd this week</h2></div><div class="row-scroll" id="home-pop-row"></div></section>`,
       friends: `<section class="sec" id="home-friends" hidden><div class="sec-head"><h2>New from friends</h2><a href="#/activity">More →</a></div><div class="row-scroll" id="home-friends-row"></div></section>`,
       rev: `<section class="sec" id="home-rev" hidden><div class="sec-head"><h2>Recent reviews</h2><a href="#/activity/everyone">More →</a></div><ul class="reviews" id="home-rev-list"></ul></section>`,
@@ -641,35 +641,202 @@
     return (classicsCache = out);
   }
 
+  // ---------------------------------------------------------------- your city
+  // The home page's "On stage" row starts in the visitor's city: the one they chose (kept on this device), else a
+  // guess from the browser's time zone, worked out here (no location service), else everywhere. "Use my location"
+  // asks the browser only when tapped and keeps just the nearest city's id, never the coordinates.
+  const CITY_KEY = "billd-city", LOOKUPS_KEY = "billd-cities-v1", DAY = 864e5;
+  // Zones whose city is a fair guess for someone set to them: the zone's own city (where the zone covers a wide
+  // area, its main city), as coordinates so the city with shows is found whatever its id in the data
+  const TZ_AT = {
+    "America/New_York": [40.71, -74.01], "US/Eastern": [40.71, -74.01], "America/Detroit": [42.33, -83.05], "US/Michigan": [42.33, -83.05],
+    "America/Chicago": [41.88, -87.63], "US/Central": [41.88, -87.63], "America/Los_Angeles": [34.05, -118.24], "US/Pacific": [34.05, -118.24],
+    "America/Denver": [39.74, -104.99], "America/Phoenix": [33.45, -112.07], "America/Toronto": [43.65, -79.38], "America/Vancouver": [49.28, -123.12],
+    "America/Mexico_City": [19.43, -99.13], "America/Sao_Paulo": [-23.55, -46.63], "America/Argentina/Buenos_Aires": [-34.6, -58.38],
+    "Europe/London": [51.51, -0.13], "Europe/Dublin": [53.35, -6.26], "Europe/Paris": [48.86, 2.35], "Europe/Berlin": [52.52, 13.4],
+    "Europe/Madrid": [40.42, -3.7], "Europe/Rome": [41.9, 12.5], "Europe/Vienna": [48.21, 16.37], "Europe/Amsterdam": [52.37, 4.9],
+    "Europe/Brussels": [50.85, 4.35], "Europe/Zurich": [47.37, 8.54], "Europe/Stockholm": [59.33, 18.07], "Europe/Oslo": [59.91, 10.75],
+    "Europe/Copenhagen": [55.68, 12.57], "Europe/Helsinki": [60.17, 24.94], "Europe/Warsaw": [52.23, 21.01], "Europe/Prague": [50.08, 14.44],
+    "Europe/Budapest": [47.5, 19.04], "Europe/Athens": [37.97, 23.73], "Europe/Lisbon": [38.72, -9.14], "Europe/Istanbul": [41.01, 28.98],
+    "Europe/Moscow": [55.76, 37.62], "Asia/Tokyo": [35.68, 139.69], "Asia/Seoul": [37.57, 126.98], "Asia/Hong_Kong": [22.32, 114.17],
+    "Asia/Singapore": [1.29, 103.85], "Australia/Sydney": [-33.87, 151.21], "Australia/Melbourne": [-37.81, 144.96],
+    "Pacific/Auckland": [-36.85, 174.76], "Africa/Johannesburg": [-26.2, 28.05], "Africa/Cairo": [30.04, 31.24],
+  };
+  const store = {
+    get(k, d) { try { return JSON.parse(localStorage.getItem(k)) ?? d; } catch (e) { return d; } },
+    set(k, v) { try { localStorage.setItem(k, JSON.stringify(v)); } catch (e) { /* not kept */ } },
+  };
+  // how many shows are on now (or soon) in each city
+  function cityCounts(now) {
+    const counts = {};
+    now.forEach((w) => new Set(w._runs.filter((r) => r.st).map((r) => r.place)).forEach((p) => p && (counts[p] = (counts[p] || 0) + 1)));
+    return counts;
+  }
+  const km = (a1, o1, a2, o2) => {
+    const r = Math.PI / 180, x = Math.sin((a2 - a1) * r / 2) ** 2 + Math.cos(a1 * r) * Math.cos(a2 * r) * Math.sin((o2 - o1) * r / 2) ** 2;
+    return 12742 * Math.asin(Math.sqrt(x));
+  };
+  // the city with shows nearest a point, within `within` km; a borough listed beside its city (a few km apart)
+  // gives way to whichever of them has more shows
+  function nearestCity(lat, lon, counts, within) {
+    const near = Object.keys(counts).map((id) => ({ id, d: places[id]?.lat != null && places[id]?.lon != null ? km(lat, lon, places[id].lat, places[id].lon) : Infinity }))
+      .filter((x) => x.d <= within).sort((a, b) => a.d - b.d);
+    if (!near.length) return null;
+    return near.filter((x) => x.d <= near[0].d + 5).sort((a, b) => counts[b.id] - counts[a.id])[0].id;
+  }
+  function tzCity(counts) {
+    let tz = ""; try { tz = Intl.DateTimeFormat().resolvedOptions().timeZone || ""; } catch (e) { /* no guess */ }
+    const at = TZ_AT[tz];
+    return at ? nearestCity(at[0], at[1], counts, 40) : null;
+  }
+  // {id, by}: by "chosen" (id "" is everywhere, chosen), "located" or "tz"; null when there is no city to show
+  function homeCity(counts) {
+    const c = store.get(CITY_KEY, null);
+    if (c && typeof c.id === "string" && (c.id === "" || counts[c.id])) return c.id ? { id: c.id, by: c.by === "located" ? "located" : "chosen" } : null;
+    const id = tzCity(counts);
+    return id ? { id, by: "tz" } : null;
+  }
+  // Cities the visitor keeps looking up: each lookup (choosing the city on the On stage page, or opening its page)
+  // is a timestamp on this device (lookups under 30 minutes apart count once, so it takes separate visits).
+  // Two or more in 30 days put the city first in the drop-down until 7 days after the latest one.
+  function lookups() {
+    const L = store.get(LOOKUPS_KEY, {}), out = {}, cut = Date.now() - 30 * DAY;
+    if (L && typeof L === "object") for (const [id, ts] of Object.entries(L)) {
+      const keep = Array.isArray(ts) ? ts.filter((t) => typeof t === "number" && t > cut).slice(-10) : [];
+      if (keep.length) out[id] = keep;
+    }
+    return out;
+  }
+  function noteLookup(id) {
+    const L = lookups();
+    const t = Date.now(), prev = L[id] || [];
+    L[id] = prev.length && t - prev[prev.length - 1] < 30 * 60e3 ? [...prev.slice(0, -1), t] : [...prev, t];
+    const ids = Object.keys(L).sort((a, b) => Math.max(...L[b]) - Math.max(...L[a])).slice(0, 40);
+    store.set(LOOKUPS_KEY, Object.fromEntries(ids.map((k) => [k, L[k]])));
+  }
+  function pinnedCities() {
+    const L = lookups(), since = Date.now() - 7 * DAY;
+    return Object.keys(L).filter((id) => L[id].length >= 2 && Math.max(...L[id]) > since).sort((a, b) => Math.max(...L[b]) - Math.max(...L[a]));
+  }
+  const cityName = (id) => places[id]?.name || id;
+  // a play's listing in one city (on now if any is), and a city's plays: on now there first, then the soonest to open
+  const runIn = (w, id) => w._runs.find((r) => r.st === "now" && r.place === id) || w._runs.filter((r) => r.st && r.place === id).sort((a, b) => (a.from || "").localeCompare(b.from || ""))[0];
+  function cityShows(now, id) {
+    const on = [], soon = [];
+    now.forEach((w) => { const r = runIn(w, id); if (r) (r.st === "now" ? on : soon).push([w, r]); });
+    return [...on, ...soon.sort((a, b) => (a[1].from || "").localeCompare(b[1].from || ""))].map((x) => x[0]);
+  }
+  const cityOpt = (id, counts, sel) => `<option value="${esc(id)}"${id === sel ? " selected" : ""}>${esc(cityName(id))} (${counts[id]})</option>`;
+  // the city drop-down's groups: your cities (your city, then the ones you keep looking up), the 8 with most shows,
+  // then all A–Z; only the first copy of the chosen city is marked selected
+  function cityOptions(counts, sel, home, total) {
+    const byCount = Object.keys(counts).sort((a, b) => counts[b] - counts[a]), top = byCount.slice(0, 8);
+    const yours = [...new Set([home, ...pinnedCities().filter((id) => !top.includes(id))])].filter((id) => id && counts[id]);
+    let marked = false;
+    const opt = (id) => { const s = !marked && id === sel; if (s) marked = true; return cityOpt(id, counts, s ? sel : null); };
+    const az = byCount.slice().sort((x, y) => cityName(x).localeCompare(cityName(y)));
+    return `<option value=""${sel ? "" : " selected"}>Everywhere (${total})</option>`
+      + (yours.length ? `<optgroup label="Your cities">${yours.map(opt).join("")}</optgroup>` : "")
+      + `<optgroup label="Most shows">${top.map(opt).join("")}</optgroup><optgroup label="All cities, A–Z">${az.map(opt).join("")}</optgroup>`;
+  }
+  // The home page's row: the visitor's city, how Billd picked it, and a way to change it or see everywhere
+  const WHY = { tz: "Guessed from your time zone", chosen: "Your city", located: "Nearest to you" };
+  function homeOnstage(now) {
+    const counts = cityCounts(now), hc = homeCity(counts), id = hc?.id;
+    const list = id ? cityShows(now, id) : now;
+    const cap = (w) => {
+      if (!id) return nowWhere(w);
+      const r = runIn(w, id);
+      return r.st === "soon" && r.from ? `From ${fmtPartial(r.from)}` : r.district || cityName(id);
+    };
+    return {
+      counts, hc,
+      title: id ? `On stage in ${esc(cityName(id))}` : "On stage now",
+      all: id ? `<a href="#/onstage/${esc(encodeURIComponent(id))}" id="hos-all">All ${list.length.toLocaleString()} →</a>` : `<a href="#/onstage" id="hos-all">All ${now.length.toLocaleString()} →</a>`,
+      why: id ? `${WHY[hc.by]} · ` : "Showing every city · ",
+      change: id ? "Change city" : "Choose your city",
+      row: list.slice(0, 18).map((w) => cell(w, `<div class="cell-cap">${esc(cap(w))}</div>`, id && runIn(w, id).st)).join("") || `<p class="empty">No current listings.</p>`,
+    };
+  }
+  function homeOnstageHTML(now) {
+    const h = homeOnstage(now), geo = !APP && "geolocation" in navigator && window.isSecureContext;
+    return `<section class="sec" id="home-onstage"><div class="sec-head"><h2 id="hos-title">${h.title}</h2>${h.all}</div>
+        <p class="near"><span id="hos-why">${h.why}</span><button class="linkbtn" type="button" id="hos-change" aria-expanded="false" aria-controls="near-pick">${h.change}</button><span id="hos-every"${h.hc ? "" : " hidden"}> · <a href="#/onstage">See everywhere</a></span></p>
+        <div class="near-pick" id="near-pick" hidden>
+          <label class="city-pick"><span>Your city</span><select id="near-city">${cityOptions(h.counts, h.hc?.id || "", h.hc?.id, now.length)}</select></label>
+          ${geo ? `<button class="btn ghost sm" type="button" id="near-geo">Use my location</button>` : ""}
+          <p class="hint" id="near-msg" role="status"></p>
+        </div>
+        <div class="row-scroll" id="hos-row">${h.row}</div></section>`;
+  }
+  // after a change, redraw the row and its heading but not the picker, so focus stays where it is
+  function refreshHomeOnstage() {
+    if (!$("#home-onstage")) return;
+    const now = onNow(), h = homeOnstage(now);
+    $("#hos-title").textContent = h.hc ? `On stage in ${cityName(h.hc.id)}` : "On stage now";
+    $("#hos-all").outerHTML = h.all;
+    $("#hos-why").textContent = h.why;
+    $("#hos-change").textContent = h.change;
+    $("#hos-every").hidden = !h.hc;
+    $("#hos-row").innerHTML = h.row;
+    $("#hos-row").scrollLeft = 0;
+  }
+  document.addEventListener("click", (e) => {
+    if (e.target.closest("#hos-change")) {
+      const b = $("#hos-change"), open = b.getAttribute("aria-expanded") !== "true";
+      b.setAttribute("aria-expanded", String(open)); $("#near-pick").hidden = !open;
+      if (open) $("#near-city").focus();
+    }
+    if (e.target.closest("#near-geo")) {
+      const msg = $("#near-msg"), btn = $("#near-geo");
+      msg.textContent = "Finding the nearest city with shows…"; btn.disabled = true;
+      navigator.geolocation.getCurrentPosition((pos) => {
+        btn.disabled = false;
+        if (!$("#home-onstage")) return;
+        const counts = cityCounts(onNow()), id = nearestCity(pos.coords.latitude, pos.coords.longitude, counts, 150);
+        if (!id) { msg.textContent = "No shows are listed within 150 km of you yet. Choose a city instead."; return; }
+        store.set(CITY_KEY, { id, by: "located" });
+        refreshHomeOnstage();
+        $("#near-city").value = id;
+        msg.textContent = `Showing ${cityName(id)}, the nearest city with shows.`;
+      }, (err) => {
+        btn.disabled = false;
+        msg.textContent = err.code === 1 ? "Location isn't allowed for Billd in this browser. Choose a city instead." : "Billd couldn't find your location. Choose a city instead.";
+      }, { enableHighAccuracy: false, timeout: 15000, maximumAge: 600000 });
+    }
+  });
+  document.addEventListener("change", (e) => {
+    if (e.target.id !== "near-city") return;
+    store.set(CITY_KEY, { id: e.target.value, by: "chosen" });
+    refreshHomeOnstage();
+    $("#near-msg").textContent = e.target.value ? `Billd will show ${cityName(e.target.value)} first on this ${DEVICE}.` : `Billd will show every city on this ${DEVICE}.`;
+  });
+
   // ---------------------------------------------------------------- on stage
   function renderOnStage(city) {
     document.title = "On stage now · Billd";
-    const now = onNow();
-    const counts = {};
-    now.forEach((w) => new Set(w._runs.filter((r) => r.st).map((r) => r.place)).forEach((p) => p && (counts[p] = (counts[p] || 0) + 1)));
-    const cities = Object.keys(counts).sort((a, b) => counts[b] - counts[a]);
+    const now = onNow(), counts = cityCounts(now);
     const sel = city && counts[city] ? city : null;
-    const shown = sel ? now.filter((w) => w._runs.some((r) => r.st && r.place === sel)) : now;
-    const soon = shown.filter((w) => w._now === "soon"), playing = shown.filter((w) => w._now === "now");
+    if (sel && freshView) noteLookup(sel);  // not when the same page is drawn again (signing in, say)
+    const shown = sel ? cityShows(now, sel) : now, st = (w) => (sel ? runIn(w, sel).st : w._now);
+    const soon = shown.filter((w) => st(w) === "soon"), playing = shown.filter((w) => st(w) === "now");
     pageEl().innerHTML = `<div class="wrap" style="padding-top:30px">
       <h1 class="h1">On stage ${sel ? `in ${esc(places[sel]?.name)}` : "now"}</h1>
       <p class="count" style="margin:8px 0 18px">${plural(playing.length, "show")} playing${soon.length ? `, ${soon.length} coming soon` : ""}. From the theatres' listings and Ticketmaster, checked in the last ${STALE_DAYS} days.</p>
       <label class="city-pick"><span>City</span>
         <select id="city-pick" aria-label="City">
-          <option value="" ${sel ? "" : "selected"}>Everywhere (${now.length})</option>
-          <optgroup label="Most shows">${cities.slice(0, 8).map((p) => `<option value="${esc(p)}" ${p === sel ? "selected" : ""}>${esc(places[p]?.name || p)} (${counts[p]})</option>`).join("")}</optgroup>
-          <optgroup label="All cities, A–Z">${cities.slice().sort((x, y) => (places[x]?.name || x).localeCompare(places[y]?.name || y)).map((p) => `<option value="${esc(p)}">${esc(places[p]?.name || p)} (${counts[p]})</option>`).join("")}</optgroup>
+          ${cityOptions(counts, sel, homeCity(counts)?.id, now.length)}
         </select></label>
-      <section class="sec"><div class="sec-head"><h2>Playing now</h2></div><div class="grid">${playing.map((w) => cell(w, `<div class="cell-cap">${esc(nowWhere(w))}</div>`)).join("") || `<p class="empty">Nothing listed.</p>`}</div></section>
-      ${soon.length ? `<section class="sec"><div class="sec-head"><h2>Coming soon</h2></div><div class="grid">${soon.map((w) => cell(w, `<div class="cell-cap">${esc(soonWhen(w))}</div>`)).join("")}</div></section>` : ""}
+      <section class="sec"><div class="sec-head"><h2>Playing now</h2></div><div class="grid">${playing.map((w) => cell(w, `<div class="cell-cap">${esc(sel ? runIn(w, sel).district || cityName(sel) : nowWhere(w))}</div>`, sel && "now")).join("") || `<p class="empty">Nothing listed.</p>`}</div></section>
+      ${soon.length ? `<section class="sec"><div class="sec-head"><h2>Coming soon</h2></div><div class="grid">${soon.map((w) => cell(w, `<div class="cell-cap">${esc(soonWhen(w, sel))}</div>`, sel && "soon")).join("")}</div></section>` : ""}
     </div>`;
   }
   document.addEventListener("change", (e) => {
     if (e.target.id !== "city-pick") return;
     location.hash = e.target.value ? `#/onstage/${encodeURIComponent(e.target.value)}` : "#/onstage";
   });
-  function soonWhen(w) {
-    const r = w._runs.filter((x) => x.st === "soon").sort((a, b) => (a.from || "").localeCompare(b.from || ""))[0];
+  function soonWhen(w, city) {
+    const r = w._runs.filter((x) => x.st === "soon" && (!city || x.place === city)).sort((a, b) => (a.from || "").localeCompare(b.from || ""))[0];
     return r ? `${fmtPartial(r.from)} · ${places[r.place]?.name || ""}` : "";
   }
 

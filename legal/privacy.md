@@ -1,6 +1,6 @@
 # Billd Privacy Policy
 
-**Last updated:** 7 October 2026 · **Who runs Billd:** Billd Media LLC, Michigan, USA · **Contact:** support@billd.theater
+**Last updated:** 9 October 2026 · **Who runs Billd:** Billd Media LLC, Michigan, USA · **Contact:** support@billd.theater
 
 ## What Billd collects
 
@@ -9,7 +9,7 @@
 - **What you post**: shows you've marked seen, liked or want to see, ratings, diary entries and reviews (with who can see each), comments, likes, lists, follows, members you've blocked, reports you send, and productions or plays you suggest (including the web page you gave and what Billd read from it).
 - **Messages you send through forms**: feedback, corrections and copyright reports (your comment and, if you give it, your name; when you're logged in, your display name and username are added) are kept for the Billd team and emailed to Billd Media LLC.
 - **Pages fetched for you**: when you use "Add a production", Billd's server fetches the web page you give and keeps what it read from it with your suggestion.
-- **On your device**: Billd stores your theme, last choices and (before you join) your preview diary in your browser's local storage, and your login session if you join. Billd sets no advertising or tracking cookies and uses no analytics. If you install Billd as an app, its pages and play data are cached on your device so it works offline.
+- **On your device**: Billd stores your theme, last choices and (before you join) your preview diary in your browser's local storage, and your login session if you join. Billd sets no advertising or tracking cookies and uses no analytics. If you install Billd as an app, its pages and play data are cached on your device so it works offline. Billd keeps the city you chose and the cities you looked up recently (with the times you looked them up) on your device, to put them first. To pick a city for you, Billd uses your device's time zone or, only if you tap "Use my location", your location; the location itself is used on your device to find the nearest city with shows and isn't stored or sent anywhere.
 - **Your diary when you're offline**: so you can log a show without a connection, Billd keeps changes you make offline on your device until they reach Billd's server, and keeps your own profile (as you see it in Billd, including your role on the Billd team if you have one, and any account status or note the team has set on it) so it can open while offline.
   - **On the website**, a copy of your own diary, marks, lists and follows (including entries only you or your friends can see) is kept only in the tab you're using: closing the tab removes it. Browsers that reopen your tabs after a restart may bring it back with them.
   - **In the Billd app for iPhone and Android**, that copy stays on your phone so your diary opens offline. The app excludes it from phone backups.
