@@ -720,14 +720,32 @@
   }
   // for what's on now, the city's current name: "Tokyo", not the catalogue's "Tokyo (Edo)"
   const cityName = (id) => (places[id]?.name || id).replace(/ \([^)]*\)$/, "");
-  // a play's listing in one city (on now if any is), and a city's plays: on now there first, then the soonest to open
-  const runIn = (w, id) => w._runs.find((r) => r.st === "now" && r.place === id) || w._runs.filter((r) => r.st && r.place === id).sort((a, b) => (a.from || "").localeCompare(b.from || ""))[0];
+  // A city's listings take in the towns around it, within AREA_KM: Detroit includes Ferndale, Northville and
+  // Rochester (Meadow Brook), while Ann Arbor (58 km) stays its own city, as do Washington and Baltimore (57 km).
+  const AREA_KM = 45, areas = {};
+  function area(id) {
+    if (areas[id]) return areas[id];
+    const c = places[id], set = new Set([id]);
+    if (c?.lat != null && c?.lon != null) for (const [pid, p] of Object.entries(places)) if (p?.lat != null && p?.lon != null && km(c.lat, c.lon, p.lat, p.lon) <= AREA_KM) set.add(pid);
+    return (areas[id] = set);
+  }
+  const inArea = (id, place) => !!place && area(id).has(place);
+  // how many shows are on now (or soon) in and around a city
+  const areaCount = (now, id) => now.filter((w) => w._runs.some((r) => r.st && inArea(id, r.place))).length;
+  const areaCounts = new WeakMap();  // per list of shows on now
+  function areaCountOf(id) { const now = onNow(); let m = areaCounts.get(now); if (!m) areaCounts.set(now, (m = {})); return (m[id] ??= areaCount(now, id)); }
+  const aroundName = (now, id) => (now.some((w) => w._runs.some((r) => r.st && r.place !== id && inArea(id, r.place))) ? `in and around ${cityName(id)}` : `in ${cityName(id)}`);
+  // a play's listing in one city and the towns around it (on now if any is), and those plays: on now there first,
+  // then the soonest to open
+  const runIn = (w, id) => w._runs.find((r) => r.st === "now" && inArea(id, r.place)) || w._runs.filter((r) => r.st && inArea(id, r.place)).sort((a, b) => (a.from || "").localeCompare(b.from || ""))[0];
+  // a listing's caption in a city view: the theatre district, else the town when it isn't the city itself
+  const runWhere = (r, id) => r.district || cityName(r.place || id);
   function cityShows(now, id) {
     const on = [], soon = [];
     now.forEach((w) => { const r = runIn(w, id); if (r) (r.st === "now" ? on : soon).push([w, r]); });
     return [...on, ...soon.sort((a, b) => (a[1].from || "").localeCompare(b[1].from || ""))].map((x) => x[0]);
   }
-  const cityOpt = (id, counts, sel) => `<option value="${esc(id)}"${id === sel ? " selected" : ""}>${esc(cityName(id))} (${counts[id]})</option>`;
+  const cityOpt = (id, counts, sel) => `<option value="${esc(id)}"${id === sel ? " selected" : ""}>${esc(cityName(id))} (${areaCountOf(id)})</option>`;
   // the city drop-down's groups: your cities (your city, then the ones you keep looking up), the 8 with most shows,
   // then all A–Z; only the first copy of the chosen city is marked selected
   function cityOptions(counts, sel, home, total) {
@@ -748,11 +766,11 @@
     const cap = (w) => {
       if (!id) return nowWhere(w);
       const r = runIn(w, id);
-      return r.st === "soon" && r.from ? `From ${fmtPartial(r.from)}` : r.district || cityName(id);
+      return r.st === "soon" && r.from ? `From ${fmtPartial(r.from)}${r.place && r.place !== id ? ` · ${cityName(r.place)}` : ""}` : runWhere(r, id);
     };
     return {
       counts, hc,
-      title: id ? `On stage in ${esc(cityName(id))}` : "On stage now",
+      title: id ? `On stage ${esc(aroundName(now, id))}` : "On stage now",
       all: id ? `<a href="#/onstage/${esc(encodeURIComponent(id))}" id="hos-all">All ${list.length.toLocaleString()} →</a>` : `<a href="#/onstage" id="hos-all">All ${now.length.toLocaleString()} →</a>`,
       why: id ? `${WHY[hc.by]} · ` : "Showing every city · ",
       change: id ? "Change city" : "Choose your city",
@@ -822,13 +840,13 @@
     const shown = sel ? cityShows(now, sel) : now, st = (w) => (sel ? runIn(w, sel).st : w._now);
     const soon = shown.filter((w) => st(w) === "soon"), playing = shown.filter((w) => st(w) === "now");
     pageEl().innerHTML = `<div class="wrap" style="padding-top:30px">
-      <h1 class="h1">On stage ${sel ? `in ${esc(cityName(sel))}` : "now"}</h1>
+      <h1 class="h1">On stage ${sel ? esc(aroundName(now, sel)) : "now"}</h1>
       <p class="count" style="margin:8px 0 18px">${plural(playing.length, "show")} playing${soon.length ? `, ${soon.length} coming soon` : ""}. From the theatres' listings and Ticketmaster, checked in the last ${STALE_DAYS} days.</p>
       <label class="city-pick"><span>City</span>
         <select id="city-pick" aria-label="City">
           ${cityOptions(counts, sel, homeCity(counts)?.id, now.length)}
         </select></label>
-      <section class="sec"><div class="sec-head"><h2>Playing now</h2></div><div class="grid">${playing.map((w) => cell(w, `<div class="cell-cap">${esc(sel ? runIn(w, sel).district || cityName(sel) : nowWhere(w))}</div>`, sel && "now")).join("") || `<p class="empty">Nothing listed.</p>`}</div></section>
+      <section class="sec"><div class="sec-head"><h2>Playing now</h2></div><div class="grid">${playing.map((w) => cell(w, `<div class="cell-cap">${esc(sel ? runWhere(runIn(w, sel), sel) : nowWhere(w))}</div>`, sel && "now")).join("") || `<p class="empty">Nothing listed.</p>`}</div></section>
       ${soon.length ? `<section class="sec"><div class="sec-head"><h2>Coming soon</h2></div><div class="grid">${soon.map((w) => cell(w, `<div class="cell-cap">${esc(soonWhen(w, sel))}</div>`, sel && "soon")).join("")}</div></section>` : ""}
     </div>`;
   }
@@ -837,7 +855,7 @@
     location.hash = e.target.value ? `#/onstage/${encodeURIComponent(e.target.value)}` : "#/onstage";
   });
   function soonWhen(w, city) {
-    const r = w._runs.filter((x) => x.st === "soon" && (!city || x.place === city)).sort((a, b) => (a.from || "").localeCompare(b.from || ""))[0];
+    const r = w._runs.filter((x) => x.st === "soon" && (!city || inArea(city, x.place))).sort((a, b) => (a.from || "").localeCompare(b.from || ""))[0];
     return r ? `${fmtPartial(r.from)} · ${(r.place ? cityName(r.place) : "")}` : "";
   }
 
