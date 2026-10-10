@@ -2632,7 +2632,23 @@
     $("#auth-alt").hidden = APP || mode === "reset";
     note("#auth-note", "");
   }
+  // Google refuses sign-in inside apps' built-in browsers (Instagram, Facebook, TikTok…: "disallowed_useragent"),
+  // so there Billd explains and offers a way out to the real browser instead of sending people to Google's error
+  const IN_APP = /Instagram|FBAN|FBAV|FB_IAB|FBIOS|Messenger|musical_ly|TikTok|Bytedance|Snapchat|LinkedInApp|Pinterest|Line\//i.test(navigator.userAgent || "");
+  function inAppHelp() {
+    const box = $("#auth-inapp"), url = location.href;
+    const chrome = `intent://${location.host}${location.pathname}${location.search}${location.hash}#Intent;scheme=https;package=com.android.chrome;S.browser_fallback_url=${encodeURIComponent(url)};end`;
+    box.innerHTML = `<p><b>Google sign-in doesn't work inside this app's browser.</b> ${ANDROID ? "Open Billd in Chrome to continue with Google:" : "To continue with Google, tap <b>⋯</b> (top right) and choose <b>Open in external browser</b> (or Open in Safari), or copy the link into Safari:"}</p>
+      <p class="inapp-acts">${ANDROID ? `<a class="btn sm" href="${esc(chrome)}">Open in Chrome</a>` : ""}<button class="btn sm ghost" type="button" id="inapp-copy">Copy link</button></p>
+      <p class="hint">Or join with your email below: that works here.</p>`;
+    box.hidden = false;
+    $("#inapp-copy").addEventListener("click", async (ev) => {
+      try { await navigator.clipboard.writeText(url); ev.target.textContent = "Link copied"; }
+      catch (err) { prompt("Copy this link:", url); }
+    });
+  }
   $("#auth-google").addEventListener("click", async (e) => {
+    if (IN_APP) return inAppHelp();
     const terms = termsState();
     if (authMode === "up" && terms.live && !$("#auth-terms").checked) return note("#auth-note", "Tick the box to agree to the Terms of Use and Community Guidelines.", true);
     e.currentTarget.disabled = true;

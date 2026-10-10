@@ -1083,3 +1083,9 @@ input:focus, textarea:focus, select:focus { border-bottom-color: var(--gold); ou
 :root[data-look~="outline"] :is(.btn.danger, .btn.ghost.danger) { background: transparent; color: var(--red); border: 1.5px solid currentColor; box-shadow: none; }
 .feed-home .acts { justify-content: flex-start; }
 .feed-home .acts .btn:last-child { margin-left: 0; }
+
+/* inside Instagram & co.: why Google sign-in won't work there, and the way out */
+.inapp { margin: 12px 0 2px; padding: 12px 14px; border-radius: var(--radius); background: var(--raise); border: 1px solid var(--line); font-size: 14px; line-height: 1.45; }
+.inapp p { margin: 0 0 8px; }
+.inapp p:last-child { margin-bottom: 0; }
+.inapp-acts { display: flex; gap: 8px; flex-wrap: wrap; }
