@@ -312,7 +312,7 @@
         <li>the original work, or where it can be seen;</li>
         <li>your name and how to reach you, and that you own the rights or act for the owner.</li></ul>
       <p>${CFG.contact?.copyright ? `Write to <a href="mailto:${esc(CFG.contact.copyright)}">${esc(CFG.contact.copyright)}</a>, or` : ""} <button class="linkbtn" type="button" id="cr-fb">send a copyright report</button>. Members can also use <b>Report</b> on any review, comment, list or profile and choose “Copyright infringement”.</p>
-      ${CFG.contact?.agent ? `<h2>Designated agent</h2><p>Formal notices under the US Digital Millennium Copyright Act go to Billd's designated agent:<br>${["name", "address", "phone", "email"].map((k) => CFG.contact.agent[k]).filter(Boolean).map(esc).join("<br>")}</p>` : ""}
+      ${CFG.contact?.agent ? `<h2>Designated agent</h2><p>Formal notices under the US Digital Millennium Copyright Act go to Billd's designated agent:<br>${["name", "address", "phone", "email"].map((k) => CFG.contact.agent[k]).filter(Boolean).map(esc).join("<br>")}</p>${CFG.contact.agent.registration ? `<p class="hint">Registered with the US Copyright Office's DMCA Designated Agent Directory (${esc(CFG.contact.agent.registration)}).</p>` : ""}` : ""}
       <h2>What a formal notice needs</h2>
       <p>Under 17 U.S.C. § 512(c)(3), a notice must include: your physical or electronic signature; the copyrighted work you say is infringed; the material on Billd and where it is (its address), precisely enough for us to find it; your address, phone number and email; a statement that you believe in good faith that the use isn't authorised by the owner, its agent or the law; and a statement, under penalty of perjury, that the notice is accurate and that you own the right or may act for the owner.</p>
       <h2>If your post was removed</h2>
@@ -1208,6 +1208,9 @@
     const t = (CFG.affiliates || {})[seller];
     return t ? t.replace("{url}", encodeURIComponent(url)) : url;
   }
+  // listings from KOPIS, Korea's official performing-arts register, carry the credit its terms ask for
+  const KOPIS_CREDIT = `<a href="https://www.kopis.or.kr" target="_blank" rel="noopener">출처: 공연예술통합전산망(KOPIS)</a>`;
+  const isKopis = (p) => /^https?:\/\/(?:www\.)?kopis\.or\.kr\//.test(p.citation || "");
   // Current and upcoming runs with where to buy tickets. Links come only from the listing
   // sources (the theatre's own site, Ticketmaster); none are made up.
   function nowPlayingHTML(w) {
@@ -1223,7 +1226,7 @@
       const more = (r.links || []).filter(([, url]) => safeUrl(url)).map(([seller, url]) => `<a class="btn ghost sm" href="${esc(aff(url, seller))}" target="_blank" rel="noopener nofollow sponsored">${SELLER[seller] || "Tickets"}</a>`).join("");
       const tickets = main || more ? `<div class="np-buy">${main}${more}</div>` : "";
       return `<li><div><div class="np-where"><strong>${where || "Venue to be announced"}</strong>${r.district ? ` <span class="badge dist">${esc(r.district)}</span>` : ""}</div>
-        <div class="np-when">${esc(when + until)}</div></div>${tickets}${whoIsInIt(p, r)}<small class="np-src">Listing checked ${esc(fmtPartial(r.checked))}. Check with the seller for dates and prices.</small></li>`;
+        <div class="np-when">${esc(when + until)}</div></div>${tickets}${whoIsInIt(p, r)}<small class="np-src">${isKopis(p) ? `${KOPIS_CREDIT}. ` : ""}Listing checked ${esc(fmtPartial(r.checked))}. Check with the seller for dates and prices.</small></li>`;
     });
     // the current production's artwork, from Ticketmaster: shown here, beside its tickets, and nowhere else
     const art = w.artwork && safeUrl(w.artwork[0]) ? `<figure class="np-art"><img src="${esc(safeUrl(w.artwork[0]))}" alt="Artwork for this production of ${esc(w.title)}" loading="lazy" referrerpolicy="no-referrer">
@@ -1362,7 +1365,7 @@
       ${curCast.length ? `<div class="pc"><span class="pc-l">Cast as of ${esc(fmtPartial(curCast[0].since.slice(0, 7)))}</span> ${curCast.slice(0, 8).map((c) => name(c) + (c.character ? ` <small>as ${esc(c.character)}</small>` : "")).join(", ")}${curCast.length > 8 ? `, and ${curCast.length - 8} more` : ""}</div>` : ""}
       ${others.length ? `<div class="pc"><span class="pc-l">Also</span> ${others.join(", ")}</div>` : ""}
       ${p.notes ? `<p class="prod-notes">${esc(p.notes)}</p>` : ""}
-      <div class="prod-src">${safeUrl(p.citation) ? `<a href="${esc(safeUrl(p.citation))}" target="_blank" rel="noopener">${srcName[p.source] || "Source"}</a>` : esc(srcName[p.source] || p.source)}${p.ids?.wikidata ? ` · <a href="https://www.wikidata.org/wiki/${esc(p.ids.wikidata)}" target="_blank" rel="noopener">Wikidata</a>` : ""}</div>
+      <div class="prod-src">${isKopis(p) && safeUrl(p.citation) ? `<a href="${esc(safeUrl(p.citation))}" target="_blank" rel="noopener">출처: 공연예술통합전산망(KOPIS)</a>` : safeUrl(p.citation) ? `<a href="${esc(safeUrl(p.citation))}" target="_blank" rel="noopener">${srcName[p.source] || "Source"}</a>` : esc(srcName[p.source] || p.source)}${p.ids?.wikidata ? ` · <a href="https://www.wikidata.org/wiki/${esc(p.ids.wikidata)}" target="_blank" rel="noopener">Wikidata</a>` : ""}</div>
     </li>`;
   }
   function refreshProds(w, keepFocus) {
@@ -2596,7 +2599,8 @@
         <li><a href="https://opendata.idu.cz" target="_blank" rel="noopener">Institut umění – Divadelní ústav</a>: Czech productions, CC BY 4.0.</li>
         <li><a href="https://theaterencyclopedie.nl" target="_blank" rel="noopener">TheaterEncyclopedie</a>: Dutch and Flemish productions, CC0.</li>
         <li><a href="https://www.kunsten.be" target="_blank" rel="noopener">Kunstenpunt – Flanders Arts Institute</a> open data.</li>
-        <li>What's on now: Wikipedia's Broadway and West End theatre lists, with ticket links to each theatre's own site, and the <a href="https://developer.ticketmaster.com" target="_blank" rel="noopener">Ticketmaster Discovery API</a>.</li></ul>
+        <li>What's on now: Wikipedia's Broadway and West End theatre lists, with ticket links to each theatre's own site, and the <a href="https://developer.ticketmaster.com" target="_blank" rel="noopener">Ticketmaster Discovery API</a>.</li>
+        <li>Plays and musicals in Seoul: the Open API of KOPIS, Korea's Performing Arts Box Office Information System. ${KOPIS_CREDIT}.</li></ul>
       <h2>On stage now</h2><p>A show counts as on now or coming soon only if a listing confirmed it in the last ${STALE_DAYS} days and its closing date hasn't passed. Ticket links go to the theatre's own box office or to ticket sellers (Ticketmaster, TodayTix, Broadway Direct). Billd doesn't sell tickets${Object.keys(CFG.affiliates || {}).length ? "; it may earn a commission when you buy through these links, at no extra cost to you" : " and isn't paid for links"}.</p>
       <h2>Reusing Billd's data</h2><p>Facts from Wikidata are CC0; play summaries drawn from Wikipedia stay under <a href="https://creativecommons.org/licenses/by-sa/4.0/" target="_blank" rel="noopener license">CC BY-SA 4.0</a>, credited on each play; Czech productions are CC BY 4.0 (Institut umění – Divadelní ústav). Pictures keep their own licences: see <a href="#/credits">image credits</a>. Reviews and lists belong to the members who wrote them. To report a copyright problem, see <a href="#/copyright">Copyright</a>.</p>
       <h2>Found a mistake?</h2><p>Use “Suggest a correction” on any show, or <button class="linkbtn" type="button" id="ab-fb">send feedback</button>.</p></div>`;

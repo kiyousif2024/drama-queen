@@ -19,6 +19,8 @@ Each play and production in the site names its source and links to it.
 - [Kunstenpunt – Flanders Arts Institute](https://www.kunsten.be): open data under a Creative Commons licence.
 - Current Broadway and West End listings: Wikipedia's "Broadway theatre" and "West End theatre" articles,
   with ticket links to each theatre's own website.
+- Plays and musicals in Seoul: the [KOPIS](https://www.kopis.or.kr) Open API
+  (출처: 공연예술통합전산망(KOPIS)).
 
 The data files in `data/` combine these sources. Material from Wikipedia stays under
 CC BY-SA 4.0; credit the sources above when reusing it.
