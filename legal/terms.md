@@ -1,21 +1,19 @@
-# Billd Terms of Use (DRAFT)
+# Billd Terms of Use
 
-> DRAFT, not yet in force. For the owner to review, ideally with a lawyer; every [BRACKETED] item still needs filling in. Nothing here is legal advice.
-
-**Last updated:** [DATE]
+**Last updated:** 11 October 2026
 
 Billd ("we") is run by Billd Media LLC, a Michigan limited liability company. By using Billd at billd.theater or in the Billd app you agree to these terms and to the [Community Guidelines](#/guidelines).
 
 ## Your account
 
-- You must be at least [13 / 16] to join. Give a real email address and keep your password safe.
+- You must be at least 13 to join. If you're under the age at which your country lets you agree to an online service on your own (16 in some countries), ask a parent or guardian first. Give a real email address and keep your password safe.
 - Creating an account means you accept these terms, the Community Guidelines and the [Privacy Policy](#/privacy): sign-up asks you to tick a box.
 - One person per account. You're responsible for what's posted from your account.
 - You can delete your account at any time in Settings, which deletes what you posted. See [Deleting your account](#/delete-account).
 
 ## What you post
 
-- Your reviews, ratings, comments, lists and profile stay yours. You give Billd a worldwide, non-exclusive, royalty-free licence to store, show, adapt for display (for example, shorten in a feed) and share them on Billd and in Billd's promotion, for as long as they're on Billd. You can delete them at any time; copies may remain in backups for [N] days.
+- Your reviews, ratings, comments, lists and profile stay yours. You give Billd a worldwide, non-exclusive, royalty-free licence to store, show, adapt for display (for example, shorten in a feed) and share them on Billd and in Billd's promotion, for as long as they're on Billd. You can delete them at any time; copies in our provider's backups are overwritten within 30 days.
 - **Facts you suggest** (a production's dates, theatre, cast, a missing play) become part of Billd's open database once checked. You agree that these facts may be published and reused by anyone under CC0 (public domain dedication).
 - Post only what you have the right to post. Don't copy other people's reviews, articles, photos or programme text.
 - Follow the [Community Guidelines](#/guidelines): nothing hateful, harassing, sexually explicit, illegal or spam; no impersonation; mark spoilers.
@@ -32,12 +30,12 @@ If something on Billd infringes your copyright, follow the steps on the [Copyrig
 
 ## Information about plays and tickets
 
-Play and production information comes from open data sources and members; it may contain mistakes. Billd doesn't sell tickets: links go to theatres and ticket sellers, whose own terms apply. [If affiliate codes are set:] Billd may earn a commission when you buy through these links, at no extra cost to you.
+Play and production information comes from open data sources and members; it may contain mistakes. Billd doesn't sell tickets: links go to theatres and ticket sellers, whose own terms apply. Billd isn't paid for these links today; if it ever earns a commission from them, the show's page will say so.
 
 ## No warranty; limits
 
-Billd is provided "as is", without warranties. To the extent the law allows, Billd Media LLC isn't liable for indirect or consequential losses, and its total liability is limited to [USD 100].
+Billd is provided "as is", without warranties. To the extent the law allows, Billd Media LLC isn't liable for indirect or consequential losses, and its total liability to you for any claim is limited to USD 100 or the amount you paid Billd in the 12 months before the claim, whichever is greater. Some places don't allow these limits, so they may not apply to you.
 
 ## Changes and contact
 
-We may update these terms and will note the date above; when they change significantly, members are asked to accept them again before posting. Questions: support@billd.theater. These terms are governed by the laws of [STATE/COUNTRY].
+We may update these terms and will note the date above; when they change significantly, members are asked to accept them again before posting. Questions: support@billd.theater. These terms are governed by the laws of the State of Michigan, USA, without regard to its conflict-of-laws rules. Any dispute goes to the state or federal courts located in Wayne County, Michigan, except that either side may use small-claims court, and nothing here takes away rights you have under the consumer laws of the place you live.
