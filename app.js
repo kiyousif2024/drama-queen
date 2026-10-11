@@ -390,7 +390,7 @@
   function routeName(h) {
     const [a, b] = h.replace(/^\//, "").split("/").map((x) => { try { return decodeURIComponent(x); } catch (e) { return x; } });
     if (!a) return "Home";
-    if (a === "onstage") return b && places[b] ? `On stage in ${places[b].name}` : "On stage now";
+    if (a === "onstage") return b && places[b] ? `On stage in ${cityName(metroOf(b))}` : "On stage now";
     if (a === "browse") return "Shows";
     if (a === "play") return byId[b]?.title || "Back";
     if (a === "u") return `@${b}`;
@@ -666,10 +666,10 @@
     get(k, d) { try { return JSON.parse(localStorage.getItem(k)) ?? d; } catch (e) { return d; } },
     set(k, v) { try { localStorage.setItem(k, JSON.stringify(v)); } catch (e) { /* not kept */ } },
   };
-  // how many shows are on now (or soon) in each city
+  // how many shows are on now (or soon) in each city, its suburbs counted in (metroOf)
   function cityCounts(now) {
     const counts = {};
-    now.forEach((w) => new Set(w._runs.filter((r) => r.st).map((r) => r.place)).forEach((p) => p && (counts[p] = (counts[p] || 0) + 1)));
+    now.forEach((w) => new Set(w._runs.filter((r) => r.st && r.place).map((r) => metroOf(r.place))).forEach((p) => (counts[p] = (counts[p] || 0) + 1)));
     return counts;
   }
   const km = (a1, o1, a2, o2) => {
@@ -691,8 +691,8 @@
   }
   // {id, by}: by "chosen" (id "" is everywhere, chosen), "located" or "tz"; null when there is no city to show
   function homeCity(counts) {
-    const c = store.get(CITY_KEY, null);
-    if (c && typeof c.id === "string" && (c.id === "" || counts[c.id])) return c.id ? { id: c.id, by: c.by === "located" ? "located" : "chosen" } : null;
+    const c = store.get(CITY_KEY, null), cid = c && typeof c.id === "string" && c.id ? metroOf(c.id) : "";  // a suburb kept from before: its city
+    if (c && typeof c.id === "string" && (cid === "" || counts[cid])) return cid ? { id: cid, by: c.by === "located" ? "located" : "chosen" } : null;
     const id = tzCity(counts);
     return id ? { id, by: "tz" } : null;
   }
@@ -716,24 +716,44 @@
   }
   function pinnedCities() {
     const L = lookups(), since = Date.now() - 7 * DAY;
-    return Object.keys(L).filter((id) => L[id].length >= 2 && Math.max(...L[id]) > since).sort((a, b) => Math.max(...L[b]) - Math.max(...L[a]));
+    return [...new Set(Object.keys(L).filter((id) => L[id].length >= 2 && Math.max(...L[id]) > since).sort((a, b) => Math.max(...L[b]) - Math.max(...L[a])).map(metroOf))];
   }
   // for what's on now, the city's current name: "Tokyo", not the catalogue's "Tokyo (Edo)"
   const cityName = (id) => (places[id]?.name || id).replace(/ \([^)]*\)$/, "");
-  // A city's listings take in the towns around it, within AREA_KM: Detroit includes Ferndale, Northville and
-  // Rochester (Meadow Brook), while Ann Arbor (58 km) stays its own city, as do Washington and Baltimore (57 km).
-  const AREA_KM = 45, areas = {};
-  function area(id) {
-    if (areas[id]) return areas[id];
-    const c = places[id], set = new Set([id]);
-    if (c?.lat != null && c?.lon != null) for (const [pid, p] of Object.entries(places)) if (p?.lat != null && p?.lon != null && km(c.lat, c.lon, p.lat, p.lon) <= AREA_KM) set.add(pid);
-    return (areas[id] = set);
+  // Suburbs are listed under their city, never as cities of their own: a town within AREA_KM of a bigger city is
+  // part of it, so Detroit takes in Royal Oak, Ferndale and Rochester (Meadow Brook), and Miami takes in Coral
+  // Gables and Fort Lauderdale, while Ann Arbor (58 km from Detroit) stays its own city, as do Washington and
+  // Baltimore (57 km). The cities are picked first in METRO_FIRST's order (the well-known city names the area),
+  // then by how many shows each town has; a town takes the city it was grouped with, else the nearest city.
+  // Sprawling areas reach further (METRO_KM): Los Angeles takes in Thousand Oaks and Costa Mesa, Chicago Aurora.
+  const AREA_KM = 45, METRO_KM = { los_angeles: 65, chicago: 65, "wd-seattle": 60 };
+  const METRO_FIRST = ["new_york", "london", "seoul", "wd-tokyo-edo", "paris", "toronto", "chicago", "los_angeles", "washington",
+    "san_francisco", "wd-boston", "wd-philadelphia", "miami", "wd-detroit", "wd-ann-arbor", "wd-houston", "wd-atlanta", "wd-seattle",
+    "dallas", "wd-fort-worth", "wd-san-diego", "ru-minneapolis", "montreal", "moscow", "berlin", "osaka", "melbourne", "wd-sydney"];
+  let metro = null, metroWorks = null;
+  function metroOf(id) {
+    if (metroWorks !== works) {  // once per catalogue load
+      metroWorks = works; metro = {};
+      const shows = {};
+      works.forEach((w) => w._runs.forEach((r) => r.st && r.place && (shows[r.place] = (shows[r.place] || 0) + 1)));
+      const at = (pid) => places[pid]?.lat != null && places[pid]?.lon != null;
+      const rank = (pid) => { const i = METRO_FIRST.indexOf(pid); return i < 0 ? METRO_FIRST.length : i; };
+      const listed = Object.keys(shows).filter(at).sort((a, b) => rank(a) - rank(b) || shows[b] - shows[a]), hubs = [];
+      for (const h of listed) {
+        if (metro[h]) continue;
+        metro[h] = h; hubs.push(h);
+        const c = places[h], reach = METRO_KM[h] || AREA_KM;
+        for (const t of listed) if (!metro[t] && km(c.lat, c.lon, places[t].lat, places[t].lon) <= reach) metro[t] = h;
+      }
+      metro._hubs = hubs;
+    }
+    if (metro[id]) return metro[id];
+    const p = places[id];
+    let best = id, bd = Infinity;
+    if (p?.lat != null && p?.lon != null) for (const h of metro._hubs) { const d = km(p.lat, p.lon, places[h].lat, places[h].lon); if (d <= (METRO_KM[h] || AREA_KM) && d < bd) { best = h; bd = d; } }
+    return (metro[id] = best);
   }
-  const inArea = (id, place) => !!place && area(id).has(place);
-  // how many shows are on now (or soon) in and around a city
-  const areaCount = (now, id) => now.filter((w) => w._runs.some((r) => r.st && inArea(id, r.place))).length;
-  const areaCounts = new WeakMap();  // per list of shows on now
-  function areaCountOf(id) { const now = onNow(); let m = areaCounts.get(now); if (!m) areaCounts.set(now, (m = {})); return (m[id] ??= areaCount(now, id)); }
+  const inArea = (id, place) => !!place && metroOf(place) === id;
   const aroundName = (now, id) => (now.some((w) => w._runs.some((r) => r.st && r.place !== id && inArea(id, r.place))) ? `in and around ${cityName(id)}` : `in ${cityName(id)}`);
   // a play's listing in one city and the towns around it (on now if any is), and those plays: on now there first,
   // then the soonest to open
@@ -745,7 +765,7 @@
     now.forEach((w) => { const r = runIn(w, id); if (r) (r.st === "now" ? on : soon).push([w, r]); });
     return [...on, ...soon.sort((a, b) => (a[1].from || "").localeCompare(b[1].from || ""))].map((x) => x[0]);
   }
-  const cityOpt = (id, counts, sel) => `<option value="${esc(id)}"${id === sel ? " selected" : ""}>${esc(cityName(id))} (${areaCountOf(id)})</option>`;
+  const cityOpt = (id, counts, sel) => `<option value="${esc(id)}"${id === sel ? " selected" : ""}>${esc(cityName(id))} (${counts[id]})</option>`;
   // the city drop-down's groups: your cities (your city, then the ones you keep looking up), the 8 with most shows,
   // then all A–Z; only the first copy of the chosen city is marked selected
   function cityOptions(counts, sel, home, total) {
@@ -835,7 +855,7 @@
   function renderOnStage(city) {
     document.title = "On stage now · Billd";
     const now = onNow(), counts = cityCounts(now);
-    const sel = city && counts[city] ? city : null;
+    const sel = city && counts[metroOf(city)] ? metroOf(city) : null;  // a suburb's page is its city's
     if (sel && freshView) noteLookup(sel);  // not when the same page is drawn again (signing in, say)
     const shown = sel ? cityShows(now, sel) : now, st = (w) => (sel ? runIn(w, sel).st : w._now);
     const soon = shown.filter((w) => st(w) === "soon"), playing = shown.filter((w) => st(w) === "now");
