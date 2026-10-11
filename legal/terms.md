@@ -4,7 +4,7 @@
 
 **Last updated:** [DATE]
 
-Billd ("we") is run by [OPERATOR: Billd Media LLC, Michigan, USA]. By using Billd at billd.theater or in the Billd app you agree to these terms and to the [Community Guidelines](#/guidelines).
+Billd ("we") is run by Billd Media LLC, a Michigan limited liability company. By using Billd at billd.theater or in the Billd app you agree to these terms and to the [Community Guidelines](#/guidelines).
 
 ## Your account
 
@@ -20,7 +20,7 @@ Billd ("we") is run by [OPERATOR: Billd Media LLC, Michigan, USA]. By using Bill
 - Post only what you have the right to post. Don't copy other people's reviews, articles, photos or programme text.
 - Follow the [Community Guidelines](#/guidelines): nothing hateful, harassing, sexually explicit, illegal or spam; no impersonation; mark spoilers.
 - Posts that contain a word on Billd's list of slurs are held until the Billd team has checked them (usernames, names and bios that contain one are refused), and you can block members you don't want to hear from.
-- Choosing "Friends" or "Only me" limits who can see an entry on Billd. The Billd team can't see private entries in the app, but [OPERATOR] can access the database to run and protect the service.
+- Choosing "Friends" or "Only me" limits who can see an entry on Billd. The Billd team can't see private entries in the app, but Billd Media LLC can access the database to run and protect the service.
 
 ## Moderation
 
@@ -28,7 +28,7 @@ The Billd team reviews reports within 24 hours. It may remove content, and suspe
 
 ## Copyright
 
-If something on Billd infringes your copyright, follow the steps on the [Copyright](#/copyright) page or write to our designated agent: [NAME, ADDRESS, EMAIL as registered with the US Copyright Office]. We respond to valid notices and counter-notices under the US Digital Millennium Copyright Act (17 U.S.C. § 512).
+If something on Billd infringes your copyright, follow the steps on the [Copyright](#/copyright) page or write to our designated agent: Copyright Agent, Billd Media LLC, 2785 E Grand Blvd #669, Detroit, MI 48211, support@billd.theater (US Copyright Office registration DMCA-1082601). We respond to valid notices and counter-notices under the US Digital Millennium Copyright Act (17 U.S.C. § 512).
 
 ## Information about plays and tickets
 
@@ -36,7 +36,7 @@ Play and production information comes from open data sources and members; it may
 
 ## No warranty; limits
 
-Billd is provided "as is", without warranties. To the extent the law allows, [OPERATOR] isn't liable for indirect or consequential losses, and its total liability is limited to [USD 100].
+Billd is provided "as is", without warranties. To the extent the law allows, Billd Media LLC isn't liable for indirect or consequential losses, and its total liability is limited to [USD 100].
 
 ## Changes and contact
 
