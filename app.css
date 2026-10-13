@@ -181,12 +181,16 @@ select { width: auto; padding: 6px 10px; background: var(--surface); }
 .hero > p { margin: 16px 0 0; max-width: 54ch; color: var(--muted); font-size: 17.5px; }
 .hero .acts { margin-top: 22px; display: flex; gap: 10px; flex-wrap: wrap; justify-content: flex-start; }
 .hero .acts .btn:last-child { margin-left: 0; }
-.lets { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 12px; margin-top: 34px; }
-.let { display: flex; gap: 14px; align-items: flex-start; padding: 18px; border-radius: var(--radius); background: var(--surface); border: 1px solid var(--line-soft); }
-.let svg { flex: none; width: 34px; height: 34px; fill: var(--muted); }
+.lets { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 10px; margin-top: 30px; }
+.let { display: flex; gap: 12px; align-items: center; padding: 14px 16px; border-radius: var(--radius); background: var(--surface); border: 1px solid var(--line-soft); color: inherit; text-decoration: none; font: inherit; text-align: left; cursor: pointer; transition: transform .15s ease, border-color .15s ease; }
+.let:hover { transform: translateY(-2px); border-color: var(--gold); }
+.let b { display: block; font-size: 16px; }
+.let span { display: block; font-size: 13px; color: var(--muted); margin-top: 2px; }
+.let:first-child span { color: inherit; opacity: .8; }
+.let svg { flex: none; width: 28px; height: 28px; fill: var(--muted); }
 .let:first-child { background: var(--gold); color: var(--gold-ink); border-color: transparent; }
 .let:first-child svg { fill: var(--gold-ink); }
-.let p { margin: 0; font-size: 15px; line-height: 1.4; }
+.let p { margin: 0; line-height: 1.25; }
 .welcome { display: flex; align-items: center; gap: 14px; padding: 30px 0 0; }
 .welcome h1 { margin: 0; font: 800 30px/1.1 var(--font-display); }
 .cities { display: flex; gap: 6px; flex-wrap: wrap; margin: -4px 0 14px; }
@@ -601,9 +605,9 @@ legend { padding: 0; margin-bottom: 8px; }
   .act-rate .label { display: inline; margin: 0; }
   .act-line { padding: 10px 14px; }
   .lets { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 8px; margin-top: 24px; }
-  .let { flex-direction: column; gap: 8px; padding: 12px; }
+  .let { gap: 10px; padding: 12px; }
   .let svg { width: 24px; height: 24px; }
-  .let p { font-size: 13px; }
+  .let b { font-size: 15px; } .let span { font-size: 12px; }
   .acct [data-log] { display: none; }
   .log-grid { grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); }
   .log-grid .field:first-child { grid-column: 1 / -1; }

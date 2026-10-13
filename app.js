@@ -552,10 +552,10 @@
             <div class="acts">${S.kind === "local" ? `<button class="btn" type="button" data-log>Log a show</button>` : `<button class="btn" type="button" data-auth-open="up">Join Billd</button>`}
               ${APP && S.kind !== "local" ? `<button class="btn ghost" type="button" data-auth-open="in">Log in</button>` : `<a class="btn ghost" href="#/onstage">What's on now</a>`}</div>`)}
         <div class="lets" aria-label="What you can do on Billd">
-          <div class="let">${ICONS.ticket}<p>Find out what's playing tonight in your city, with links to buy seats</p></div>
-          <div class="let">${ICONS.cal}<p>Note the date, the theatre and the company for each performance, so your theatregoing history is never lost</p></div>
-          <div class="let">${ICONS.lines}<p>Say what you thought, from one line to a full notice, and read what the people you follow made of it</p></div>
-          <div class="let">${ICONS.grid}<p>Look up any play, from Sophocles to this season, and see where and when it's been staged</p></div>
+          <a class="let" href="#/onstage">${ICONS.ticket}<p><b>What's on</b><span>Tonight, near you</span></p></a>
+          <button class="let" type="button" data-log>${ICONS.cal}<p><b>Log it</b><span>Every show you see</span></p></button>
+          <a class="let" href="#/activity/everyone">${ICONS.lines}<p><b>Review it</b><span>One line or a full notice</span></p></a>
+          <a class="let" href="#/browse">${ICONS.grid}<p><b>Every play</b><span>Sophocles to this season</span></p></a>
         </div>
         ${S.kind === "local" ? `<p class="banner"><b>Preview mode.</b> Your diary is saved on this device. Member accounts, following and shared reviews switch on when Billd's server is connected.</p>` : ""}
       </section>` : `<section class="hero hero-member">${stageHTML(`<h1>Welcome back, <em>${who(me)}.</em></h1>
@@ -574,13 +574,13 @@
       onstage: homeOnstageHTML(now),
       pop: `<section class="sec" id="home-pop" hidden><div class="sec-head"><h2>Popular on Billd this week</h2></div><div class="row-scroll" id="home-pop-row"></div></section>`,
       friends: `<section class="sec" id="home-friends" hidden><div class="sec-head"><h2>New from friends</h2><a href="#/activity">More →</a></div><div class="row-scroll" id="home-friends-row"></div></section>`,
-      rev: `<section class="sec" id="home-rev" hidden><div class="sec-head"><h2>Recent reviews</h2><a href="#/activity/everyone">More →</a></div><ul class="reviews" id="home-rev-list"></ul></section>`,
+      rev: `<section class="sec" id="home-rev" hidden><div class="sec-head"><h2>${signedIn() ? "Recent reviews" : "What theatregoers are saying"}</h2><a href="#/activity/everyone">More →</a></div><ul class="reviews" id="home-rev-list"></ul></section>`,
       explore: `<section class="sec"><div class="sec-head"><h2>Explore the archive</h2><a href="#/browse">Browse ${works.length.toLocaleString()} plays →</a></div>
         <p class="lead">Plays from every culture and era, from Sophocles to this season, with where and when they were staged.</p>
         <div class="row-scroll" style="margin-top:16px">${classics().map((w) => cell(w)).join("")}</div></section>`,
     };
     const order = feedHome ? ["feed", "plans", "onstage", "pop", "explore"]
-      : APP ? ["plans", "diary", "friends", "rev", "onstage", "pop", "explore"] : ["plans", "onstage", "pop", "friends", "rev", "explore"];
+      : APP ? ["plans", "diary", "friends", "rev", "onstage", "pop", "explore"] : ["plans", "onstage", "rev", "pop", "friends", "explore"];
     pageEl().innerHTML = `<div class="wrap">${feedHome ? "" : intro}${order.map((k) => sec[k]).join("")}</div>`;
     if (feedHome) {
       // friends first; when they haven't logged anything yet, everyone's latest
