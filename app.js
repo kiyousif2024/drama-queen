@@ -526,6 +526,11 @@
   };
   const onNow = () => works.filter((w) => w._now).sort((a, b) => (popular[b.id] || 0) - (popular[a.id] || 0) || b._pop - a._pop);
   // The landing stage: house curtains part, a spotlight finds the floor, the words sit in its light
+  // Halloween (October, through the 31st, in the visitor's own time): candle-warm stage lights, a few bats
+  // crossing the stage, a pumpkin by the logo and a row of spooky shows on the home page. Off by itself on 1 November.
+  const HALLOWEEN = (() => { const d = new Date(); return d.getMonth() === 9; })();
+  if (HALLOWEEN) document.documentElement.classList.add("season-halloween");
+  const BAT = `<svg viewBox="0 0 64 28" aria-hidden="true"><path d="M32 9c1.4-3 3-4 3-4s.2 2.6 1.2 3.4C40 6 46 1 64 3c-6 2-9 6-10 11-3-2-7-2-10 1-1.5-2-4-3-6-1-1-1.6-3-2.4-6-2.4s-5 .8-6 2.4c-2-2-4.5-1-6 1-3-3-7-3-10-1C9 9 6 5 0 3c18-2 24 3 27.8 5.4C28.8 7.6 29 5 29 5s1.6 1 3 4z"/></svg>`;
   function stageHTML(copy) {
     return `<div class="stage">
           <div class="st-back" aria-hidden="true"></div><div class="st-beam" aria-hidden="true"></div>
@@ -533,6 +538,7 @@
           <div class="st-copy">${copy}</div>
           <div class="st-seats" aria-hidden="true"></div>
           <div class="st-drape l" aria-hidden="true"></div><div class="st-drape r" aria-hidden="true"></div><div class="st-valance" aria-hidden="true"></div>
+          ${HALLOWEEN ? `<div class="st-bats" aria-hidden="true"><i>${BAT}</i><i>${BAT}</i><i>${BAT}</i></div>` : ""}
         </div>`;
   }
   // once the curtains are open and the lights are up (about 2.5 s), the stage shrinks to a band and the
@@ -573,7 +579,9 @@
       plans: ahead.length ? `<section class="sec" id="home-plans"><div class="sec-head"><h2>Coming up</h2></div><ul class="stubs">${ahead.map(planStubHTML).join("")}</ul></section>` : "",
       // the app opens on the member's own diary (App Store guideline 4.2: a diary, not a page of ticket links)
       diary: APP && signedIn() ? `<section class="sec" id="home-diary"><div class="sec-head"><h2>Recently in your diary</h2><a href="#/u/${esc((me || S.me()).username)}/diary">Diary →</a></div><div class="scraps" id="home-diary-row"><p class="hint">Loading…</p></div></section>` : "",
-      onstage: homeOnstageHTML(now),
+      onstage: homeOnstageHTML(now) + (HALLOWEEN && spooky().length >= 3 ? `<section class="sec spooky"><div class="sec-head"><h2>Spooky season on stage</h2><a href="#/onstage">All on stage →</a></div>
+        <p class="lead">Ghosts, witches and things that go bump in the night, on stage now.</p>
+        <div class="row-scroll" style="margin-top:14px">${spooky().map((w) => cell(w)).join("")}</div></section>` : ""),
       pop: `<section class="sec" id="home-pop" hidden><div class="sec-head"><h2>Popular on Billd this week</h2></div><div class="row-scroll" id="home-pop-row"></div></section>`,
       friends: `<section class="sec" id="home-friends" hidden><div class="sec-head"><h2>New from friends</h2><a href="#/activity">More →</a></div><div class="row-scroll" id="home-friends-row"></div></section>`,
       rev: `<section class="sec" id="home-rev" hidden><div class="sec-head"><h2>${signedIn() ? "Recent reviews" : "What theatregoers are saying"}</h2><a href="#/activity/everyone">More →</a></div><ul class="reviews" id="home-rev-list"></ul></section>`,
@@ -634,6 +642,9 @@
     const d = rs.find((r) => r.district)?.district;
     return d && cities.length === 1 ? d : cities.length > 2 ? `${cities.slice(0, 2).join(", ")} +${cities.length - 2}` : cities.join(", ");
   }
+  // the Halloween row: ghosts, witches, vampires and other gothic shows on now or soon
+  const SPOOKY = /\b(dracula|frankenstein|phantom|ghosts?|haunt\w*|witch(es)?|wicked|vampires?|zombies?|macbeth|sweeney todd|little shop of horrors|rocky horror|beetlejuice|addams|carrie|evil dead|woman in black|jekyll|coraline|sleepy hollow|nightmare|exorcis\w*|monsters?|halloween|hocus pocus|blithe spirit|turn of the screw|crucible|gaslight|dorian gray|poltergeist|creepy|spooky|scream|gothic)\b/i;
+  const spooky = () => onNow().filter((w) => SPOOKY.test(w.title)).slice(0, 18);
   let classicsCache;
   function classics() {
     if (classicsCache) return classicsCache;
