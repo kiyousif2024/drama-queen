@@ -1093,3 +1093,12 @@ input:focus, textarea:focus, select:focus { border-bottom-color: var(--gold); ou
 .inapp p { margin: 0 0 8px; }
 .inapp p:last-child { margin-bottom: 0; }
 .inapp-acts { display: flex; gap: 8px; flex-wrap: wrap; }
+
+/* check-in at the theatre: a bar above the tab bar */
+.checkin-bar { position: fixed; left: 12px; right: 12px; bottom: calc(76px + env(safe-area-inset-bottom)); z-index: 60; max-width: 560px; margin: 0 auto;
+  display: flex; gap: 12px; align-items: center; justify-content: space-between; flex-wrap: wrap; padding: 14px 16px; border-radius: var(--radius);
+  background: var(--surface); border: 1px solid var(--gold); box-shadow: 0 8px 28px rgba(0, 0, 0, .25); }
+.checkin-bar[hidden] { display: none; }
+.checkin-bar p { margin: 0; flex: 1 1 220px; }
+.checkin-bar div { display: flex; gap: 8px; }
+@media (min-width: 900px) { .checkin-bar { bottom: 24px; } }

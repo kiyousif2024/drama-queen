@@ -13,6 +13,7 @@
 //   saveFile(name, text, type)       a download on the web; the share sheet (save, open in Calendar…) in the app
 //   prefs.get/set/remove             small values the app keeps even if the web view's storage is cleared
 //   reminders                        local notifications ("Your show is tonight"), app only
+//   position()                       where the phone is, once, while Billd is open (check-in at the theatre)
 //   catalogue                        the bundled catalogue, and newer copies downloaded from billd.theater
 //   onAuthLink(fn), onResume(fn)     email sign-in links that opened the app; the app coming back to the front
 //   push                             phase 2 (docs/app-build.md): not built yet
@@ -145,6 +146,25 @@
     async pending() { const L = LN(); if (!L) return []; try { return (await L.getPending()).notifications || []; } catch (e) { return []; } },
   };
 
+  // ---------------------------------------------------------------- position (check-in, opt-in)
+  // Once, while Billd is open: the app's Geolocation plugin (asks the system's "while using the app"
+  // permission), or the browser's. Never watched, never in the background, never stored or sent.
+  async function position({ timeout = 15000 } = {}) {
+    const G = plugin("Geolocation");
+    if (G) {
+      let p = await G.checkPermissions().catch(() => ({}));
+      if (p.location !== "granted" && p.coarseLocation !== "granted") p = await G.requestPermissions().catch(() => ({}));
+      if (p.location !== "granted" && p.coarseLocation !== "granted") throw err("Location is off for Billd. Turn it on in your phone's Settings to check in at the theatre.", "denied");
+      const r = await G.getCurrentPosition({ enableHighAccuracy: true, timeout, maximumAge: 120000 });
+      return { lat: r.coords.latitude, lon: r.coords.longitude, accuracy: r.coords.accuracy };
+    }
+    if (!("geolocation" in navigator) || !window.isSecureContext) throw err("This browser can't share your location.", "unsupported");
+    return new Promise((ok, fail) => navigator.geolocation.getCurrentPosition(
+      (r) => ok({ lat: r.coords.latitude, lon: r.coords.longitude, accuracy: r.coords.accuracy }),
+      (e) => fail(err(e.code === 1 ? "Location isn't allowed for Billd in this browser." : "Billd couldn't find your location.", e.code === 1 ? "denied" : "unavailable")),
+      { enableHighAccuracy: true, timeout, maximumAge: 120000 }));
+  }
+
   // ---------------------------------------------------------------- the catalogue
   // The app ships with the catalogue as it was when the app was built (data/, with version.json).
   // At launch, when online, it asks billd.theater whether a newer one is out (data/version.json,
@@ -275,5 +295,5 @@
   // table, and add a Settings section for which notifications to get. Nothing calls this yet.
   const push = { available: false, async register() { return null; } };
 
-  window.BilldNative = { isApp, platform, site: SITE, publicUrl, openExternal, share, saveFile, prefs, reminders, catalogue, onAuthLink, onResume, push };
+  window.BilldNative = { isApp, platform, site: SITE, publicUrl, openExternal, share, saveFile, prefs, reminders, position, catalogue, onAuthLink, onResume, push };
 })();

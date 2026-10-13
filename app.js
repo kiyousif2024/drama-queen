@@ -600,6 +600,7 @@
         } catch (e) { if (!stale(tok) && $("#home-feed")) $("#home-feed").innerHTML = `<li class="empty">${esc(e.message)}</li>`; }
       })();
     } else settleStage();
+    setTimeout(maybeGeoCheckin, 1500);  // at the theatre for a show planned today? (opt-in)
     // members' activity fills in as it arrives
     if (sec.diary) {
       const who0 = me || S.me();
@@ -1775,6 +1776,64 @@
     if (t.checkin.getTime() > soon) await N.reminders.schedule({ id: ci, at: t.checkin, title: `At ${w.title} tonight?`, body: "Tap to check in. Enjoy the show!", route: `#/nudge/checkin/${encodeURIComponent(w.id)}` });
     if (t.review.getTime() > soon) await N.reminders.schedule({ id: rv, at: t.review, title: `How was ${w.title}?`, body: "Log it and say what you thought, while it's fresh.", route: `#/nudge/review/${encodeURIComponent(w.id)}` });
   }
+  // Check-in at the theatre (opt-in, this device): when Billd is opened or comes back to the front
+  // within a planned show's window (90 min before curtain up to an hour after; 5-10:30 pm without a
+  // time), it reads the phone's position once and, at the theatre (within 300 m), offers to check in.
+  // Only theatres whose coordinates Billd knows (data/venue_coords.csv); nothing stored or sent.
+  const GEO_KEY = "billd-checkin-geo";
+  const geoOn = () => N.prefs.get(GEO_KEY) === "1";
+  let geoBusy = false, geoLast = 0;
+  function inShowWindow(p, now = new Date()) {
+    const [y, m, d] = p.date.split("-").map(Number);
+    if (p.time) {
+      const [hh, mm] = p.time.split(":").map(Number), t = new Date(y, m - 1, d, hh, mm || 0).getTime();
+      return now.getTime() >= t - 90 * 60e3 && now.getTime() <= t + 60 * 60e3;
+    }
+    return now >= new Date(y, m - 1, d, 17, 0) && now <= new Date(y, m - 1, d, 22, 30);
+  }
+  async function planVenue(p, w) {
+    await loadDetail(w);
+    const vs = [...new Set(w.productions.flatMap((x) => x.runs).filter((r) => listingStatus(r.checked, r.from, r.to)).map((r) => r.venue))]
+      .map((id) => venues[id]).filter((v) => v && v.lat != null && v.lon != null);
+    const norm = (x) => (x || "").trim().toLowerCase();
+    if (p.venue) return vs.find((v) => norm(v.name) === norm(p.venue)) || null;
+    return vs.length === 1 ? vs[0] : null;
+  }
+  async function maybeGeoCheckin() {
+    if (!geoOn() || !me || geoBusy || Date.now() - geoLast < 10 * 60e3 || $("#checkin-bar:not([hidden])")) return;
+    const cands = Object.values(plans()).filter((p) => p.date === localToday() && !p.checked_in && !p.geo_dismissed && inShowWindow(p));
+    if (!cands.length) return;
+    geoBusy = true; geoLast = Date.now();
+    try {
+      const targets = [];
+      for (const p of cands) { const w = byId[p.play_id], v = w && await planVenue(p, w).catch(() => null); if (v) targets.push({ p, w, v }); }
+      if (!targets.length) return;
+      const pos = await N.position();
+      const reach = Math.max(300, Math.min(pos.accuracy || 0, 800));
+      const hit = targets.map((t) => ({ ...t, m: km(pos.lat, pos.lon, t.v.lat, t.v.lon) * 1000 })).filter((t) => t.m <= reach).sort((a, b) => a.m - b.m)[0];
+      if (hit) showCheckinBar(hit);
+    } catch (e) { /* no position: say nothing */ } finally { geoBusy = false; }
+  }
+  function showCheckinBar({ p, w, v }) {
+    const bar = $("#checkin-bar");
+    bar.innerHTML = `<p>You're at <b>${esc(v.name)}</b>. Checking in to <b>${esc(w.title)}</b>?</p>
+      <div><button class="btn sm" type="button" id="ci-yes">Check in</button><button class="btn ghost sm" type="button" id="ci-no">Not now</button></div>`;
+    bar.hidden = false;
+    const done = (patch) => { const all = plans(); if (all[p.play_id]) { all[p.play_id] = { ...all[p.play_id], ...patch }; savePlans(all); } bar.hidden = true; };
+    $("#ci-yes").addEventListener("click", () => {
+      done({ checked_in: new Date().toISOString() });
+      if (p.nudge) N.reminders.cancel([nudgeIds(p.play_id)[0]]).catch(() => {});  // no "tap to check in" later
+      toast(`Checked in to ${w.title}. Enjoy the show!`);
+    });
+    $("#ci-no").addEventListener("click", () => done({ geo_dismissed: true }));
+  }
+  async function setGeo(on) {
+    if (!on) { N.prefs.remove(GEO_KEY); return true; }
+    try { await N.position({ timeout: 20000 }); } catch (e) { if (e.code === "denied" || e.code === "unsupported") { toast(e.message); return false; } }
+    N.prefs.set(GEO_KEY, "1"); return true;
+  }
+  N.onResume(() => setTimeout(maybeGeoCheckin, 800));
+  document.addEventListener("visibilitychange", () => { if (document.visibilityState === "visible") setTimeout(maybeGeoCheckin, 800); });
   function nudgeTapped(kind, playId) {
     const p = planOf(playId), w = byId[playId];
     location.replace(playUrl(playId));
@@ -1849,6 +1908,8 @@
     $("#plan-remind").value = p?.remind || "";
     $("#plan-nudge-f").hidden = !N.reminders.available;
     $("#plan-nudge").checked = p ? !!p.nudge : true;
+    $("#plan-geo-f").hidden = !N.position || !(APP || ("geolocation" in navigator && window.isSecureContext));
+    $("#plan-geo").checked = geoOn();
     $("#plan-about").textContent = APP ? "Kept on this phone. After the date, Billd asks how it was, so you can log it."
       : "Kept in this browser. After the date, Billd asks how it was, so you can log it. In the Billd app, it can remind you too.";
     $("#plan-del").hidden = !p;
@@ -1889,6 +1950,7 @@
       try { await N.reminders.schedule({ id: remindId(w.id), at: remindAt(p, p.remind), ...reminderText(p, w), route: playUrl(w.id) }); msg += ". Billd will remind you."; }
       catch (err) { all[w.id].remind = ""; savePlans(all); note("#plan-note", `The plan is saved, but not the reminder: ${err.message}`, true); return; }
     }
+    if ($("#plan-geo").checked !== geoOn() && !$("#plan-geo-f").hidden) await setGeo($("#plan-geo").checked);
     if (p.nudge) {
       try { await scheduleNudges(p, w); if (!p.remind) msg += ". Billd will check in with you on the night"; }
       catch (err) { all[w.id].nudge = false; savePlans(all); note("#plan-note", `The plan is saved, but not the check-in: ${err.message}`, true); return; }
@@ -2442,6 +2504,9 @@
       ${syncSettingsHTML()}
       ${canInstall() ? `<section class="sec"><div class="sec-head"><h2>The app</h2></div><p class="hint" style="margin-bottom:10px">Put Billd on your home screen and open it like an app.</p><button class="btn ghost" type="button" data-install>Install the app</button></section>` : ""}
       ${APP ? `<section class="sec"><div class="sec-head"><h2>The catalogue</h2></div><p class="hint" style="margin-bottom:10px">The plays and what's on stage are kept on this phone, so Billd works offline. This copy was made ${esc(fmtPartial((D.meta.generated || "").slice(0, 10)))}${N.catalogue.using?.from === "downloaded" ? ", downloaded from billd.theater" : ", when the app was built"}. Newer copies download by themselves on Wi-Fi.</p><button class="btn ghost" type="button" id="st-data">Check for a newer catalogue</button></section>` : ""}
+      ${me && (APP || ("geolocation" in navigator && window.isSecureContext)) ? `<section class="sec"><div class="sec-head"><h2>Check-in at the theatre</h2></div>
+        <label class="check"><input type="checkbox" id="st-geo"${geoOn() ? " checked" : ""}> Offer to check in when I'm at the theatre for a show I planned</label>
+        <p class="hint" style="margin-top:8px;max-width:62ch">On the day of a planned show, around curtain up, Billd looks at your location once when you open it (never in the background) and, if you're at the theatre, asks whether you're checking in. Your location stays on this ${DEVICE}.</p></section>` : ""}
       <section class="sec"><div class="sec-head"><h2>Appearance</h2></div>
         <div class="seg" role="radiogroup" aria-label="Theme">${[["light", "Programme (light)"], ["dark", "Velvet (dark)"]].map(([k, n]) => `<button type="button" role="radio" data-theme-set="${k}" aria-selected="${theme === k}" aria-checked="${theme === k}">${n}</button>`).join("")}</div></section>
       ${local && me ? `<section class="sec"><div class="sec-head"><h2>Diary saved on this device</h2></div><p>This device has shows you logged before you had an account. <button class="btn sm" type="button" id="st-import">Move them to my account</button></p></section>` : ""}
@@ -2470,6 +2535,10 @@
       renderSettings();
     }));
     $("#st-export")?.addEventListener("click", exportData);
+    $("#st-geo")?.addEventListener("change", async (e) => {
+      const ok = await setGeo(e.target.checked);
+      if (!ok) e.target.checked = false; else toast(e.target.checked ? "Billd will offer to check you in at the theatre" : "Check-in at the theatre is off");
+    });
     $("#st-data")?.addEventListener("click", async (e) => {
       e.target.disabled = true; e.target.textContent = "Checking…";
       try { const gen = await N.catalogue.refresh({ force: true }); toast(gen ? `Downloaded the catalogue of ${fmtPartial(gen.slice(0, 10))}. Billd uses it the next time you open it.` : navigator.onLine ? "You have the latest catalogue." : "You're offline. Try again with a connection."); }
