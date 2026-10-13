@@ -394,7 +394,7 @@
     if (a === "browse") return "Shows";
     if (a === "play") return byId[b]?.title || "Back";
     if (a === "u") return `@${b}`;
-    return { activity: "Activity", lists: "Lists", members: "Members", me: "My diary", list: "List", review: "Review", settings: "Settings",
+    return { spooky: "Spooky season", activity: "Activity", lists: "Lists", members: "Members", me: "My diary", list: "List", review: "Review", settings: "Settings",
              terms: "Terms of Use", privacy: "Privacy Policy", guidelines: "Community Guidelines", "delete-account": "Deleting your account" }[a] || "Back";
   }
   document.addEventListener("click", (e) => {
@@ -433,7 +433,7 @@
     const isBrowse = a === "browse";
     $("#v-browse").hidden = !isBrowse;
     pageEl().hidden = isBrowse;
-    const nav = { "": "home", browse: "browse", onstage: "onstage", lists: "lists", list: "lists", members: "members", activity: "activity" }[a || ""];
+    const nav = { "": "home", spooky: "spooky", browse: "browse", onstage: "onstage", lists: "lists", list: "lists", members: "members", activity: "activity" }[a || ""];
     $$(".nav a").forEach((x) => { if (x.dataset.nav === nav) x.setAttribute("aria-current", "page"); else x.removeAttribute("aria-current"); });
     const mine = me && a === "u" && b === me.username;
     const tab = a === "" || a == null ? "home" : isBrowse ? "browse" : a === "activity" ? "activity" : (a === "me" || mine) ? "me" : "";
@@ -453,7 +453,7 @@
     if (isBrowse) { applyBrowse(); document.title = "Shows · Billd"; if (restore != null) settle(); else if (!sameView) window.scrollTo(0, 0); return; }
     if (!sameView) window.scrollTo(0, 0);
     const go = {
-      "": renderHome, onstage: () => renderOnStage(b), play: () => renderPlay(b), u: () => renderProfile(b, c), me: renderMe,
+      "": renderHome, spooky: renderSpooky, onstage: () => renderOnStage(b), play: () => renderPlay(b), u: () => renderProfile(b, c), me: renderMe,
       lists: renderLists, list: () => renderList(b), review: () => renderReview(b), members: renderMembers,
       activity: () => renderActivity(b), settings: renderSettings, about: renderAbout, admin: () => renderAdmin(b),
       credits: renderCredits, copyright: renderCopyright, "delete-account": () => renderDeleteAccount(b),
@@ -529,7 +529,10 @@
   // Halloween (October, through the 31st, in the visitor's own time): candle-warm stage lights, a few bats
   // crossing the stage, a pumpkin by the logo and a row of spooky shows on the home page. Off by itself on 1 November.
   const HALLOWEEN = (() => { const d = new Date(); return d.getMonth() === 9; })();
-  if (HALLOWEEN) document.documentElement.classList.add("season-halloween");
+  if (HALLOWEEN) {
+    document.documentElement.classList.add("season-halloween");
+    $(".nav")?.insertAdjacentHTML("afterbegin", `<a href="#/spooky" data-nav="spooky" class="nav-spooky">Spooky season</a>`);
+  }
   const BAT = `<svg viewBox="0 0 64 28" aria-hidden="true"><path d="M32 9c1.4-3 3-4 3-4s.2 2.6 1.2 3.4C40 6 46 1 64 3c-6 2-9 6-10 11-3-2-7-2-10 1-1.5-2-4-3-6-1-1-1.6-3-2.4-6-2.4s-5 .8-6 2.4c-2-2-4.5-1-6 1-3-3-7-3-10-1C9 9 6 5 0 3c18-2 24 3 27.8 5.4C28.8 7.6 29 5 29 5s1.6 1 3 4z"/></svg>`;
   function stageHTML(copy) {
     return `<div class="stage">
@@ -538,7 +541,9 @@
           <div class="st-copy">${copy}</div>
           <div class="st-seats" aria-hidden="true"></div>
           <div class="st-drape l" aria-hidden="true"></div><div class="st-drape r" aria-hidden="true"></div><div class="st-valance" aria-hidden="true"></div>
-          ${HALLOWEEN ? `<div class="st-bats" aria-hidden="true"><i>${BAT}</i><i>${BAT}</i><i>${BAT}</i></div>` : ""}
+          ${HALLOWEEN ? `<div class="st-moon" aria-hidden="true"></div><div class="st-webs" aria-hidden="true"><i></i><i></i></div>
+          <div class="st-lanterns" aria-hidden="true"><i></i><i></i></div>
+          <div class="st-bats" aria-hidden="true">${`<i>${BAT}</i>`.repeat(5)}</div>` : ""}
         </div>`;
   }
   // once the curtains are open and the lights are up (about 2.5 s), the stage shrinks to a band and the
@@ -579,9 +584,10 @@
       plans: ahead.length ? `<section class="sec" id="home-plans"><div class="sec-head"><h2>Coming up</h2></div><ul class="stubs">${ahead.map(planStubHTML).join("")}</ul></section>` : "",
       // the app opens on the member's own diary (App Store guideline 4.2: a diary, not a page of ticket links)
       diary: APP && signedIn() ? `<section class="sec" id="home-diary"><div class="sec-head"><h2>Recently in your diary</h2><a href="#/u/${esc((me || S.me()).username)}/diary">Diary →</a></div><div class="scraps" id="home-diary-row"><p class="hint">Loading…</p></div></section>` : "",
-      onstage: homeOnstageHTML(now) + (HALLOWEEN && spooky().length >= 3 ? `<section class="sec spooky"><div class="sec-head"><h2>Spooky season on stage</h2><a href="#/onstage">All on stage →</a></div>
+      onstage: homeOnstageHTML(now),
+      spooky: HALLOWEEN && spooky().length >= 3 ? `<section class="sec spooky-band"><div class="sec-head"><h2>Spooky season on stage</h2><a href="#/spooky">See all →</a></div>
         <p class="lead">Ghosts, witches and things that go bump in the night, on stage now.</p>
-        <div class="row-scroll" style="margin-top:14px">${spooky().map((w) => cell(w)).join("")}</div></section>` : ""),
+        <div class="row-scroll" style="margin-top:14px">${spooky().slice(0, 18).map((w) => cell(w)).join("")}</div></section>` : "",
       pop: `<section class="sec" id="home-pop" hidden><div class="sec-head"><h2>Popular on Billd this week</h2></div><div class="row-scroll" id="home-pop-row"></div></section>`,
       friends: `<section class="sec" id="home-friends" hidden><div class="sec-head"><h2>New from friends</h2><a href="#/activity">More →</a></div><div class="row-scroll" id="home-friends-row"></div></section>`,
       rev: `<section class="sec" id="home-rev" hidden><div class="sec-head"><h2>${signedIn() ? "Recent reviews" : "What theatregoers are saying"}</h2><a href="#/activity/everyone">More →</a></div><ul class="reviews" id="home-rev-list"></ul></section>`,
@@ -589,8 +595,8 @@
         <p class="lead">Plays from every culture and era, from Sophocles to this season, with where and when they were staged.</p>
         <div class="row-scroll" style="margin-top:16px">${classics().map((w) => cell(w)).join("")}</div></section>`,
     };
-    const order = feedHome ? ["feed", "plans", "onstage", "pop", "explore"]
-      : APP ? ["plans", "diary", "friends", "rev", "onstage", "pop", "explore"] : ["plans", "onstage", "rev", "pop", "friends", "explore"];
+    const order = feedHome ? ["spooky", "feed", "plans", "onstage", "pop", "explore"]
+      : APP ? ["plans", "spooky", "diary", "friends", "rev", "onstage", "pop", "explore"] : ["plans", "spooky", "onstage", "rev", "pop", "friends", "explore"];
     pageEl().innerHTML = `<div class="wrap">${feedHome ? "" : intro}${order.map((k) => sec[k]).join("")}</div>`;
     if (feedHome) {
       // friends first; when they haven't logged anything yet, everyone's latest
@@ -644,7 +650,15 @@
   }
   // the Halloween row: ghosts, witches, vampires and other gothic shows on now or soon
   const SPOOKY = /\b(dracula|frankenstein|phantom|ghosts?|haunt\w*|witch(es)?|wicked|vampires?|zombies?|macbeth|sweeney todd|little shop of horrors|rocky horror|beetlejuice|addams|carrie|evil dead|woman in black|jekyll|coraline|sleepy hollow|nightmare|exorcis\w*|monsters?|halloween|hocus pocus|blithe spirit|turn of the screw|crucible|gaslight|dorian gray|poltergeist|creepy|spooky|scream|gothic)\b/i;
-  const spooky = () => onNow().filter((w) => SPOOKY.test(w.title)).slice(0, 18);
+  const spooky = () => onNow().filter((w) => SPOOKY.test(w.title));
+  function renderSpooky() {
+    if (!HALLOWEEN) return renderNotFound();
+    document.title = "Spooky season · Billd";
+    const list = spooky();
+    pageEl().innerHTML = `<div class="wrap"><section class="sec spooky-band spooky-page"><h1 class="h1">Spooky season on stage</h1>
+      <p class="lead">Ghosts, witches, vampires and things that go bump in the night: ${list.length.toLocaleString()} shows on stage now.</p></section>
+      <section class="sec"><div class="grid">${list.map((w) => cell(w, `<div class="cell-cap">${esc(nowWhere(w))}</div>`)).join("") || `<p class="empty">Nothing spooky listed right now.</p>`}</div></section></div>`;
+  }
   let classicsCache;
   function classics() {
     if (classicsCache) return classicsCache;
