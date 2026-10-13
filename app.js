@@ -428,6 +428,8 @@
     try { parts = h.replace(/^\//, "").split("/").map((x) => decodeURIComponent(x)); }
     catch (e) { $("#v-browse").hidden = true; pageEl().hidden = false; return renderNotFound(); }  // a malformed address
     const [a, b, c] = parts;
+    // a tapped check-in or review nudge (#/nudge/checkin/<play> or #/nudge/review/<play>): act, then show the play
+    if (a === "nudge" && byId[c]) { nudgeTapped(b, c); return; }
     const isBrowse = a === "browse";
     $("#v-browse").hidden = !isBrowse;
     pageEl().hidden = isBrowse;
@@ -1699,7 +1701,7 @@
       const patch = { seen: true }; if (row.rating) patch.rating = row.rating; if (row.liked) patch.liked = true;
       if (row.visibility) patch.visibility = row.visibility;  // the show's rating and marks follow the entry
       const s = await S.setStatus(w.id, patch); if (s) myStatus[w.id] = s;
-      if (logState.fromPlan === w.id) await removePlan(w.id);  // seen: the plan has done its job
+      if (logState.fromPlan === w.id || (planOf(w.id) && planOf(w.id).date <= localToday())) await removePlan(w.id);  // seen: the plan (and its nudges) has done its job
       $("#logd").close();
       // no connection: kept on this device by outbox.js, and sent when it's back
       toast(saved?.pending ? `Saved on this ${DEVICE}. It will sync when you're back online.` : saved?.held ? HELD_SAVED
@@ -1735,7 +1737,7 @@
   // log out (website) or account deleted: the plans and their reminders go
   function clearPlans(key = planKey()) {
     let all = {}; try { all = JSON.parse(N.prefs.get(key) || "{}") || {}; } catch (e) { /* none */ }
-    const ids = Object.values(all).filter((p) => p?.remind && p.play_id).map((p) => remindId(p.play_id));
+    const ids = Object.values(all).filter((p) => p?.play_id && (p.remind || p.nudge)).flatMap((p) => [remindId(p.play_id), ...(p.nudge ? nudgeIds(p.play_id) : [])]);
     if (ids.length) N.reminders.cancel(ids).catch(() => {});
     N.prefs.remove(key);
   }
@@ -1759,6 +1761,31 @@
     return null;
   }
   const remindId = (playId) => hash("plan:" + playId) || 1;  // one reminder per planned show
+  // Check-in and review nudges (app only, opt-in on the plan): at curtain up (7:30 pm without a time)
+  // "Tap to check in", and at 10 am the next day "How was it?", which opens the log. Local
+  // notifications on the phone, nothing sent anywhere; no location is used.
+  const nudgeIds = (playId) => [hash("checkin:" + playId) || 2, hash("review:" + playId) || 3];
+  function nudgeTimes(p) {
+    const [y, m, d] = p.date.split("-").map(Number);
+    const [hh, mm] = (p.time || "19:30").split(":").map(Number);
+    return { checkin: new Date(y, m - 1, d, hh, mm || 0), review: new Date(y, m - 1, d + 1, 10, 0) };
+  }
+  async function scheduleNudges(p, w) {
+    const t = nudgeTimes(p), [ci, rv] = nudgeIds(w.id), soon = Date.now() + 60000;
+    if (t.checkin.getTime() > soon) await N.reminders.schedule({ id: ci, at: t.checkin, title: `At ${w.title} tonight?`, body: "Tap to check in. Enjoy the show!", route: `#/nudge/checkin/${encodeURIComponent(w.id)}` });
+    if (t.review.getTime() > soon) await N.reminders.schedule({ id: rv, at: t.review, title: `How was ${w.title}?`, body: "Log it and say what you thought, while it's fresh.", route: `#/nudge/review/${encodeURIComponent(w.id)}` });
+  }
+  function nudgeTapped(kind, playId) {
+    const p = planOf(playId), w = byId[playId];
+    location.replace(playUrl(playId));
+    if (!w) return;
+    if (kind === "checkin") {
+      if (p) { const all = plans(); all[playId] = { ...p, checked_in: new Date().toISOString() }; savePlans(all); }
+      setTimeout(() => toast(`Checked in to ${w.title}. Enjoy the show!`), 300);
+    } else if (kind === "review") {
+      setTimeout(() => openLog(playId, null, p ? { seen_on: p.date, venue: p.venue, city: p.city, fromPlan: true } : undefined), 300);
+    }
+  }
   function reminderText(p, w) {
     const where = [p.time && `Curtain up ${fmtTime(p.time)}`, p.venue && `at ${p.venue}`].filter(Boolean).join(" ");
     const title = p.remind === "eve" ? `Tomorrow: ${w.title}` : p.remind === "3h" ? `Tonight: ${w.title}` : `Today: ${w.title}`;
@@ -1767,6 +1794,7 @@
   async function removePlan(playId) {
     const all = plans(); if (!all[playId]) return;
     if (all[playId].remind) await N.reminders.cancel([remindId(playId)]);
+    if (all[playId].nudge) await N.reminders.cancel(nudgeIds(playId));
     delete all[playId]; savePlans(all);
   }
   // an iCalendar file: a floating local time (the theatre's own clock), or the whole day without one
@@ -1819,6 +1847,8 @@
     $("#plan-venue").value = p?.venue || ""; $("#plan-city").value = p?.city || "";
     $("#plan-remind-f").hidden = !N.reminders.available;
     $("#plan-remind").value = p?.remind || "";
+    $("#plan-nudge-f").hidden = !N.reminders.available;
+    $("#plan-nudge").checked = p ? !!p.nudge : true;
     $("#plan-about").textContent = APP ? "Kept on this phone. After the date, Billd asks how it was, so you can log it."
       : "Kept in this browser. After the date, Billd asks how it was, so you can log it. In the Billd app, it can remind you too.";
     $("#plan-del").hidden = !p;
@@ -1835,7 +1865,8 @@
     $("#plan-date").focus();
   }
   const planForm = () => ({ play_id: planPlay.id, title: planPlay.title, date: $("#plan-date").value, time: $("#plan-time").value,
-    venue: $("#plan-venue").value.trim(), city: $("#plan-city").value.trim(), remind: N.reminders.available ? $("#plan-remind").value : "" });
+    venue: $("#plan-venue").value.trim(), city: $("#plan-city").value.trim(), remind: N.reminders.available ? $("#plan-remind").value : "",
+    nudge: N.reminders.available && $("#plan-nudge").checked });
   $("#plan-venue").addEventListener("change", () => {
     const w = planPlay; if (!w) return;
     const r = w.productions.flatMap((x) => x.runs).find((x) => venues[x.venue]?.name === $("#plan-venue").value);
@@ -1850,12 +1881,17 @@
     if (p.remind === "3h" && !p.time) return note("#plan-note", "Add the curtain-up time for a reminder 3 hours before.", true);
     const all = plans(), old = all[w.id];
     if (old?.remind) await N.reminders.cancel([remindId(w.id)]);
+    if (old?.nudge) await N.reminders.cancel(nudgeIds(w.id));
     all[w.id] = { ...p, created_at: old?.created_at || new Date().toISOString() };
     savePlans(all);
     let msg = `Planned for ${planWhen(p)}`;
     if (p.remind) {
       try { await N.reminders.schedule({ id: remindId(w.id), at: remindAt(p, p.remind), ...reminderText(p, w), route: playUrl(w.id) }); msg += ". Billd will remind you."; }
       catch (err) { all[w.id].remind = ""; savePlans(all); note("#plan-note", `The plan is saved, but not the reminder: ${err.message}`, true); return; }
+    }
+    if (p.nudge) {
+      try { await scheduleNudges(p, w); if (!p.remind) msg += ". Billd will check in with you on the night"; }
+      catch (err) { all[w.id].nudge = false; savePlans(all); note("#plan-note", `The plan is saved, but not the check-in: ${err.message}`, true); return; }
     }
     // a show you're going to see is on your want-to-see list
     if (!myStatus[w.id]?.want && !myStatus[w.id]?.seen) S.setStatus(w.id, { want: true }).then((st) => { if (st) myStatus[w.id] = st; }).catch(() => {});
