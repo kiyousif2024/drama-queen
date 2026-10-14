@@ -1162,20 +1162,12 @@ input:focus, textarea:focus, select:focus { border-bottom-color: var(--gold); ou
     radial-gradient(1.2px 1.2px at 8% 20%, #fff 50%, transparent), radial-gradient(1px 1px at 30% 12%, #fff 50%, transparent),
     radial-gradient(1.2px 1.2px at 52% 26%, #fff 50%, transparent), radial-gradient(1px 1px at 70% 10%, #fff 50%, transparent),
     radial-gradient(1px 1px at 22% 60%, #fff 50%, transparent), radial-gradient(1.2px 1.2px at 64% 70%, #fff 50%, transparent),
-    radial-gradient(circle at calc(100% - 70px) 52px, rgb(255 190 110 / 0.3), transparent 120px),
     linear-gradient(160deg, #241238, #130a1e 75%); }
-.spooky-band::before { content: ""; position: absolute; top: 28px; right: 46px; width: 48px; height: 48px; border-radius: 50%; pointer-events: none;
-  background: radial-gradient(circle at 40% 38%, #fff6df, #f8dc9e 60%, #eab868); box-shadow: 0 0 30px 6px rgb(255 200 120 / 0.35); }
 .spooky-band > * { position: relative; }
-.spooky-band .sec-head { padding-right: 70px; border-color: rgb(232 120 31 / 0.6); }
+.spooky-band .sec-head { border-color: rgb(232 120 31 / 0.6); }
 .spooky-band .sec-head h2, .spooky-band .h1 { color: #ffa94d; }
 .spooky-band .sec-head a { color: #f6d98e; }
 .spooky-band .lead { color: #e9dcc4; max-width: 46ch; }
 .spooky-band .cell-meta { color: #cdbfa8; }
 .spooky-page { margin-top: 0; padding-top: 44px; padding-bottom: 34px; }
-.spooky-page .h1 { margin: 0 0 10px; padding-right: 90px; }
-@media (max-width: 640px) {
-  .spooky-band { padding-top: 62px; }
-  .spooky-band::before { top: 16px; right: 18px; width: 34px; height: 34px; }
-  .spooky-band .sec-head, .spooky-page .h1 { padding-right: 0; }
-}
+.spooky-page .h1 { margin: 0 0 10px; }
