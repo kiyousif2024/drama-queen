@@ -650,7 +650,8 @@
   }
   // the Halloween row: ghosts, witches, vampires and other gothic shows on now or soon
   const SPOOKY = /\b(dracula|frankenstein|phantom|ghosts?|haunt\w*|witch(es)?|wicked|vampires?|zombies?|macbeth|sweeney todd|little shop of horrors|rocky horror|beetlejuice|addams|carrie|evil dead|woman in black|jekyll|coraline|sleepy hollow|nightmare|exorcis\w*|monsters?|halloween|hocus pocus|blithe spirit|turn of the screw|crucible|gaslight|dorian gray|poltergeist|creepy|spooky|scream|gothic)\b/i;
-  const spooky = () => onNow().filter((w) => SPOOKY.test(w.title));
+  const NOT_SPOOKY = /mariupol|the lion, the witch/i;  // "ghosts" or "witch" in the title, but not Halloween fare
+  const spooky = () => onNow().filter((w) => SPOOKY.test(w.title) && !NOT_SPOOKY.test(w.title));
   function renderSpooky() {
     if (!HALLOWEEN) return renderNotFound();
     document.title = "Spooky season · Billd";
