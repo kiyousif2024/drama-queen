@@ -414,7 +414,7 @@
     let h; try { h = new URL(u).hostname.toLowerCase(); } catch (e) { return null; }
     if (!h || h === location.hostname) return null;
     h = h.replace(/^(www|m|l|lm|mobile)\./, "");
-    const known = [[/(^|\.)instagram\.com$/, "instagram"], [/(^|\.)(facebook|fb)\.com$/, "facebook"], [/(^|\.)threads\.(net|com)$/, "threads"],
+    const known = [[/(^|\.)instagram\.com$/, "instagram"], [/(^|\.)(facebook|fb|messenger)\.com$|^fb\.me$/, "facebook"], [/(^|\.)threads\.(net|com)$/, "threads"],
       [/^t\.co$|(^|\.)(x|twitter)\.com$/, "x"], [/(^|\.)tiktok\.com$/, "tiktok"], [/(^|\.)reddit\.com$/, "reddit"], [/(^|\.)linkedin\.com$|^lnkd\.in$/, "linkedin"],
       [/(^|\.)google\./, "google"], [/(^|\.)bing\.com$/, "bing"], [/(^|\.)duckduckgo\.com$/, "duckduckgo"], [/(^|\.)yahoo\.com$/, "yahoo"]];
     for (const [re, n] of known) if (re.test(h)) return n;
@@ -432,8 +432,10 @@
     const tag = (k, n) => (q.get("utm_" + k) || "").trim().toLowerCase().slice(0, n) || null;
     const from = first ? { source: tag("source", 60), medium: tag("medium", 60), campaign: tag("campaign", 80), referrer: refName(document.referrer) } : {};
     // the campaign tags have done their job: tidy them out of the address bar
-    if ([...q.keys()].some((k) => k.startsWith("utm_"))) {
-      [...q.keys()].filter((k) => k.startsWith("utm_")).forEach((k) => q.delete(k));
+    // (and Facebook's and Instagram's own click ids, which Billd doesn't keep)
+    const tidy = (k) => k.startsWith("utm_") || k === "fbclid" || k === "igshid";
+    if ([...q.keys()].some(tidy)) {
+      [...q.keys()].filter(tidy).forEach((k) => q.delete(k));
       history.replaceState(null, "", location.pathname + (q.toString() ? "?" + q : "") + location.hash);
     }
     return { sid, first, from };
