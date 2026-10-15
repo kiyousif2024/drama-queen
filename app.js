@@ -403,6 +403,73 @@
     e.preventDefault();
     history.back();
   });
+  // ---------------------------------------------------------------- visit counts
+  // Anonymous, for the team's Traffic page: a random id for this browser tab (gone when it closes), the page
+  // opened (and which play, city, list or review), where the visit came from (the referring site and any
+  // utm_ campaign tags on the link), the device's time zone and language, the kind of device, and whether
+  // someone was signed in, never who. No IP address, cookie or account. Not counted: visitors with Do Not
+  // Track or Global Privacy Control on, and the Billd team (their own testing would swamp the numbers).
+  const TRACK_OFF = navigator.globalPrivacyControl === true || navigator.doNotTrack === "1" || window.doNotTrack === "1";
+  function refName(u) {
+    let h; try { h = new URL(u).hostname.toLowerCase(); } catch (e) { return null; }
+    if (!h || h === location.hostname) return null;
+    h = h.replace(/^(www|m|l|lm|mobile)\./, "");
+    const known = [[/(^|\.)instagram\.com$/, "instagram"], [/(^|\.)(facebook|fb)\.com$/, "facebook"], [/(^|\.)threads\.(net|com)$/, "threads"],
+      [/^t\.co$|(^|\.)(x|twitter)\.com$/, "x"], [/(^|\.)tiktok\.com$/, "tiktok"], [/(^|\.)reddit\.com$/, "reddit"], [/(^|\.)linkedin\.com$|^lnkd\.in$/, "linkedin"],
+      [/(^|\.)google\./, "google"], [/(^|\.)bing\.com$/, "bing"], [/(^|\.)duckduckgo\.com$/, "duckduckgo"], [/(^|\.)yahoo\.com$/, "yahoo"]];
+    for (const [re, n] of known) if (re.test(h)) return n;
+    return h.slice(0, 120);
+  }
+  const visit = (() => {
+    let sid = null;
+    try { sid = sessionStorage.getItem("billd-visit"); } catch (e) { /* not kept */ }
+    const first = !sid;
+    if (!sid) {
+      sid = Array.from(crypto.getRandomValues(new Uint8Array(16)), (b) => "abcdefghijklmnopqrstuvwxyz0123456789"[b % 36]).join("");
+      try { sessionStorage.setItem("billd-visit", sid); } catch (e) { /* counted as a new visit each page */ }
+    }
+    const q = new URLSearchParams(location.search);
+    const tag = (k, n) => (q.get("utm_" + k) || "").trim().toLowerCase().slice(0, n) || null;
+    const from = first ? { source: tag("source", 60), medium: tag("medium", 60), campaign: tag("campaign", 80), referrer: refName(document.referrer) } : {};
+    // the campaign tags have done their job: tidy them out of the address bar
+    if ([...q.keys()].some((k) => k.startsWith("utm_"))) {
+      [...q.keys()].filter((k) => k.startsWith("utm_")).forEach((k) => q.delete(k));
+      history.replaceState(null, "", location.pathname + (q.toString() ? "?" + q : "") + location.hash);
+    }
+    return { sid, first, from };
+  })();
+  const track = (() => {
+    let queue = [], timer = 0;
+    const device = () => matchMedia("(pointer: coarse)").matches ? (Math.min(screen.width, screen.height) >= 600 ? "tablet" : "phone") : "desktop";
+    const os = () => {
+      const u = navigator.userAgent;
+      return /iPhone|iPad|iPod/.test(u) || (/Macintosh/.test(u) && navigator.maxTouchPoints > 1) ? "iOS" : /Android/.test(u) ? "Android" : /Windows/.test(u) ? "Windows"
+        : /CrOS/.test(u) ? "ChromeOS" : /Mac OS X/.test(u) ? "macOS" : /Linux/.test(u) ? "Linux" : null;
+    };
+    const flush = () => {
+      timer = 0;
+      const rows = queue; queue = [];
+      if (rows.length) social.then(() => { if (S.kind !== "local" && !myRank()) return S.track(rows); }).catch(() => { /* not counted */ });
+    };
+    addEventListener("pagehide", () => { if (timer) { clearTimeout(timer); flush(); } });
+    return (kind, page, item) => {
+      if (TRACK_OFF) return;
+      const row = { session: visit.sid, kind, page: String(page || "home").slice(0, 40), item: item == null || item === "" ? null : String(item).slice(0, 160), member: !!me, app: APP };
+      if (visit.first && kind === "view") {
+        visit.first = false;
+        let tz = null; try { tz = Intl.DateTimeFormat().resolvedOptions().timeZone || null; } catch (e) { /* unknown */ }
+        Object.assign(row, { first: true, ...visit.from, tz: tz && tz.slice(0, 60), lang: (navigator.language || "").slice(0, 20) || null, device: device(), os: os() });
+      }
+      queue.push(row);
+      clearTimeout(timer); timer = setTimeout(flush, 2500);
+    };
+  })();
+  // a ticket link opened: which ticket site (for the team's Traffic page)
+  document.addEventListener("click", (e) => {
+    const a = e.target.closest('a[rel~="sponsored"], a[data-tix]');
+    if (a) { try { track("event", "tickets", new URL(a.href).hostname.replace(/^www\./, "")); } catch (err) { /* not a link */ } }
+  }, true);
+
   // Pages load members' data asynchronously; each render checks, after every wait, that the
   // visitor hasn't moved on, so a slow page never draws over the one now showing.
   let routeSeq = 0, freshView = false;
@@ -449,6 +516,7 @@
       else navStack.push(key);
     }
     lastRoute = key; freshView = !sameView;
+    if (!sameView) track("view", a || "home", ["play", "onstage", "list", "review"].includes(a) ? b : null);
     const settle = () => { if (restore != null && !stale(tok)) requestAnimationFrame(() => window.scrollTo(0, restore)); };
     if (isBrowse) { applyBrowse(); document.title = "Shows · Billd"; if (restore != null) settle(); else if (!sameView) window.scrollTo(0, 0); return; }
     if (!sameView) window.scrollTo(0, 0);
@@ -1725,6 +1793,7 @@
     $("#log-save").disabled = true;
     try {
       const saved = await S.saveLog(row);
+      if (!logState.edit) track("event", row.review ? "review" : "log", w.id);
       const patch = { seen: true }; if (row.rating) patch.rating = row.rating; if (row.liked) patch.liked = true;
       if (row.visibility) patch.visibility = row.visibility;  // the show's rating and marks follow the entry
       const s = await S.setStatus(w.id, patch); if (s) myStatus[w.id] = s;
@@ -1983,6 +2052,7 @@
     }
     // a show you're going to see is on your want-to-see list
     if (!myStatus[w.id]?.want && !myStatus[w.id]?.seen) S.setStatus(w.id, { want: true }).then((st) => { if (st) myStatus[w.id] = st; }).catch(() => {});
+    track("event", "plan", w.id);
     $("#pland").close(); toast(msg); route();
   });
   $("#plan-ics").addEventListener("click", () => {
@@ -2846,6 +2916,7 @@
     try {
       if (authMode === "up") {
         const r = await S.signUp(email, pass, user, $("#auth-name").value, terms.live ? terms.version : null);
+        track("event", "signup");
         if (r.confirm) { note("#auth-note", "Almost there: open the link we emailed you to confirm your address, then log in.", false, true); return; }
         $("#auth").close(); toast(`Welcome to Billd, ${$("#auth-name").value.trim() || cap(user)}`);
       } else if (authMode === "reset") {
@@ -3064,6 +3135,81 @@
     return p && { who: p, uid: p.id, title: p.display_name, text: p.bio, link: `#/u/${encodeURIComponent(p.username)}` };
   }
   const nameLink = (p) => (p ? `<a href="#/u/${esc(p.username)}">${who(p)}</a>` : "a former member");
+  // ---- Traffic: the anonymous visit counts (see "visit counts" above), for the team
+  let trafficDays = 30;
+  const PAGE_NAME = { home: "Home", play: "Play pages", onstage: "On stage", browse: "Shows (browse)", spooky: "Spooky season", u: "Member profiles", me: "My diary",
+    activity: "Activity", lists: "Lists", list: "A list", review: "A review", members: "Members", settings: "Settings", about: "About", admin: "Admin",
+    terms: "Terms of Use", privacy: "Privacy Policy", guidelines: "Community Guidelines", credits: "Picture credits", copyright: "Copyright" };
+  const EVENT_NAME = { signup: "Sign-ups", log: "Shows logged", review: "Reviews written", plan: "Plans made", tickets: "Ticket links opened" };
+  const SOURCE_NAME = { instagram: "Instagram", facebook: "Facebook", threads: "Threads", x: "X (Twitter)", tiktok: "TikTok", reddit: "Reddit", linkedin: "LinkedIn",
+    google: "Google", bing: "Bing", duckduckgo: "DuckDuckGo", yahoo: "Yahoo", "Direct or app": "Direct, bookmarks or the app" };
+  async function renderTraffic(el, tok) {
+    el.innerHTML = `<p class="hint">Loading…</p>`;
+    let t;
+    try { t = await S.traffic(trafficDays); }
+    catch (e) {
+      if (stale(tok)) return;
+      el.innerHTML = /traffic_summary|schema cache|does not exist/i.test(e.message || "")
+        ? `<p class="note err">Visit counting isn't switched on in the database yet. Run <code>supabase/updates/2026-10-15-visits.sql</code> in Supabase's SQL Editor.</p>`
+        : `<p class="note err">${esc(e.message || String(e))}</p>`;
+      return;
+    }
+    if (stale(tok)) return;
+    const n = (x) => Number(x || 0).toLocaleString();
+    const pct = (a, b) => (b ? `${Math.round((100 * a) / b)}%` : "–");
+    const dayName = (k) => new Date(k + "T12:00:00").toLocaleDateString(undefined, { weekday: "short", day: "numeric", month: "short" });
+    const byDay = Object.fromEntries((t.daily || []).map((r) => [r.d, r]));
+    const days = [...new Map(Array.from({ length: trafficDays }, (_, i) => {
+      const k = new Date(Date.now() - (trafficDays - 1 - i) * 864e5).toLocaleDateString("en-CA", { timeZone: "America/Detroit" });
+      return [k, { k, visits: byDay[k]?.visits || 0, views: byDay[k]?.views || 0 }];
+    })).values()];
+    const byHour = Object.fromEntries((t.hours || []).map((r) => [r.h, r.n]));
+    const hours = Array.from({ length: 24 }, (_, h) => ({ h, n: byHour[h] || 0 }));
+    const hourName = (h) => `${h % 12 || 12}${h < 12 ? "am" : "pm"}`;
+    const bars = (rows, val, tip, label) => {
+      const max = Math.max(1, ...rows.map(val));
+      return `<div class="tr-chart" role="img" aria-label="${esc(label)}">${rows.map((r) => `<span class="tr-bar${val(r) ? "" : " z"}" tabindex="0" style="--h:${(100 * val(r)) / max}%" data-tip="${esc(tip(r))}"></span>`).join("")}</div>`;
+    };
+    const list = (title, rows, label = esc, hint = "") => {
+      const max = Math.max(1, ...(rows || []).map((r) => r.n));
+      return `<section class="tr-sec"><h3>${title}</h3>${hint ? `<p class="hint">${hint}</p>` : ""}${rows?.length
+        ? `<table class="tr-list"><tbody>${rows.map((r) => `<tr><td>${label(r.k, r)}</td><td class="tr-n">${n(r.n)}</td><td class="tr-w"><i style="width:${(100 * r.n) / max}%"></i></td></tr>`).join("")}</tbody></table>`
+        : `<p class="hint">None yet.</p>`}</section>`;
+    };
+    const play = (id) => (byId[id] ? `<a href="${playUrl(id)}">${esc(byId[id].title)}</a>` : esc(id));
+    const pageLabel = (k) => { const [pg, ...rest] = String(k).split("/"); const it = rest.join("/");
+      return pg === "play" && it ? play(it) : pg === "onstage" && it ? `On stage in ${esc(cityName(it))}` : esc(PAGE_NAME[pg] || pg) + (it ? ` <small>${esc(it)}</small>` : ""); };
+    const langName = (k) => { try { return esc(new Intl.DisplayNames(["en"], { type: "language" }).of(k)) + ` <small>${esc(k)}</small>`; } catch (e) { return esc(k); } };
+    const zone = (k) => (k.includes("/") ? `${esc(k.split("/").pop().replace(/_/g, " "))} <small>${esc(k)}</small>` : esc(k));
+    const visits = Number(t.visits || 0);
+    el.innerHTML = `<div class="chips tr-range" role="group" aria-label="Period">${[[7, "7 days"], [30, "30 days"], [90, "90 days"], [365, "A year"]].map(([d, l]) =>
+        `<button class="chip" type="button" data-tr-days="${d}" aria-pressed="${d === trafficDays}">${l}</button>`).join("")}</div>
+      <div class="tr-tiles">${[[n(visits), "Visits"], [n(t.views), "Pages viewed"], [visits ? (t.views / visits).toFixed(1) : "–", "Pages per visit"],
+        [pct(t.one_page, visits), "Left after one page"], [pct(t.member_visits, visits), "Visits by members"]].map(([v, l]) => `<div class="tr-tile"><b>${v}</b><span>${l}</span></div>`).join("")}</div>
+      <section class="tr-sec"><h3>Visits per day</h3>
+        ${bars(days, (r) => r.visits, (r) => `${dayName(r.k)}: ${n(r.visits)} visits, ${n(r.views)} pages`, `Visits per day for the last ${trafficDays} days`)}
+        <div class="tr-axis"><span>${dayName(days[0].k)}</span><span>Today</span></div></section>
+      <div class="tr-grid">
+        ${list("Where visits came from", t.sources, (k) => esc(SOURCE_NAME[k] || k), "The site that sent each visit, or the <code>utm_source</code> tag on the link.")}
+        ${list("Campaigns", t.campaigns, esc, "Visits from links tagged with <code>utm_</code> tags: source · medium · campaign.")}
+        ${list("First page of the visit", t.landing, pageLabel)}
+        ${list("Pages viewed", t.pages, (k) => esc(PAGE_NAME[k] || k))}
+        ${list("Plays viewed", t.plays, play)}
+        ${list("Cities browsed", t.cities, (k) => esc(cityName(k)))}
+        ${list("Things people did", t.events, (k, r) => `${esc(EVENT_NAME[k] || k)} <small>in ${n(r.visits)} visits</small>`)}
+        ${list("Ticket sites opened", t.ticket_sites)}
+        ${list("Where visitors are", t.zones, zone, "From the device's time zone, so roughly a region, not a city.")}
+        ${list("Languages", t.langs, langName)}
+        ${list("Devices", t.devices)}
+        ${list("Systems", t.systems)}
+      </div>
+      <section class="tr-sec"><h3>Time of day <small class="hint">(Detroit time)</small></h3>
+        ${bars(hours, (r) => r.n, (r) => `${hourName(r.h)}: ${n(r.n)} visits`, "Visits by hour of the day, Detroit time")}
+        <div class="tr-axis"><span>12am</span><span>6am</span><span>12pm</span><span>6pm</span><span>11pm</span></div></section>
+      <p class="hint" style="max-width:66ch;margin-top:22px">Counts are anonymous: a random id for each browser tab, no names, accounts, IP addresses or cookies. The Billd team and visitors with Do Not Track on aren't counted.
+        To see a post's effect, tag its link, for example <code>https://billd.theater/?utm_source=instagram&amp;utm_medium=social&amp;utm_campaign=bio</code>, and it shows under Campaigns.</p>`;
+    el.querySelectorAll("[data-tr-days]").forEach((b) => b.addEventListener("click", () => { trafficDays = Number(b.dataset.trDays); renderTraffic(el, tok); }));
+  }
   function admSection(title, n, items, empty) {
     return `<section class="sec"><div class="sec-head"><h2>${esc(title)}${n ? ` <span class="badge now">${n}</span>` : ""}</h2></div>
       ${items.length ? `<ul class="adm-list">${items.join("")}</ul>` : `<p class="hint">${esc(empty)}</p>`}</section>`;
@@ -3123,7 +3269,7 @@
     const tok = routeSeq;
     if (!me || !myRank()) return renderNotFound();
     document.title = "Admin · Billd";
-    const tabs = [["", "Queue"], ["suggestions", "Suggestions"], ["imports", "New shows"], ["members", "Members"], ["team", "Team"], ["log", "Log"], ["settings", "Settings"]];
+    const tabs = [["", "Queue"], ["suggestions", "Suggestions"], ["imports", "New shows"], ["members", "Members"], ["team", "Team"], ["log", "Log"], ["traffic", "Traffic"], ["settings", "Settings"]];
     pageEl().innerHTML = `<div class="wrap admin" style="padding-top:30px;max-width:900px"><p class="kicker">Billd team · ${ROLE_NAME[S.role()]}</p><h1 class="h1">Admin</h1>
       <nav class="tabs" aria-label="Admin">${tabs.map(([k, n]) => `<a href="#/admin${k ? "/" + k : ""}"${k === tab ? ' aria-current="page"' : ""}>${n}</a>`).join("")}</nav>
       <div id="adm"><p class="hint">Loading…</p></div></div>`;
@@ -3256,6 +3402,8 @@
           again();
         } catch (err) { note("#adm-add-note", err.message, true); }
       });
+    } else if (tab === "traffic") {
+      await renderTraffic(el, tok);
     } else if (tab === "log") {
       const rows = await S.modLog(150);
       if (stale(tok)) return;

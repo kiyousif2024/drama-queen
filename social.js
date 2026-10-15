@@ -130,6 +130,8 @@
       async importReviewFor() { throw err("The queue of imported shows is kept on Billd's server.", "no_server"); },
       async reviewImport() { throw err("The queue of imported shows is kept on Billd's server.", "no_server"); },
       async heldPosts() { return []; },  // nothing is held on this device
+      async track() {},  // visits are counted only on Billd's server
+      async traffic() { throw err("Visit counts are kept on Billd's server.", "no_server"); },
       async reviewHeld() { throw err("Held posts are kept on Billd's server.", "no_server"); },
       // the Billd team and moderation need the server
       role: () => null,
@@ -611,6 +613,9 @@
           ...items.filter((x) => x.list).map((x) => ({ kind: "list_item", reason: x.held_reason, id: `${x.list_id}:${x.play_id}`, uid: x.list.user_id, who: x.list.profile, at: x.held_at, title: x.list.title, play_id: x.play_id, text: x.note || "", link: `#/list/${x.list_id}` })),
         ].sort((a, b) => String(a.at).localeCompare(String(b.at)));
       },
+      // ---- anonymous visit counts (no account, IP address or cookie): anyone adds, only the team reads totals
+      async track(rows) { if (sb) await sb.from("visits").insert(rows); },
+      async traffic(days) { return check(await sb.rpc("traffic_summary", { days })); },
       reviewHeld: (kind, id, decision, why) => rpc("review_held", { kind, target_id: String(id), decision, why: why || null }),
       // ---- blocking: the database hides the blocked member's posts and stops them following, liking or commenting
       async blocks() {
