@@ -720,7 +720,7 @@
   }
   // the Halloween row: ghosts, witches, vampires and other gothic shows on now or soon
   const SPOOKY = /\b(dracula|frankenstein|phantom|ghosts?|haunt\w*|witch(es)?|wicked|vampires?|zombies?|macbeth|sweeney todd|little shop of horrors|rocky horror|beetlejuice|addams|carrie|evil dead|woman in black|jekyll|coraline|sleepy hollow|nightmare|exorcis\w*|monsters?|halloween|hocus pocus|blithe spirit|turn of the screw|crucible|gaslight|dorian gray|poltergeist|creepy|spooky|scream|gothic)\b/i;
-  const NOT_SPOOKY = /mariupol|the lion, the witch/i;  // "ghosts" or "witch" in the title, but not Halloween fare
+  const NOT_SPOOKY = /mariupol|the lion, the witch|^the monsters$/i;  // "ghosts", "witch" or "monsters" in the title, but not Halloween fare (The Monsters is a family drama)
   const spooky = () => onNow().filter((w) => SPOOKY.test(w.title) && !NOT_SPOOKY.test(w.title));
   function renderSpooky() {
     if (!HALLOWEEN) return renderNotFound();
