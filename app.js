@@ -1466,9 +1466,13 @@
       <ol class="prods">${shown.map((p, i) => prodItemHTML(w, p, i, at ? dist.get(p) : null)).join("")}</ol>
       ${list.length > shown.length ? `<button class="btn ghost sm more" type="button" data-pv-more>Show ${Math.min(list.length - shown.length, 20)} more (${list.length - shown.length} left)</button>` : ""}`;
   }
+  // where a production's details came from, named by its site ("feverup.com"), for sources without a name of their own
+  const siteOf = (u) => { try { return new URL(u).hostname.replace(/^www\./, ""); } catch (e) { return ""; } };
   function prodItemHTML(w, p, i = 0, away = null) {
     const kindLabel = { premiere: "World premiere", revival: "Revival", tour: "Tour", transfer: "Transfer" };
-    const srcName = { wikipedia: "Wikipedia", idu: "IDU open data (CC BY 4.0)", web: "Source page", ticketmaster: "Ticketmaster", kunstenpunt: "Kunstenpunt", theaterencyclopedie: "TheaterEncyclopedie (CC0)", member: "Suggested by a member, checked against this page" };
+    // a listing still on (or coming) links to its tickets here too, as in the On stage box
+    const tix = prodNow(p) ? safeUrl(p.runs.find((r) => listingStatus(r.checked, r.from, r.to) && safeUrl(r.ticket_url))?.ticket_url) : null;
+    const srcName = { wikipedia: "Wikipedia", idu: "IDU open data (CC BY 4.0)", ticketmaster: "Ticketmaster", kunstenpunt: "Kunstenpunt", theaterencyclopedie: "TheaterEncyclopedie (CC0)", member: "Suggested by a member, checked against this page" };
     const by = (role) => p.credits.filter((c) => c.role === role && !c.since);
     const name = (c) => esc(c.person ? (ppl[c.person]?.name || c.person) : (orgs[c.org]?.name || c.org));
     const line = (label, list) => list.length ? `<div class="pc"><span class="pc-l">${label}</span> ${list.map(name).join(", ")}</div>` : "";
@@ -1490,7 +1494,7 @@
       ${others.length ? `<div class="pc"><span class="pc-l">Also</span> ${others.join(", ")}</div>` : ""}
       ${p.notes ? `<p class="prod-notes">${esc(p.notes)}</p>` : ""}
       ${prodActsHTML(w, p, i)}
-      <div class="prod-src">${isKopis(p) && safeUrl(p.citation) ? `<a href="${esc(safeUrl(p.citation))}" target="_blank" rel="noopener">출처: 공연예술통합전산망(KOPIS)</a>` : safeUrl(p.citation) ? `<a href="${esc(safeUrl(p.citation))}" target="_blank" rel="noopener">${srcName[p.source] || "Source"}</a>` : esc(srcName[p.source] || p.source)}${p.ids?.wikidata ? ` · <a href="https://www.wikidata.org/wiki/${esc(p.ids.wikidata)}" target="_blank" rel="noopener">Wikidata</a>` : ""}</div>
+      <div class="prod-src">${isKopis(p) && safeUrl(p.citation) ? `<a href="${esc(safeUrl(p.citation))}" target="_blank" rel="noopener">출처: 공연예술통합전산망(KOPIS)</a>` : safeUrl(p.citation) ? `<a href="${esc(safeUrl(p.citation))}" target="_blank" rel="noopener">${esc(srcName[p.source] || (siteOf(p.citation) ? (tix === safeUrl(p.citation) ? "Tickets on " : "") + siteOf(p.citation) : "Source"))}</a>` : esc(srcName[p.source] || p.source)}${tix && tix !== safeUrl(p.citation) ? ` · <a href="${esc(aff(tix))}" target="_blank" rel="noopener nofollow sponsored" data-tix>Tickets</a>` : ""}${p.ids?.wikidata ? ` · <a href="https://www.wikidata.org/wiki/${esc(p.ids.wikidata)}" target="_blank" rel="noopener">Wikidata</a>` : ""}</div>
     </li>`;
   }
   function refreshProds(w, keepFocus) {
