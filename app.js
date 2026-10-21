@@ -1433,7 +1433,7 @@
         <label class="vh" for="pv-q">Search productions</label>
         <input id="pv-q" type="search" placeholder="Search theatres, directors, cast…" value="${esc(pv.q)}" autocomplete="off">
         <label class="sort">Sort
-          <select id="pv-sort">${[["newest", "Newest first"], ["oldest", "Oldest first"], ["city", "City"], ["cast", "Most cast listed"]].map(([k, l]) => `<option value="${k}"${pv.sort === k ? " selected" : ""}>${l}</option>`).join("")}</select>
+          <select id="pv-sort">${[["newest", "Newest first"], ["nearest", "Nearest to me"], ["oldest", "Oldest first"], ["city", "City"], ["cast", "Most cast listed"]].map(([k, l]) => `<option value="${k}"${pv.sort === k ? " selected" : ""}>${l}</option>`).join("")}</select>
         </label>
       </div>
       ${periodKeys.length > 1 ? `<div class="chips prod-chips" role="group" aria-label="When">${periodKeys.map((k) => `<button class="chip" type="button" data-pv-period="${esc(k)}" aria-pressed="${pv.period === k}">${esc(periodName(k))} <small>${periods[k]}</small></button>`).join("")}</div>` : ""}
@@ -1447,7 +1447,10 @@
   function prodListHTML(w) {
     const q = fold(pv.q).split(/\s+/).filter(Boolean);
     let list = w.productions.filter((p) => (!pv.city || prodCity(p) === pv.city) && (!pv.period || periodOf(p) === pv.period) && (!q.length || q.every((t) => prodHay(p).includes(t))));
+    const at = pv.sort === "nearest" ? hereGuess() : null, dist = new Map(at ? list.map((p) => [p, prodKm(p, at)]) : []);
     const cmp = {
+      // within the same 15 km (one city, give or take), what's on now and then the newest first
+      nearest: (a, b) => Math.floor((dist.get(a) ?? Infinity) / 15) - Math.floor((dist.get(b) ?? Infinity) / 15) || (prodNow(b) - prodNow(a)) || prodYear(b) - prodYear(a),
       newest: (a, b) => (prodNow(b) - prodNow(a)) || prodYear(b) - prodYear(a),
       oldest: (a, b) => { const ya = prodYear(a), yb = prodYear(b); return (ya < -9999) - (yb < -9999) || ya - yb; },
       city: (a, b) => prodCity(a).localeCompare(prodCity(b)) || prodYear(b) - prodYear(a),
@@ -1457,11 +1460,13 @@
     const filtered = pv.city || pv.period || q.length;
     if (!list.length) return `<p class="empty">No productions match. <button class="linkbtn" type="button" data-pv-clear>Clear the filters</button></p>`;
     const shown = list.slice(0, pv.shown);
-    return `${filtered ? `<p class="count">${plural(list.length, "production")} match · <button class="linkbtn" type="button" data-pv-clear>Clear</button></p>` : ""}
-      <ol class="prods">${shown.map((p) => prodItemHTML(w, p)).join("")}</ol>
+    const near = pv.sort !== "nearest" ? "" : `<p class="count">${!at ? "Billd doesn't know where you are, so these are newest first. Choose your city on the On stage page."
+      : at.rough ? `Nearest to ${esc(cityName(at.city))}, your city on Billd` : "Nearest to where you are"}</p>`;
+    return `${filtered ? `<p class="count">${plural(list.length, "production")} match · <button class="linkbtn" type="button" data-pv-clear>Clear</button></p>` : ""}${near}
+      <ol class="prods">${shown.map((p, i) => prodItemHTML(w, p, i, at ? dist.get(p) : null)).join("")}</ol>
       ${list.length > shown.length ? `<button class="btn ghost sm more" type="button" data-pv-more>Show ${Math.min(list.length - shown.length, 20)} more (${list.length - shown.length} left)</button>` : ""}`;
   }
-  function prodItemHTML(w, p) {
+  function prodItemHTML(w, p, i = 0, away = null) {
     const kindLabel = { premiere: "World premiere", revival: "Revival", tour: "Tour", transfer: "Transfer" };
     const srcName = { wikipedia: "Wikipedia", idu: "IDU open data (CC BY 4.0)", web: "Source page", ticketmaster: "Ticketmaster", kunstenpunt: "Kunstenpunt", theaterencyclopedie: "TheaterEncyclopedie (CC0)", member: "Suggested by a member, checked against this page" };
     const by = (role) => p.credits.filter((c) => c.role === role && !c.since);
@@ -1472,7 +1477,7 @@
     const others = ["designer", "composer", "choreographer", "translator", "adapter"].flatMap((r) => by(r).map((c) => `${name(c)} <small>(${r})</small>`));
     const pl = p.language && p.language !== w.languages[0] ? (lang[p.language]?.name || p.language) : "";
     return `<li class="prod">
-      <div class="prod-head">${prodNow(p) ? `<span class="badge now">On now</span>` : ""}${kindLabel[p.kind] ? `<span class="badge">${kindLabel[p.kind]}</span>` : ""}${p.title ? `<em>${esc(p.title)}</em>` : ""}${pl ? ` <small>in ${esc(pl)}</small>` : ""}</div>
+      <div class="prod-head">${prodNow(p) ? `<span class="badge now">On now</span>` : ""}${away != null && isFinite(away) ? `<span class="prod-dist">${esc(distText(away))}</span>` : ""}${kindLabel[p.kind] ? `<span class="badge">${kindLabel[p.kind]}</span>` : ""}${p.title ? `<em>${esc(p.title)}</em>` : ""}${pl ? ` <small>in ${esc(pl)}</small>` : ""}</div>
       <ul class="runs">${p.runs.map((r) => {
         const date = r.from ? fmtPartial(r.from) + (r.to && r.to !== r.from ? ` – ${fmtPartial(r.to)}` : "") : "date unknown";
         const where = [venues[r.venue]?.name, places[r.place]?.name].filter(Boolean).map(esc).join(", ");
@@ -1484,6 +1489,7 @@
       ${curCast.length ? `<div class="pc"><span class="pc-l">Cast as of ${esc(fmtPartial(curCast[0].since.slice(0, 7)))}</span> ${curCast.slice(0, 8).map((c) => name(c) + (c.character ? ` <small>as ${esc(c.character)}</small>` : "")).join(", ")}${curCast.length > 8 ? `, and ${curCast.length - 8} more` : ""}</div>` : ""}
       ${others.length ? `<div class="pc"><span class="pc-l">Also</span> ${others.join(", ")}</div>` : ""}
       ${p.notes ? `<p class="prod-notes">${esc(p.notes)}</p>` : ""}
+      ${prodActsHTML(w, p, i)}
       <div class="prod-src">${isKopis(p) && safeUrl(p.citation) ? `<a href="${esc(safeUrl(p.citation))}" target="_blank" rel="noopener">출처: 공연예술통합전산망(KOPIS)</a>` : safeUrl(p.citation) ? `<a href="${esc(safeUrl(p.citation))}" target="_blank" rel="noopener">${srcName[p.source] || "Source"}</a>` : esc(srcName[p.source] || p.source)}${p.ids?.wikidata ? ` · <a href="https://www.wikidata.org/wiki/${esc(p.ids.wikidata)}" target="_blank" rel="noopener">Wikidata</a>` : ""}</div>
     </li>`;
   }
@@ -1551,7 +1557,7 @@
     ($("#play-actions-sm") === box ? $("#play-actions") : $("#play-actions-sm")).innerHTML = "";
     box.innerHTML = html;
     const rate = $(".rate", box);
-    if (rate) { rate.dataset.value = s.rating || 0; wireRate(rate, (v) => setStatus(w, { rating: v || null })); }
+    if (rate) { rate.dataset.value = s.rating || 0; wireRate(rate, (v) => markPlay(w, { rating: v || null })); }
   }
   async function setStatus(w, patch) {
     if (!requireMe("Log in to keep track of what you've seen.")) return;
@@ -1568,7 +1574,7 @@
     } catch (e) { toast(e.message); }
   }
   async function renderPlaySocial(w, tok) {
-    refreshStats(w, tok);
+    refreshStats(w, tok); refreshProdMarks(w, tok);
     try {
       const logs = notBlocked((await S.logsForPlay(w.id)).filter((l) => l.review || l.rating));
       if (stale(tok)) return;
@@ -1599,6 +1605,154 @@
         ${S.kind !== "local" ? `<div class="stats"><span><b>${st.seen.toLocaleString()}</b> seen</span><span><b>${st.likes.toLocaleString()}</b> likes</span><span><b>${st.wants.toLocaleString()}</b> want to see</span></div>` : ""}`;
     } catch (e) { /* the stats are a nicety */ }
   }
+  // ---------------------------------------------------------------- which production
+  // Marking a play seen, liked or rated asks which production it was, the ones nearest the member in place
+  // and time first. Each production keeps its own marks and totals; a mark on a production marks the play
+  // too, so the play's totals still count each member once (production_status in supabase/schema.sql).
+  const prodMarks = { play: null, mine: {}, stats: {} };
+  // where the member is: from "Nearest to me" (asked only then, for this visit, never kept or sent), else their city on Billd
+  let herePos = null;
+  function hereGuess() {
+    if (herePos) return herePos;
+    const hc = homeCity(cityCounts(onNow())), c = hc && places[hc.id];
+    return c?.lat != null && c?.lon != null ? { lat: c.lat, lon: c.lon, rough: true, city: hc.id } : null;
+  }
+  async function locate() {
+    try { const p = await N.position({ timeout: 10000 }); herePos = { lat: p.lat, lon: p.lon }; } catch (e) { /* their city will do */ }
+    return hereGuess();
+  }
+  const MILES = /^en-(US|GB)$/.test(navigator.language || "");
+  const distText = (k) => k < 3 ? "near you" : MILES ? `${Math.round(k / 1.609).toLocaleString()} mi` : `${Math.round(k).toLocaleString()} km`;
+  // km from a point to the nearest of a production's theatres (or towns, where the theatre's place isn't known)
+  function prodKm(p, at) {
+    let best = Infinity;
+    for (const r of p.runs) {
+      const v = venues[r.venue], c = places[r.place], pt = v?.lat != null && v?.lon != null ? v : c?.lat != null && c?.lon != null ? c : null;
+      if (pt) best = Math.min(best, km(at.lat, at.lon, pt.lat, pt.lon));
+    }
+    return best;
+  }
+  // a date as a day number; a partial one ("1998", "2024-03") from the start of its year or month, or to its end
+  function dayNum(d, end) {
+    const m = /^(-?\d{1,4})(?:-(\d{2}))?(?:-(\d{2}))?/.exec(d || ""); if (!m) return null;
+    const mo = m[2] ? +m[2] - 1 : end ? 11 : 0;
+    const t = new Date(Date.UTC(2000, mo, m[3] ? +m[3] : end ? new Date(Date.UTC(2001, mo + 1, 0)).getUTCDate() : 1));
+    t.setUTCFullYear(+m[1]);
+    return t.getTime() / 864e5;
+  }
+  // days between today and the nearest of a production's runs: 0 while one is on
+  const playingNow = (p) => p.runs.some((r) => listingStatus(r.checked, r.from, r.to) === "now");  // not just announced
+  function prodDays(p) {
+    if (playingNow(p)) return 0;
+    const now = Date.parse(TODAY) / 864e5; let best = Infinity;
+    for (const r of p.runs) {
+      const a = dayNum(r.from, false), b = dayNum(r.to || r.from, true);
+      if (a == null && b == null) continue;
+      const lo = a ?? b, hi = b ?? a;
+      best = Math.min(best, now < lo ? lo - now : now > hi ? now - hi : 0);
+    }
+    return best;
+  }
+  // the play's productions, likeliest first: one the member already marked, then by time (a month ≈ 80 km)
+  // and place; one that hasn't opened yet can't have been seen, so it goes near the end
+  function rankProds(w, at, mine) {
+    const now = Date.parse(TODAY) / 864e5;
+    return w.productions.map((p) => {
+      const d = prodDays(p), k = at ? prodKm(p, at) : null;
+      const future = p.runs.length && p.runs.every((r) => (dayNum(r.from, false) ?? -Infinity) > now);
+      return { p, k, score: (mine[p.id] ? -1e6 : 0) + (isFinite(d) ? d / 30 : 600) + (k == null ? 0 : isFinite(k) ? k / 80 : 40) + (future ? 200 : 0) };
+    }).sort((a, b) => a.score - b.score);
+  }
+  function prodLabel(p) {
+    const r = p.runs.find((x) => listingStatus(x.checked, x.from, x.to)) || p.runs.find((x) => x.from) || p.runs[0] || {};
+    return { where: [venues[r.venue]?.name, places[r.place]?.name].filter(Boolean).join(", ") || "Theatre not recorded",
+             when: r.from ? fmtPartial(r.from) + (r.to && r.to !== r.from ? ` – ${fmtPartial(r.to)}` : "") : "Date unknown" };
+  }
+  // resolves to the production's id, "" for the play only, or null when the dialog is closed
+  const pick = { w: null, all: [], done: null };
+  function pickProduction(w, verb) {
+    return new Promise((done) => {
+      pick.w = w; pick.done = done;
+      pick.all = rankProds(w, hereGuess(), prodMarks.play === w.id ? prodMarks.mine : {});
+      $("#pp-title").textContent = `Which production ${verb}?`;
+      $("#pp-play").textContent = w.title;
+      $("#pp-q").value = "";
+      drawPick();
+      $("#prodpick").showModal();
+      $("#pp-list button")?.focus();
+    });
+  }
+  function drawPick() {
+    const q = fold($("#pp-q").value).split(/\s+/).filter(Boolean);
+    const mine = prodMarks.play === pick.w?.id ? prodMarks.mine : {};
+    const list = (q.length ? pick.all.filter((x) => q.every((t) => prodHay(x.p).includes(t))) : pick.all).slice(0, q.length ? 40 : 8);
+    $("#pp-list").innerHTML = list.map(({ p, k }) => {
+      const l = prodLabel(p);
+      const bits = [l.when, playingNow(p) ? "on now" : prodNow(p) && "coming soon", k != null && isFinite(k) && k < 800 && distText(k), mine[p.id]?.seen && "you saw this one"].filter(Boolean);
+      return `<li><button type="button" data-pp="${esc(p.id)}"><span>${esc(l.where)}</span><small>${esc(bits.join(" · "))}</small></button></li>`;
+    }).join("") || `<li class="hint">No production matches.</li>`;
+  }
+  const endPick = (v) => { const done = pick.done; pick.done = null; if ($("#prodpick").open) $("#prodpick").close(); done?.(v); };
+  $("#pp-q").addEventListener("input", drawPick);
+  $("#pp-list").addEventListener("click", (e) => { const b = e.target.closest("[data-pp]"); if (b) endPick(b.dataset.pp); });
+  $("#pp-skip").addEventListener("click", () => endPick(""));
+  $("#prodpick").addEventListener("close", () => endPick(null));
+  // the play's seen, like or rating: turning one on asks which production first
+  async function markPlay(w, patch) {
+    if (!requireMe("Log in to keep track of what you've seen.")) return;
+    const on = patch.seen === true || patch.liked === true || patch.rating > 0;
+    if (!on) return setStatus(w, patch);
+    try { await loadDetail(w); } catch (e) { return setStatus(w, patch); }
+    if (!w.productions.length) return setStatus(w, patch);
+    const pid = await pickProduction(w, "rating" in patch ? "are you rating" : patch.liked ? "did you like" : "did you see");
+    if (pid === null) { if (location.hash === playUrl(w.id)) renderPlayActions(w); return; }  // closed: nothing changes, the stars go back
+    return pid ? markProduction(w, pid, patch) : setStatus(w, patch);
+  }
+  async function markProduction(w, pid, patch) {
+    if (!requireMe("Log in to keep track of what you've seen.")) return;
+    try {
+      if (prodMarks.play !== w.id) Object.assign(prodMarks, { play: w.id, mine: {}, stats: {} });
+      const vis = myStatus[w.id]?.visibility;
+      const ps = await S.setProductionStatus(w.id, pid, vis ? { ...patch, visibility: vis } : patch);
+      if (ps) prodMarks.mine[pid] = ps; else delete prodMarks.mine[pid];
+      // it rolls up: a production seen, liked or rated is the play seen, liked or rated (the latest rating counts)
+      const up = {};
+      if (ps?.seen && !myStatus[w.id]?.seen) up.seen = true;
+      if (patch.liked === true) up.liked = true;
+      if (patch.liked === false && myStatus[w.id]?.liked && !Object.values(prodMarks.mine).some((m) => m.liked)) up.liked = false;
+      if (patch.rating) up.rating = patch.rating;
+      if (Object.keys(up).length) await setStatus(w, up);
+      else if (location.hash === playUrl(w.id)) renderPlayActions(w);
+      if (patch.seen === true || patch.liked === true || patch.rating) toast(`Saved for ${prodLabel(w.productions.find((p) => p.id === pid) || { runs: [] }).where}`);
+      if ($("#prod-list")) $("#prod-list").innerHTML = prodListHTML(w);
+      refreshProdMarks(w);
+    } catch (e) { toast(e.message); }
+  }
+  async function refreshProdMarks(w, tok = routeSeq) {
+    try {
+      const [mine, stats] = await Promise.all([signedIn() ? S.myProductionStatuses(w.id) : {}, S.productionStats(w.id)]);
+      if (stale(tok)) return;
+      Object.assign(prodMarks, { play: w.id, mine, stats });
+      if ($("#prod-list")) $("#prod-list").innerHTML = prodListHTML(w);
+    } catch (e) { /* the marks are a nicety */ }
+  }
+  function prodActsHTML(w, p, i) {
+    const own = prodMarks.play === w.id, mk = (own && prodMarks.mine[p.id]) || {}, st = own ? prodMarks.stats[p.id] : null;
+    const tot = st && (st.seen || st.likes || st.ratings) ? [st.seen && `${st.seen.toLocaleString()} seen`, st.likes && `${st.likes.toLocaleString()} ♥`,
+      st.ratings && st.avg != null && `★ ${st.avg.toFixed(1)} (${st.ratings.toLocaleString()})`].filter(Boolean).join(" · ") : "";
+    return `<div class="prod-acts" data-prod="${esc(p.id)}">
+      <button type="button" class="pa seen" data-pact="seen" aria-pressed="${!!mk.seen}" title="${mk.seen ? "You saw this production" : "I saw this production"}">${ICONS.eye}<span class="vh">Seen this production</span></button>
+      <button type="button" class="pa like" data-pact="liked" aria-pressed="${!!mk.liked}" title="${mk.liked ? "You liked this production" : "Like this production"}">${ICONS.heart}<span class="vh">Like this production</span></button>
+      ${rateHTML("pr" + i, mk.rating || 0, "sm").replace('class="rate sm"', `class="rate sm" data-prod-rate="${esc(p.id)}" data-value="${mk.rating || 0}"`)}
+      ${tot ? `<span class="prod-stats">${esc(tot)}</span>` : ""}</div>`;
+  }
+  // stars on a production light up under the pointer, as on the play
+  pageEl().addEventListener("mouseover", (e) => {
+    const el = e.target.closest("[data-prod-rate]"), inp = el && e.target.closest("label")?.previousElementSibling;
+    if (inp?.value) paintRate(el, +inp.value);
+  });
+  pageEl().addEventListener("mouseout", (e) => { const el = e.target.closest("[data-prod-rate]"); if (el && !el.contains(e.relatedTarget)) paintRate(el, +(el.dataset.value || 0)); });
+
   // production history: search and sort
   let pvT;
   pageEl().addEventListener("input", (e) => {
@@ -1608,14 +1762,28 @@
   });
   pageEl().addEventListener("change", (e) => {
     const w = location.hash.startsWith("#/play/") ? byId[decodeURIComponent(location.hash.slice(7))] : null; if (!w) return;
-    if (e.target.id === "pv-sort") { pv.sort = e.target.value; pv.shown = 10; $("#prod-list").innerHTML = prodListHTML(w); }
+    if (e.target.id === "pv-sort") {
+      pv.sort = e.target.value; pv.shown = 10; $("#prod-list").innerHTML = prodListHTML(w);
+      if (pv.sort === "nearest" && !herePos) locate().then(() => { if (pv.sort === "nearest" && $("#prod-list")) $("#prod-list").innerHTML = prodListHTML(w); });
+    }
+    const pr = e.target.closest("[data-prod-rate]");  // stars chosen with the keyboard
+    if (pr) { const v = +e.target.value; pr.dataset.value = v; paintRate(pr, v); markProduction(w, pr.dataset.prodRate, { rating: v || null }); }
     if (e.target.id === "pv-city") { pv.city = e.target.value; pv.shown = 10; refreshProds(w, true); }
   });
   pageEl().addEventListener("click", async (e) => {
     const t = e.target;
     const w = location.hash.startsWith("#/play/") ? byId[decodeURIComponent(location.hash.slice(7))] : null;
     const act = t.closest("[data-act]");
-    if (act && w) { const k = act.dataset.act; return setStatus(w, { [k]: act.getAttribute("aria-pressed") !== "true" }); }
+    if (act && w) { const k = act.dataset.act, on = act.getAttribute("aria-pressed") !== "true"; return k === "want" ? setStatus(w, { want: on }) : markPlay(w, { [k]: on }); }
+    // a production's own seen, like and rating
+    const pa = t.closest("[data-pact]"); if (pa && w) return markProduction(w, pa.closest("[data-prod]").dataset.prod, { [pa.dataset.pact]: pa.getAttribute("aria-pressed") !== "true" });
+    const prl = t.closest("[data-prod-rate] label");
+    if (prl && w) {
+      e.preventDefault();
+      const el = prl.closest("[data-prod-rate]"), v = +$("#" + CSS.escape(prl.htmlFor)).value, next = +(el.dataset.value || 0) === v ? 0 : v;  // a tap on the rating given clears it
+      el.dataset.value = next; paintRate(el, next);
+      return markProduction(w, el.dataset.prodRate, { rating: next || null });
+    }
     if (t.closest("[data-log-play]") && w) return openLog(w.id);
     if (t.closest("[data-addprod]") && w) return openAddProduction(w.id);
     const pc = t.closest("[data-pv-city]"); if (pc && w) { pv.city = pv.city === pc.dataset.pvCity ? "" : pc.dataset.pvCity; pv.shown = 10; return refreshProds(w); }
@@ -1792,6 +1960,8 @@
     if (S.kind !== "local") { row.visibility = $("#log-vis").value; try { localStorage.setItem("billd-vis", row.visibility); } catch (e) { /* not kept */ } }
     if (row.seen_on && row.seen_on > localToday()) { note("#log-note", "The date seen can't be in the future.", true); return; }
     if (logState.edit) row.id = logState.edit.id;
+    const prod = row.venue && w.productions.find((p) => p.runs.some((r) => venues[r.venue]?.name === row.venue));
+    if (prod) row.production_id = prod.id;
     $("#log-save").disabled = true;
     try {
       const saved = await S.saveLog(row);
@@ -1799,6 +1969,7 @@
       const patch = { seen: true }; if (row.rating) patch.rating = row.rating; if (row.liked) patch.liked = true;
       if (row.visibility) patch.visibility = row.visibility;  // the show's rating and marks follow the entry
       const s = await S.setStatus(w.id, patch); if (s) myStatus[w.id] = s;
+      if (prod) await S.setProductionStatus(w.id, prod.id, { seen: true, ...(row.rating ? { rating: row.rating } : {}), ...(row.liked ? { liked: true } : {}), ...(row.visibility ? { visibility: row.visibility } : {}) }).catch(() => {});
       if (logState.fromPlan === w.id || (planOf(w.id) && planOf(w.id).date <= localToday())) await removePlan(w.id);  // seen: the plan (and its nudges) has done its job
       $("#logd").close();
       // no connection: kept on this device by outbox.js, and sent when it's back

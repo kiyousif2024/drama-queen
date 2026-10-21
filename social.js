@@ -65,6 +65,27 @@
         if (!s.seen && !s.liked && !s.want && !s.rating) delete db.status[playId]; else db.status[playId] = s;
         save(); return db.status[playId] || null;
       },
+      // marks on one production of a play (it rolls up: the app marks the play too)
+      async myProductionStatuses(playId) {
+        const out = {};
+        for (const [k, v] of Object.entries(db.pstatus || {})) if (v.play_id === playId) out[k] = v;
+        return out;
+      },
+      async setProductionStatus(playId, prodId, patch) {
+        db.pstatus = db.pstatus || {};
+        const s = { play_id: playId, seen: false, liked: false, rating: null, ...(db.pstatus[prodId] || {}), ...patch, updated_at: new Date().toISOString() };
+        if (patch.seen === false) { s.rating = null; s.liked = false; }
+        if (s.rating || s.liked) s.seen = true;
+        if (!s.seen && !s.liked && !s.rating) delete db.pstatus[prodId]; else db.pstatus[prodId] = s;
+        save(); return db.pstatus[prodId] || null;
+      },
+      async productionStats(playId) {
+        const out = {};
+        for (const [k, v] of Object.entries(db.pstatus || {})) if (v.play_id === playId) {
+          out[k] = { seen: v.seen ? 1 : 0, likes: v.liked ? 1 : 0, ratings: v.rating ? 1 : 0, avg: v.rating ? v.rating / 2 : null };
+        }
+        return out;
+      },
       async saveLog(log) {
         const now = new Date().toISOString();
         if (log.id) {
@@ -396,10 +417,35 @@
         return check(await sb.from("play_status").upsert({ user_id: uid, play_id: playId, seen: s.seen, liked: s.liked, want: s.want,
                                                            rating: s.rating, visibility: s.visibility || "public", updated_at: new Date().toISOString() }).select().single());
       },
+      async myProductionStatuses(playId) {
+        if (!uid) return {};
+        const out = {};
+        check(await sb.from("production_status").select("production_id,seen,liked,rating,visibility").eq("user_id", uid).eq("play_id", playId)).forEach((r) => (out[r.production_id] = r));
+        return out;
+      },
+      async setProductionStatus(playId, prodId, patch) {
+        needMe();
+        const cur = check(await sb.from("production_status").select("*").eq("user_id", uid).eq("production_id", prodId).maybeSingle()) || { seen: false, liked: false, rating: null };
+        const s = { ...cur, ...patch };
+        if (patch.seen === false) { s.rating = null; s.liked = false; }
+        if (s.rating || s.liked) s.seen = true;
+        if (!s.seen && !s.liked && !s.rating) {
+          check(await sb.from("production_status").delete().eq("user_id", uid).eq("production_id", prodId));
+          return null;
+        }
+        return check(await sb.from("production_status").upsert({ user_id: uid, play_id: playId, production_id: prodId, seen: s.seen, liked: s.liked,
+                                                                 rating: s.rating, visibility: s.visibility || "public", updated_at: new Date().toISOString() }).select().single());
+      },
+      async productionStats(playId) {
+        const out = {};
+        check(await sb.from("production_stats").select("*").eq("play_id", playId)).forEach((r) => (out[r.production_id] = { seen: r.seen, likes: r.likes, ratings: r.ratings, avg: r.avg_rating != null ? Number(r.avg_rating) : null }));
+        return out;
+      },
       async saveLog(log) {
         needMe();
         const row = {};
         for (const k of ["play_id", "play_title", "seen_on", "rating", "liked", "review", "spoilers", "rewatch", "venue", "city", "visibility"]) if (k in log) row[k] = log[k];
+        if (log.production_id) row.production_id = log.production_id;  // which production, when the member picked one
         const q = log.id ? sb.from("logs").update({ ...row, updated_at: new Date().toISOString() }).eq("id", log.id).eq("user_id", uid)
                          : sb.from("logs").insert({ ...row, user_id: uid });
         return shapeLog(check(await q.select(LOG_SEL).single()));

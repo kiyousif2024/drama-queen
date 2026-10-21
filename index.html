@@ -305,6 +305,17 @@
   </form>
 </dialog>
 
+<!-- Which production: asked when a play is marked seen, liked or rated -->
+<dialog class="dlg" id="prodpick" aria-labelledby="pp-title">
+  <button class="close" type="button" data-close aria-label="Close">×</button>
+  <h2 id="pp-title">Which production did you see?</h2>
+  <p class="kicker" id="pp-play"></p>
+  <label class="vh" for="pp-q">Search this play's productions</label>
+  <input id="pp-q" type="search" placeholder="Search theatres, cities, cast…" autocomplete="off">
+  <ul class="pick pp-list" id="pp-list"></ul>
+  <p class="pp-skip"><button class="linkbtn" type="button" id="pp-skip">Not sure, or not listed? Just mark the play</button></p>
+</dialog>
+
 <!-- Suggest a play Billd doesn't have -->
 <dialog class="dlg" id="suggplay" aria-labelledby="sp-title">
   <button class="close" type="button" data-close aria-label="Close">×</button>
