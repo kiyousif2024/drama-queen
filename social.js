@@ -445,6 +445,7 @@
         needMe();
         const row = {};
         for (const k of ["play_id", "play_title", "seen_on", "rating", "liked", "review", "spoilers", "rewatch", "venue", "city", "visibility"]) if (k in log) row[k] = log[k];
+        if ("seen_time" in log) row.seen_time = log.seen_time;  // the time seen, when given
         if (log.production_id) row.production_id = log.production_id;  // which production, when the member picked one
         const q = log.id ? sb.from("logs").update({ ...row, updated_at: new Date().toISOString() }).eq("id", log.id).eq("user_id", uid)
                          : sb.from("logs").insert({ ...row, user_id: uid });
@@ -732,7 +733,7 @@
         needMe();
         const st = Object.entries(data.status || {}).map(([play_id, s]) => ({ user_id: uid, play_id, seen: !!s.seen, liked: !!s.liked, want: !!s.want, rating: s.rating || null }));
         for (let i = 0; i < st.length; i += 500) check(await sb.from("play_status").upsert(st.slice(i, i + 500)));
-        const logs = (data.logs || []).map((l) => ({ user_id: uid, play_id: l.play_id, play_title: l.play_title, seen_on: l.seen_on || null, rating: l.rating || null,
+        const logs = (data.logs || []).map((l) => ({ user_id: uid, play_id: l.play_id, play_title: l.play_title, seen_on: l.seen_on || null, seen_time: l.seen_time || null, rating: l.rating || null,
           liked: !!l.liked, review: l.review || null, spoilers: !!l.spoilers, rewatch: !!l.rewatch, venue: l.venue || null, city: l.city || null }));
         for (let i = 0; i < logs.length; i += 500) check(await sb.from("logs").insert(logs.slice(i, i + 500)));
         for (const l of data.lists || []) {

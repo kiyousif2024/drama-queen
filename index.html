@@ -212,8 +212,8 @@
   <form id="log-form" novalidate>
     <div class="log-grid">
       <div class="field">
-        <label for="log-date">Date seen</label>
-        <input id="log-date" type="date">
+        <label for="log-date">Date seen <span class="opt">and time</span></label>
+        <div class="log-when"><input id="log-date" type="date"><label class="vh" for="log-time">Time (optional)</label><input id="log-time" type="time" step="300"></div>
       </div>
       <div class="field">
         <label for="log-venue">Theatre <span class="opt">(optional)</span></label>

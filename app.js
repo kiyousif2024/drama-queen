@@ -1795,7 +1795,7 @@
     const sr = t.closest("[data-share-review]"); if (sr) return share(sr.dataset.title, `#/review/${sr.dataset.shareReview}`);
     const pl = t.closest("[data-plan]"); if (pl) return openPlan(pl.dataset.plan);
     const pi = t.closest("[data-plan-ics]"); if (pi) { const p = planOf(pi.dataset.planIcs); return p && calendarFile(p); }
-    const pg = t.closest("[data-plan-log]"); if (pg) { const p = planOf(pg.dataset.planLog); return p && openLog(p.play_id, null, { seen_on: p.date, venue: p.venue, city: p.city, fromPlan: true }); }
+    const pg = t.closest("[data-plan-log]"); if (pg) { const p = planOf(pg.dataset.planLog); return p && openLog(p.play_id, null, { seen_on: p.date, time: p.time, venue: p.venue, city: p.city, fromPlan: true }); }
     const pr = t.closest("[data-plan-rm]"); if (pr) { await removePlan(pr.dataset.planRm); toast("Plan removed"); return route(); }
     if (t.closest("[data-fix]") && w) return openFeedback({ id: w.id, title: w.title });
     const tr = t.closest("[data-trad]"); if (tr) return filterTradition(tr.dataset.trad);
@@ -1838,7 +1838,7 @@
     return `<li class="review${withPoster && w ? "" : " noposter"}">${withPoster && w ? poster(w, { badge: false, cls: "sm" }) : ""}
       <div>${withPoster ? `<h3 class="review-title"><a href="${playUrl(l.play_id)}">${esc(w?.title || l.play_title)}</a>${w && fmtDate(w) ? `<small>${esc(fmtDate(w))}</small>` : ""}</h3>` : ""}
         <div class="review-head">${avatar(l.profile, "sm")}<a href="#/u/${esc(l.profile?.username)}">${who(l.profile)}</a>${l.rating ? `<span class="stars" aria-label="${starsLabel(l.rating)}">${stars(l.rating)}</span>` : ""}${l.liked ? `<span class="heart" title="Liked it">♥</span>` : ""}${l.rewatch ? `<span title="Seen before">↻</span>` : ""}
-          <span>${l.seen_on ? `Seen ${esc(fmtPartial(l.seen_on))}` : ago(l.created_at)}${l.venue ? ` · ${esc(l.venue)}` : ""}</span>${VIS_LABEL[l.visibility] ? `<span class="vis" title="${VIS_TITLE[l.visibility]}">${VIS_LABEL[l.visibility]}</span>` : ""}</div>
+          <span>${l.seen_on ? `Seen ${esc(fmtPartial(l.seen_on))}${mine && l.seen_time ? `, ${esc(fmtTime(l.seen_time))}` : ""}` : ago(l.created_at)}${l.venue ? ` · ${esc(l.venue)}` : ""}</span>${VIS_LABEL[l.visibility] ? `<span class="vis" title="${VIS_TITLE[l.visibility]}">${VIS_LABEL[l.visibility]}</span>` : ""}</div>
         ${heldNote(l)}${l.pending ? `<p class="pending-note">${PENDING_TEXT()}</p>` : ""}${body}
         <div class="review-foot">
           ${S.kind !== "local" && !isLocalId(l.id) ? `<button type="button" data-like-log="${esc(l.id)}" aria-pressed="${!!l.liked_by_me}">♥ <span>${l.likes ? l.likes.toLocaleString() : ""}</span> ${l.liked_by_me ? "Liked" : "Like"}</button>
@@ -1904,6 +1904,7 @@
     if (playId) setLogPlay(playId); else { $("#log-title").textContent = "What did you see?"; $("#log-meta").textContent = ""; $("#log-poster").innerHTML = ""; $("#log-kicker").textContent = "Log a show"; }
     $("#log-date").value = edit ? (edit.seen_on || "") : prefill?.seen_on && prefill.seen_on <= localToday() ? prefill.seen_on : localToday();
     $("#log-date").max = localToday();
+    $("#log-time").value = (edit ? edit.seen_time : prefill?.time || "")?.slice(0, 5) || "";  // the curtain-up time, for the member's own diary
     $("#log-venue").value = edit?.venue || prefill?.venue || ""; $("#log-city").value = edit?.city || prefill?.city || "";
     $("#log-review").value = edit?.review || "";
     $("#log-spoil").checked = !!edit?.spoilers; $("#log-rewatch").checked = !!edit?.rewatch;
@@ -1933,7 +1934,9 @@
       const rs = w.productions.flatMap((p) => p.runs).sort((a, b) => (listingStatus(b.checked, b.from, b.to) ? 1 : 0) - (listingStatus(a.checked, a.from, a.to) ? 1 : 0) || (b.from || "").localeCompare(a.from || ""));
       const seen = new Set();
       $("#log-venues").innerHTML = rs.map(run).filter(([v]) => v && !seen.has(v) && seen.add(v)).slice(0, 30).map(([v, c]) => `<option value="${esc(v)}">${esc(c || "")}</option>`).join("");
-      const cur = rs.find((r) => listingStatus(r.checked, r.from, r.to));
+      // the theatre to start from: the production the member marked, else the likeliest one (the picker's order) if it's on or just closed
+      const top = rankProds(w, hereGuess(), prodMarks.play === w.id ? prodMarks.mine : {})[0];
+      const cur = top && (prodMarks.play === w.id && prodMarks.mine[top.p.id] || prodDays(top.p) <= 60) ? top.p.runs.find((r) => r.venue) || top.p.runs[0] : null;
       if (cur && !logState.edit && !$("#log-venue").value) { $("#log-venue").value = venues[cur.venue]?.name || ""; $("#log-city").value = places[cur.place]?.name || ""; }
     };
     loadDetail(w).then(fill).catch(() => {});
@@ -1954,7 +1957,7 @@
   $("#log-form").addEventListener("submit", async (e) => {
     e.preventDefault();
     const w = logState.play; if (!w) return;
-    const row = { play_id: w.id, play_title: w.title, seen_on: $("#log-date").value || null, rating: logState.rating || null, liked: logState.liked,
+    const row = { play_id: w.id, play_title: w.title, seen_on: $("#log-date").value || null, seen_time: ($("#log-date").value && $("#log-time").value) || null, rating: logState.rating || null, liked: logState.liked,
                   review: $("#log-review").value.trim() || null, spoilers: $("#log-spoil").checked, rewatch: $("#log-rewatch").checked,
                   venue: $("#log-venue").value.trim() || null, city: $("#log-city").value.trim() || null };
     if (S.kind !== "local") { row.visibility = $("#log-vis").value; try { localStorage.setItem("billd-vis", row.visibility); } catch (e) { /* not kept */ } }
@@ -2110,7 +2113,7 @@
       if (p) { const all = plans(); all[playId] = { ...p, checked_in: new Date().toISOString() }; savePlans(all); }
       setTimeout(() => toast(`Checked in to ${w.title}. Enjoy the show!`), 300);
     } else if (kind === "review") {
-      setTimeout(() => openLog(playId, null, p ? { seen_on: p.date, venue: p.venue, city: p.city, fromPlan: true } : undefined), 300);
+      setTimeout(() => openLog(playId, null, p ? { seen_on: p.date, time: p.time, venue: p.venue, city: p.city, fromPlan: true } : undefined), 300);
     }
   }
   function reminderText(p, w) {
@@ -2611,7 +2614,7 @@
     const w = byId[l.play_id];
     const d = l.seen_on || (l.created_at || "").slice(0, 10) || l.when || "";
     const dt = /^\d{4}-\d{2}-\d{2}$/.test(d) ? new Date(d + "T12:00:00Z") : null;
-    const day = dt ? `${["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"][dt.getUTCDay()]} ${dt.getUTCDate()} ${MONTHS[dt.getUTCMonth()]}` : "";
+    const day = dt ? `${["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"][dt.getUTCDay()]} ${dt.getUTCDate()} ${MONTHS[dt.getUTCMonth()]}${mine && l.seen_time ? `, ${fmtTime(l.seen_time)}` : ""}` : "";
     const note = (l.review || "").trim().replace(/\s+/g, " ");
     const isLog = !!l._log || "seen_on" in l;
     return `<article class="scrap"><a href="${playUrl(l.play_id)}" aria-label="${esc(w?.title || l.play_title || "")}">${w ? poster(w, { tag: "span", badge: false }) : ""}</a>
