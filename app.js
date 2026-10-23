@@ -599,6 +599,15 @@
   // Halloween (October, through the 31st, in the visitor's own time): candle-warm stage lights, a few bats
   // crossing the stage, a pumpkin by the logo and a row of spooky shows on the home page. Off by itself on 1 November.
   const HALLOWEEN = (() => { const d = new Date(); return d.getMonth() === 9; })();
+  // "What's happening in Detroit": a link on the home page for visitors whose device is on Detroit time
+  // (Michigan reports America/Detroit). No location prompt and no lookup: just the clock's time zone.
+  // ?detroit in the address shows it anywhere, to preview it.
+  const DETROIT = (() => {
+    let tz = ""; try { tz = Intl.DateTimeFormat().resolvedOptions().timeZone || ""; } catch (e) { /* an old browser: no link */ }
+    return tz === "America/Detroit" || /[?&]detroit\b/.test(location.search);
+  })();
+  const detroitHTML = () => !DETROIT ? "" : `<a class="detroit" href="${APP ? "https://billd.theater/detroit/" : "detroit/"}"${APP ? ' target="_blank" rel="noopener"' : ""}>
+    <span class="d" aria-hidden="true">D</span><span>What's happening in Detroit</span></a>`;
   if (HALLOWEEN) {
     document.documentElement.classList.add("season-halloween");
     $(".nav")?.insertAdjacentHTML("afterbegin", `<a href="#/spooky" data-nav="spooky" class="nav-spooky">Spooky season</a>`);
@@ -633,7 +642,7 @@
         ${stageHTML(`<h1>Your <em>show biz.</em></h1>
             <p>Every play you've watched, from your first school trip to last night's preview, kept in one place, with the plays of every culture and era to browse between curtains.</p>
             <div class="acts">${S.kind === "local" ? `<button class="btn" type="button" data-log>Log a show</button>` : `<button class="btn" type="button" data-auth-open="up">Join Billd</button>`}
-              ${APP && S.kind !== "local" ? `<button class="btn ghost" type="button" data-auth-open="in">Log in</button>` : `<a class="btn ghost" href="#/onstage">What's on now</a>`}</div>`)}
+              ${APP && S.kind !== "local" ? `<button class="btn ghost" type="button" data-auth-open="in">Log in</button>` : `<a class="btn ghost" href="#/onstage">What's on now</a>`}</div>${detroitHTML()}`)}
         <div class="lets" aria-label="What you can do on Billd">
           <a class="let" href="#/onstage">${ICONS.ticket}<p><b>What's on</b><span>Tonight, near you</span></p></a>
           <button class="let" type="button" data-log>${ICONS.cal}<p><b>Log it</b><span>Every show you see</span></p></button>
@@ -643,12 +652,12 @@
         ${S.kind === "local" ? `<p class="banner"><b>Preview mode.</b> Your diary is saved on this device. Member accounts, following and shared reviews switch on when Billd's server is connected.</p>` : ""}
       </section>` : `<section class="hero hero-member">${stageHTML(`<h1>Welcome back, <em>${who(me)}.</em></h1>
             <div class="acts"><button class="btn" type="button" data-log>Log a show</button><a class="btn ghost" href="#/onstage">What's on now</a>
-              <a class="btn ghost" href="#/u/${esc(me.username)}/diary">Your diary</a></div>`)}</section>`;
+              <a class="btn ghost" href="#/u/${esc(me.username)}/diary">Your diary</a></div>${detroitHTML()}`)}</section>`;
     const feedHome = look.has("feed") && me && S.kind !== "local";
     const ahead = signedIn() ? comingUp() : [];
     const sec = {
       feed: feedHome ? `<section class="feed-home"><div class="fh-head"><h1 class="h1">Hello, <em>${who(me)}</em></h1>
-          <div class="acts"><button class="btn" type="button" data-log>Log a show</button><a class="btn ghost" href="#/onstage">What's on now</a><a class="btn ghost" href="#/u/${esc(me.username)}/diary">Your diary</a></div></div>
+          <div class="acts"><button class="btn" type="button" data-log>Log a show</button><a class="btn ghost" href="#/onstage">What's on now</a><a class="btn ghost" href="#/u/${esc(me.username)}/diary">Your diary</a></div>${detroitHTML()}</div>
           <div class="sec-head"><h2 id="fh-title">From the people you follow</h2><a href="#/activity">All activity →</a></div>
           <ul class="feed" id="home-feed"><li class="hint">Loading…</li></ul></section>` : "",
       plans: ahead.length ? `<section class="sec" id="home-plans"><div class="sec-head"><h2>Coming up</h2></div><ul class="stubs">${ahead.map(planStubHTML).join("")}</ul></section>` : "",

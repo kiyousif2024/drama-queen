@@ -1,0 +1,1025 @@
+{
+ "days": [
+  {
+   "date": "2026-10-23",
+   "events": [
+    {
+     "venue": "Royal Oak Farmers Market @Royal Oak",
+     "title": "Farm Fresh Friday",
+     "time": null,
+     "source": "https://www.romi.gov/1533/Farmers-Market",
+     "tag": "food"
+    },
+    {
+     "venue": "Eagle Tavern @Greenfield Village",
+     "title": "Harvest Supper",
+     "time": "5:00pm & 7:30pm",
+     "source": "https://www.thehenryford.org/visit/things-to-do/calendar/eagle-tavern-harvest-supper",
+     "tag": "food"
+    },
+    {
+     "venue": "Greenfield Village",
+     "title": "Hallowe'en Fairy Tale Feast",
+     "time": "4:30-5:30pm",
+     "source": "https://www.thehenryford.org/visit/things-to-do/calendar/halloween-fairy-tale-feast",
+     "tag": "food"
+    },
+    {
+     "venue": "Greenfield Village",
+     "title": "All Hallows Dinner at Stand 44 (21+)",
+     "time": "4:45-5:45pm",
+     "source": "https://www.thehenryford.org/visit/things-to-do/calendar/halloween-in-greenfield-village",
+     "tag": "food"
+    },
+    {
+     "venue": "Greenfield Village",
+     "title": "Hallowe'en in Greenfield Village",
+     "time": "6:00-9:30pm",
+     "source": "https://www.thehenryford.org/visit/things-to-do/calendar/halloween-in-greenfield-village"
+    },
+    {
+     "venue": "Walking Tour with Mic Drop Comedy",
+     "title": "Detroit Ghost Walk",
+     "time": "7:30pm & 10:00pm",
+     "source": "https://www.micdropcomedydetroit.com/events/139572"
+    },
+    {
+     "venue": "Detroit Institute of Arts",
+     "title": "Big Picture Guided Tour",
+     "time": "1:00pm & 6:00pm",
+     "source": "https://dia.org/events/big-picture-guided-tour"
+    },
+    {
+     "venue": "Detroit Institute of Arts",
+     "title": "Drop-in Workshop: Sugar Skulls",
+     "time": "6:00-8:30pm",
+     "source": "https://dia.org/events"
+    },
+    {
+     "venue": "Detroit Institute of Arts",
+     "title": "Drawing in the Galleries: Native American",
+     "time": "6:00-8:30pm",
+     "source": "https://dia.org/events"
+    },
+    {
+     "venue": "Detroit Institute of Arts",
+     "title": "Friday Night Live: Nobuntu (Zimbabwean a cappella quartet)",
+     "time": "7:00pm",
+     "source": "https://dia.org/events/nobuntu"
+    },
+    {
+     "venue": "Detroit Zoo",
+     "title": "Zoo Boo (separate ticket)",
+     "time": "3:00-8:30pm",
+     "source": "http://detroitzoo.org/events/"
+    },
+    {
+     "venue": "Michigan Science Center",
+     "title": "After Dark: Weird Science (21+)",
+     "time": "6:00-10:00pm",
+     "source": "https://www.mi-sci.org/after-dark-weird-science-oct-23/"
+    },
+    {
+     "venue": "Henry Ford Museum",
+     "title": "Celebrate Indigenous History",
+     "time": "9:30am-5:00pm",
+     "source": "https://www.thehenryford.org/visit/things-to-do/calendar/celebrate-indigenous-history"
+    },
+    {
+     "venue": "Henry Ford Museum",
+     "title": "Guided Tour",
+     "time": "1:00pm",
+     "source": "https://www.thehenryford.org/visit/things-to-do/calendar/celebrate-indigenous-history"
+    },
+    {
+     "venue": "DSO @Orchestra Hall",
+     "title": "Harry Potter and the Goblet of Fire in Concert",
+     "time": "7:30pm",
+     "source": "https://www.dso.org/events-and-tickets/calendar"
+    },
+    {
+     "venue": "Fisher Theatre",
+     "title": "Maybe Happy Ending",
+     "time": "7:30pm",
+     "source": "https://us.atgtickets.com/events/maybe-happy-ending/fisher-theatre/"
+    },
+    {
+     "venue": "Cranbrook",
+     "title": "Frank Lloyd Wright Smith House Tour (sold out)",
+     "time": "1:00pm",
+     "source": "https://center.cranbrook.edu/events"
+    },
+    {
+     "venue": "Cranbrook",
+     "title": "Saarinen House Tour (sold out)",
+     "time": "3:00pm",
+     "source": "https://center.cranbrook.edu/events"
+    },
+    {
+     "venue": "Majestic Theatre",
+     "title": "Whethan - Warehouse.Wavs Tour",
+     "time": "8:00pm",
+     "source": "https://www.majesticdetroit.com/events/detail/whethan-warehousewavs-tour-1471599"
+    },
+    {
+     "venue": "Saint Andrew's Hall",
+     "title": "Rewind: 2000s Halloween Rave (18+)",
+     "time": "8:00pm",
+     "source": "https://www.saintandrewsdetroit.com/"
+    },
+    {
+     "venue": "The Fillmore Detroit",
+     "title": "Bassem Youssef: The Belly of the Beast Tour",
+     "time": "7:30pm",
+     "source": "https://www.thefillmoredetroit.com/"
+    },
+    {
+     "venue": "Mark Ridley's Comedy Castle",
+     "title": "Phil Hanley",
+     "time": "7:15pm & 9:45pm",
+     "source": "https://www.comedycastle.com/"
+    },
+    {
+     "venue": "Mic Drop Comedy",
+     "title": "Duncan Trussell",
+     "time": "7:00pm & 9:30pm",
+     "source": "https://www.micdropcomedydetroit.com/events/135616"
+    },
+    {
+     "venue": "Royal Oak Music Theatre",
+     "title": "Streetlight Manifesto - The Presence of the Past Tour",
+     "time": "7:00pm",
+     "source": "https://www.royaloakmusictheatre.com/events/detail/1415345"
+    },
+    {
+     "venue": "Cliff Bell's",
+     "title": "Kasan Belgrave",
+     "time": "7:30pm & 9:30pm",
+     "source": "https://cliffbells.com/event/kasan-belgrave-2-3/"
+    },
+    {
+     "venue": "Little Caesar's Arena",
+     "title": "Disney Worlds Collide Concert Tour",
+     "time": "7:00pm",
+     "source": "https://www.313presents.com/venues-events/little-caesars-arena"
+    },
+    {
+     "venue": "Huntington Place",
+     "title": "PMI Global Summit",
+     "time": null,
+     "source": "https://www.huntingtonplacedetroit.com/event/project-management-institute-(pmi)-annual-global-summit-and-leadership-institute/36/"
+    },
+    {
+     "venue": "Huntington Place",
+     "title": "54th Annual SOCK Dinner (Capuchin Soup Kitchen)",
+     "time": null,
+     "source": "https://www.huntingtonplacedetroit.com/event/54th-annual-sock-dinner/54/"
+    }
+   ]
+  },
+  {
+   "date": "2026-10-24",
+   "events": [
+    {
+     "venue": "Grand Circus Park",
+     "title": "Howl-O-Ween Costume Party (13th annual, at the dog park)",
+     "time": "2:00-4:00pm",
+     "source": "https://downtowndetroit.org/event/howl-o-ween-presented-by-strategic-staffing-solutions/"
+    },
+    {
+     "venue": "Palmer Park",
+     "title": "ScareFest: Camp Palmer (free)",
+     "time": "5:00-10:00pm",
+     "source": "https://www.fox2detroit.com/news/halloween-in-the-d-detroit-2026-events"
+    },
+    {
+     "venue": "Boll Family YMCA @Downtown",
+     "title": "Halloween at the Y (free family trick-or-treating)",
+     "time": "11:00am-1:00pm",
+     "source": "https://ymcadetroit.org/events/halloween-at-the-ymca/"
+    },
+    {
+     "venue": "Downtown Ferndale @Ferndale",
+     "title": "Trick-or-Treat Downtown (kids & pets)",
+     "time": "3:00-5:00pm",
+     "source": "https://www.candgnews.com/articles/features-news/ferndale-berkley-get-scary-for-halloween-events/"
+    },
+    {
+     "venue": "Downtown Dearborn @Dearborn",
+     "title": "Downtown Trick or Treating",
+     "time": "1:00-3:00pm",
+     "source": "https://dearborn.gov/DowntownDearbornFall"
+    },
+    {
+     "venue": "Russell Industrial Center @Milwaukee Junction",
+     "title": "Monster's Ball Detroit (21+ costume party, ticketed)",
+     "time": "8:00pm",
+     "source": "https://app.discotech.me/events/38251527-monsters-ball-detroit-2026-at-russell-industrial-center"
+    },
+    {
+     "venue": "Royal Oak Farmers Market @Royal Oak",
+     "title": "Saturday Farmers Market",
+     "time": "7:00am-1:00pm",
+     "source": "https://www.romi.gov/1533/Farmers-Market",
+     "tag": "food"
+    },
+    {
+     "venue": "Downtown Dearborn @Dearborn",
+     "title": "Fall Bazaar: Market on Maple (makers market)",
+     "time": "4:00-9:00pm",
+     "source": "https://dearborn.gov/DowntownDearbornFall",
+     "tag": "food"
+    },
+    {
+     "venue": "Eagle Tavern @Greenfield Village",
+     "title": "Harvest Supper",
+     "time": "5:00pm & 7:30pm",
+     "source": "https://www.thehenryford.org/visit/things-to-do/calendar/eagle-tavern-harvest-supper",
+     "tag": "food"
+    },
+    {
+     "venue": "Greenfield Village",
+     "title": "Hallowe'en Fairy Tale Feast",
+     "time": "4:30-5:30pm",
+     "source": "https://www.thehenryford.org/visit/things-to-do/calendar/halloween-fairy-tale-feast",
+     "tag": "food"
+    },
+    {
+     "venue": "Greenfield Village",
+     "title": "All Hallows Dinner at Stand 44 (21+)",
+     "time": "4:45-5:45pm",
+     "source": "https://www.thehenryford.org/visit/things-to-do/calendar/halloween-in-greenfield-village",
+     "tag": "food"
+    },
+    {
+     "venue": "Greenfield Village",
+     "title": "Hallowe'en in Greenfield Village",
+     "time": "6:00-9:30pm",
+     "source": "https://www.thehenryford.org/visit/things-to-do/calendar/halloween-in-greenfield-village"
+    },
+    {
+     "venue": "Walking Tour with Mic Drop Comedy",
+     "title": "Detroit Ghost Walk",
+     "time": "7:00pm & 10:00pm",
+     "source": "https://www.micdropcomedydetroit.com/events/139572"
+    },
+    {
+     "venue": "Eastern Market",
+     "title": "Saturday Market",
+     "time": "6:00am-4:00pm",
+     "source": "https://easternmarket.org/events/saturday-market/2026-10-24/",
+     "tag": "food"
+    },
+    {
+     "venue": "Shed 5 @Eastern Market",
+     "title": "17th Annual Detroit Fall Beer Festival",
+     "time": "1:00-6:00pm",
+     "source": "https://easternmarket.org/events/17th-annual-detroit-fall-beer-festival/",
+     "tag": "food"
+    },
+    {
+     "venue": "Detroit Institute of Arts",
+     "title": "Friends of Art & Flowers Lecture: Beauty is Therapy",
+     "time": "10:30am",
+     "source": "https://dia.org/events/2026-friends-art-flowers-betsy-campbell-lecture"
+    },
+    {
+     "venue": "Detroit Institute of Arts",
+     "title": "Teen Workshop: Create Your Calm",
+     "time": "11:00am-2:00pm",
+     "source": "https://dia.org/events/teen-workshop-create-your-calm"
+    },
+    {
+     "venue": "Detroit Institute of Arts",
+     "title": "Drop-in Workshop: Sugar Skulls",
+     "time": "12:00-4:00pm",
+     "source": "https://dia.org/events"
+    },
+    {
+     "venue": "Detroit Institute of Arts",
+     "title": "Big Picture Guided Tour",
+     "time": "1:00pm",
+     "source": "https://dia.org/events/big-picture-guided-tour"
+    },
+    {
+     "venue": "Detroit Institute of Arts",
+     "title": "Adobe and Architecture with Joanna Keane Lopez (talk/demo)",
+     "time": "2:00pm",
+     "source": "https://dia.org/events/adobe-and-architecture-joanna-keane-lopez"
+    },
+    {
+     "venue": "Detroit Zoo",
+     "title": "Zoo Boo (separate ticket)",
+     "time": "3:00-8:30pm",
+     "source": "http://detroitzoo.org/events/"
+    },
+    {
+     "venue": "Henry Ford Museum",
+     "title": "Celebrate Indigenous History",
+     "time": "9:30am-5:00pm",
+     "source": "https://www.thehenryford.org/visit/things-to-do/calendar/celebrate-indigenous-history"
+    },
+    {
+     "venue": "Aretha's Jazz Café @ Music Hall",
+     "title": "Night of the Living Dead Live with Orchestra Cinematique",
+     "time": "8:00pm",
+     "source": "https://jazzcafedetroit.com/events/October-2026/Night-of-Living-Dead-Live-with-Patrick-Prouty-s-Orchestra-Cinematique"
+    },
+    {
+     "venue": "DSO @Orchestra Hall",
+     "title": "Bernadette Peters Live in Concert",
+     "time": "8:00pm",
+     "source": "https://www.dso.org/events-and-tickets/calendar"
+    },
+    {
+     "venue": "Fisher Theatre",
+     "title": "Maybe Happy Ending",
+     "time": "2:00pm & 7:30pm",
+     "source": "https://us.atgtickets.com/events/maybe-happy-ending/fisher-theatre/"
+    },
+    {
+     "venue": "Fox Theatre",
+     "title": "Jo Koy: Koy Meets World Tour",
+     "time": "8:00pm",
+     "source": "https://www.313presents.com/events/detail/jo-koy"
+    },
+    {
+     "venue": "Cranbrook",
+     "title": "Frank Lloyd Wright Smith House Tour",
+     "time": "1:00pm",
+     "source": "https://center.cranbrook.edu/events"
+    },
+    {
+     "venue": "Cranbrook",
+     "title": "Saarinen House Tour",
+     "time": "3:00pm",
+     "source": "https://center.cranbrook.edu/events"
+    },
+    {
+     "venue": "Library Street Collective",
+     "title": "Opening Reception: Forms of Witness",
+     "time": "12:00-1:00pm",
+     "source": "https://lscgallery.com/exhibitions/forms-of-witness"
+    },
+    {
+     "venue": "Magic Stick @Majestic",
+     "title": "Twin Diplomacy w/ Dino Munaco, ARCS, Miss Belles",
+     "time": "9:00pm",
+     "source": "https://www.majesticdetroit.com/events/detail/twin-diplomacy-1481121"
+    },
+    {
+     "venue": "Majestic Theatre",
+     "title": "Whethan - Warehouse.Wavs Tour (added show)",
+     "time": "8:00pm",
+     "source": "https://www.majesticdetroit.com/events/detail/whethan-warehousewavs-tour-1462909"
+    },
+    {
+     "venue": "Saint Andrew's Hall",
+     "title": "Plini - An Unnameable Desire Tour",
+     "time": "6:00pm",
+     "source": "https://www.saintandrewsdetroit.com/"
+    },
+    {
+     "venue": "Mark Ridley's Comedy Castle",
+     "title": "Phil Hanley",
+     "time": "7:00pm & 9:30pm",
+     "source": "https://www.comedycastle.com/"
+    },
+    {
+     "venue": "Mic Drop Comedy",
+     "title": "Shrekxual Burlesque",
+     "time": "2:00pm",
+     "source": "https://www.micdropcomedydetroit.com/events/141042"
+    },
+    {
+     "venue": "Mic Drop Comedy",
+     "title": "Duncan Trussell",
+     "time": "6:00pm & 8:30pm",
+     "source": "https://www.micdropcomedydetroit.com/events/135616"
+    },
+    {
+     "venue": "Royal Oak Music Theatre",
+     "title": "Bethel Music",
+     "time": "6:00pm",
+     "source": "https://www.royaloakmusictheatre.com/events/detail/1261216"
+    },
+    {
+     "venue": "Cliff Bell's",
+     "title": "St. Vincent (sold out)",
+     "time": "8:30pm",
+     "source": "https://cliffbells.com/event/st-vincent/"
+    },
+    {
+     "venue": "Ford Field",
+     "title": "CHSL Prep Bowl",
+     "time": "7:50am-7:30pm (9 games)",
+     "source": "https://www.fordfield.com/events/detail/chsl-prep-bowl-2026"
+    },
+    {
+     "venue": "Huntington Place",
+     "title": "PMI Global Summit",
+     "time": null,
+     "source": "https://www.huntingtonplacedetroit.com/event/project-management-institute-(pmi)-annual-global-summit-and-leadership-institute/36/"
+    }
+   ]
+  },
+  {
+   "date": "2026-10-25",
+   "events": [
+    {
+     "venue": "Royal Oak Farmers Market @Royal Oak",
+     "title": "Antiques & Collectibles Market",
+     "time": "8:00am-3:00pm",
+     "source": "https://www.romi.gov/1533/Farmers-Market",
+     "tag": "food"
+    },
+    {
+     "venue": "Detroit Historical Museum",
+     "title": "Treats in the Streets: Sensory-Friendly Hour",
+     "time": "1:00pm",
+     "source": "https://detroithistorical.org/events/treats-streets-sensory-friendly-hour-0"
+    },
+    {
+     "venue": "Detroit Historical Museum",
+     "title": "Treats in the Streets",
+     "time": "2:30-4:30pm",
+     "source": "https://detroithistorical.org/events/treats-streets-9"
+    },
+    {
+     "venue": "Eagle Tavern @Greenfield Village",
+     "title": "Harvest Supper",
+     "time": "5:00pm",
+     "source": "https://www.thehenryford.org/visit/things-to-do/calendar/eagle-tavern-harvest-supper",
+     "tag": "food"
+    },
+    {
+     "venue": "Greenfield Village",
+     "title": "Hallowe'en Fairy Tale Feast",
+     "time": "4:30-5:30pm",
+     "source": "https://www.thehenryford.org/visit/things-to-do/calendar/halloween-fairy-tale-feast",
+     "tag": "food"
+    },
+    {
+     "venue": "Greenfield Village",
+     "title": "All Hallows Dinner at Stand 44 (21+)",
+     "time": "4:45-5:45pm",
+     "source": "https://www.thehenryford.org/visit/things-to-do/calendar/halloween-in-greenfield-village",
+     "tag": "food"
+    },
+    {
+     "venue": "Greenfield Village",
+     "title": "Hallowe'en in Greenfield Village",
+     "time": "6:00-9:30pm",
+     "source": "https://www.thehenryford.org/visit/things-to-do/calendar/halloween-in-greenfield-village"
+    },
+    {
+     "venue": "Walking Tour with Mic Drop Comedy",
+     "title": "Detroit Ghost Walk",
+     "time": "6:00pm",
+     "source": "https://www.micdropcomedydetroit.com/events/139572"
+    },
+    {
+     "venue": "Eastern Market",
+     "title": "Detroit Lions Tailgate",
+     "time": "11:00am-8:30pm",
+     "source": "https://easternmarket.org/events/eastern-market-detroit-lions-tailgate-oct-25/",
+     "tag": "food"
+    },
+    {
+     "venue": "Detroit Institute of Arts",
+     "title": "Tri-County Free Day: Georgia O'Keeffe: Architecture",
+     "time": "10:00am-5:00pm",
+     "source": "https://dia.org/events/tri-county-free-days-georgia-okeeffe-architecture-0"
+    },
+    {
+     "venue": "Detroit Institute of Arts",
+     "title": "Drop-in Workshop: Sugar Skulls",
+     "time": "12:00-4:00pm",
+     "source": "https://dia.org/events/sugar-skulls"
+    },
+    {
+     "venue": "Detroit Institute of Arts",
+     "title": "Drawing in the Galleries: Native American",
+     "time": "12:00-4:00pm",
+     "source": "https://dia.org/events/native-american-2"
+    },
+    {
+     "venue": "Detroit Institute of Arts",
+     "title": "Big Picture Guided Tour",
+     "time": "1:00pm",
+     "source": "https://dia.org/events/big-picture-guided-tour"
+    },
+    {
+     "venue": "Detroit Institute of Arts",
+     "title": "Book Talk: Matisse at War: Art & Resistance in Nazi-Occupied France",
+     "time": "1:00pm",
+     "source": "https://dia.org/events/matisse-war-art-and-resistance-nazi-occupied-france-book-talk-christopher-gorham"
+    },
+    {
+     "venue": "Detroit Zoo",
+     "title": "Zoo Boo (separate ticket)",
+     "time": "3:00-8:30pm",
+     "source": "http://detroitzoo.org/events/"
+    },
+    {
+     "venue": "Henry Ford Museum",
+     "title": "Celebrate Indigenous History",
+     "time": "9:30am-5:00pm",
+     "source": "https://www.thehenryford.org/visit/things-to-do/calendar/celebrate-indigenous-history"
+    },
+    {
+     "venue": "DSO @Orchestra Hall",
+     "title": "Bernadette Peters Live in Concert",
+     "time": "3:00pm",
+     "source": "https://www.dso.org/events-and-tickets/calendar"
+    },
+    {
+     "venue": "Fisher Theatre",
+     "title": "Maybe Happy Ending",
+     "time": "1:00pm & 6:30pm",
+     "source": "https://us.atgtickets.com/events/maybe-happy-ending/fisher-theatre/"
+    },
+    {
+     "venue": "Cranbrook",
+     "title": "Frank Lloyd Wright Smith House Tour (sold out)",
+     "time": "1:00pm",
+     "source": "https://center.cranbrook.edu/events"
+    },
+    {
+     "venue": "Cranbrook",
+     "title": "Saarinen House Tour (sold out)",
+     "time": "3:00pm",
+     "source": "https://center.cranbrook.edu/events"
+    },
+    {
+     "venue": "Saint Andrew's Hall",
+     "title": "Judah & the Lion",
+     "time": "6:30pm",
+     "source": "https://www.saintandrewsdetroit.com/"
+    },
+    {
+     "venue": "Mic Drop Comedy",
+     "title": "Duncan Trussell",
+     "time": "6:00pm",
+     "source": "https://www.micdropcomedydetroit.com/events/135616"
+    },
+    {
+     "venue": "Sound Board @ Motorcity Casino",
+     "title": "Winger",
+     "time": "7:30pm",
+     "source": "https://www.313presents.com/events/detail/wigner"
+    },
+    {
+     "venue": "Cliff Bell's",
+     "title": "Cyrus Chestnut",
+     "time": "5:30pm & 7:30pm",
+     "source": "https://cliffbells.com/event/cyrus-chestnut/"
+    },
+    {
+     "venue": "Lions @Ford Field",
+     "title": "vs Green Bay Packers",
+     "time": "4:25pm",
+     "source": "https://www.fordfield.com/events"
+    },
+    {
+     "venue": "Little Caesar's Arena",
+     "title": "Jonas Brothers (The Burning Up Tour All Over Again)",
+     "time": "7:30pm",
+     "source": "https://www.313presents.com/venues-events/little-caesars-arena"
+    },
+    {
+     "venue": "Huntington Place",
+     "title": "PMI Global Summit",
+     "time": null,
+     "source": "https://www.huntingtonplacedetroit.com/event/project-management-institute-(pmi)-annual-global-summit-and-leadership-institute/36/"
+    }
+   ]
+  },
+  {
+   "date": "2026-10-26",
+   "events": [
+    {
+     "venue": "Henry Ford Museum",
+     "title": "Celebrate Indigenous History",
+     "time": "9:30am-5:00pm",
+     "source": "https://www.thehenryford.org/visit/things-to-do/calendar/celebrate-indigenous-history"
+    },
+    {
+     "venue": "Henry Ford Museum",
+     "title": "Guided Tour",
+     "time": "1:00pm",
+     "source": "https://www.thehenryford.org/visit/things-to-do/calendar/celebrate-indigenous-history"
+    },
+    {
+     "venue": "Aretha's Jazz Café @ Music Hall",
+     "title": "A Tribute to the Jute Joint ft. The Gud Band",
+     "time": "7:00pm",
+     "source": "https://jazzcafedetroit.com/events/October-2026/A-Tribute-to-the-Jute-Joint-ft-The-Gud-Band"
+    },
+    {
+     "venue": "The Scarab Club",
+     "title": "Pleyel Piano Series: Josh Cullen",
+     "time": "7:00pm",
+     "source": "https://www.eventbrite.com/e/pleyel-piano-series-featuring-josh-cullen-tickets-1999037589242"
+    }
+   ]
+  },
+  {
+   "date": "2026-10-27",
+   "events": [
+    {
+     "venue": "Detroit Riverwalk",
+     "title": "Two Mile Tuesdays",
+     "time": "6:00pm",
+     "source": "https://detroitriverfront.org/events/calendar/2026/10/27/two-mile-tuesdays"
+    },
+    {
+     "venue": "Detroit Public Library @Midtown",
+     "title": "Hallow Hustle Line Dance",
+     "time": "6:00-7:30pm",
+     "source": "https://detroitpubliclibrary.org/news/fall-halloween-events"
+    },
+    {
+     "venue": "DHS @Royal Oak Senior Center",
+     "title": "Lecture: Native Roots: Indigenous History of Belle Isle",
+     "time": "12:00pm",
+     "source": "https://detroithistorical.org/events/lecture-native-roots-indigenous-history-belle-isle-2"
+    },
+    {
+     "venue": "Detroit Institute of Arts",
+     "title": "Big Picture Guided Tour",
+     "time": "1:00pm",
+     "source": "https://dia.org/events/big-picture-guided-tour"
+    },
+    {
+     "venue": "Henry Ford Museum",
+     "title": "Celebrate Indigenous History",
+     "time": "9:30am-5:00pm",
+     "source": "https://www.thehenryford.org/visit/things-to-do/calendar/celebrate-indigenous-history"
+    },
+    {
+     "venue": "Henry Ford Museum",
+     "title": "Guided Tour",
+     "time": "1:00pm",
+     "source": "https://www.thehenryford.org/visit/things-to-do/calendar/celebrate-indigenous-history"
+    },
+    {
+     "venue": "Fisher Theatre",
+     "title": "Maybe Happy Ending",
+     "time": "7:30pm",
+     "source": "https://us.atgtickets.com/events/maybe-happy-ending/fisher-theatre/"
+    },
+    {
+     "venue": "Magic Stick @Majestic",
+     "title": "She Wants Revenge",
+     "time": "8:00pm",
+     "source": "https://www.majesticdetroit.com/events/detail/she-wants-revenge-1438517"
+    },
+    {
+     "venue": "Huntington Place",
+     "title": "Automotive 2026 (Reuters Events)",
+     "time": null,
+     "source": "https://www.huntingtonplacedetroit.com/event/automotive-2026/39/"
+    },
+    {
+     "venue": "Huntington Place",
+     "title": "Materials Week USA",
+     "time": null,
+     "source": "https://www.huntingtonplacedetroit.com/event/materials-week-usa/37/"
+    }
+   ]
+  },
+  {
+   "date": "2026-10-28",
+   "events": [
+    {
+     "venue": "Valade Park @The Riverwalk",
+     "title": "Wisdom Wednesdays: Chess with Wise Guys Chess Club",
+     "time": "6:00-9:00pm",
+     "source": "https://www.detroitriverfront.org/events/calendar/2026/10/28/wisdom-wednesdays"
+    },
+    {
+     "venue": "Detroit Public Library @Midtown",
+     "title": "Trivia Night: Horror Edition",
+     "time": "5:00-7:00pm",
+     "source": "https://detroitpubliclibrary.org/news/fall-halloween-events"
+    },
+    {
+     "venue": "Detroit Public Library @Midtown",
+     "title": "Halloween Candy Crawl",
+     "time": "5:30-7:30pm",
+     "source": "https://detroitpubliclibrary.org/news/fall-halloween-events"
+    },
+    {
+     "venue": "Detroit Institute of Arts",
+     "title": "Big Picture Guided Tour",
+     "time": "1:00pm",
+     "source": "https://dia.org/events/big-picture-guided-tour"
+    },
+    {
+     "venue": "Henry Ford Museum",
+     "title": "Celebrate Indigenous History",
+     "time": "9:30am-5:00pm",
+     "source": "https://www.thehenryford.org/visit/things-to-do/calendar/celebrate-indigenous-history"
+    },
+    {
+     "venue": "Henry Ford Museum",
+     "title": "Guided Tour",
+     "time": "1:00pm",
+     "source": "https://www.thehenryford.org/visit/things-to-do/calendar/celebrate-indigenous-history"
+    },
+    {
+     "venue": "Aretha's Jazz Café @ Music Hall",
+     "title": "Charles Prophet Jr.",
+     "time": "7:30pm",
+     "source": "https://jazzcafedetroit.com/events/October-2026/Charles-Prophet-Jr"
+    },
+    {
+     "venue": "Fisher Theatre",
+     "title": "Maybe Happy Ending",
+     "time": "7:30pm",
+     "source": "https://us.atgtickets.com/events/maybe-happy-ending/fisher-theatre/"
+    },
+    {
+     "venue": "Pewabic @The Guardian Building",
+     "title": "Pewabic Uncovered Tour",
+     "time": "5:00pm",
+     "source": "https://www.pewabic.org/collections/pewabic-uncovered-tours-guardian-building/products/guardian-building-tour-10-28-2026-5-pm-6-pm"
+    },
+    {
+     "venue": "Majestic Theatre",
+     "title": "The Wrecks - Finally: Outside Tour",
+     "time": "6:00pm",
+     "source": "https://www.majesticdetroit.com/events/detail/the-wrecks-finally-outside-1493781"
+    },
+    {
+     "venue": "Saint Andrew's Hall",
+     "title": "Quadeca",
+     "time": "7:00pm",
+     "source": "https://www.saintandrewsdetroit.com/"
+    },
+    {
+     "venue": "Mark Ridley's Comedy Castle",
+     "title": "Detroit to Austin Comedy Challenge",
+     "time": "7:30pm",
+     "source": "https://www.comedycastle.com/"
+    },
+    {
+     "venue": "Royal Oak Music Theatre",
+     "title": "Sleeping With Sirens w/ Rain City Drive, Shyeye",
+     "time": "6:00pm",
+     "source": "https://www.royaloakmusictheatre.com/events/detail/1485558"
+    },
+    {
+     "venue": "Cliff Bell's",
+     "title": "Kasan Belgrave and Session",
+     "time": "7:30pm & 9:30pm",
+     "source": "https://cliffbells.com/event/kasan-belgrave-and-session-8/"
+    },
+    {
+     "venue": "Pistons @Little Caesar's Arena",
+     "title": "vs Charlotte Hornets",
+     "time": "7:00pm",
+     "source": "https://www.wxyz.com/sports/basketball/pistons/the-spot-detroit-20-to-air-71-regular-season-detroit-pistons-games-heres-the-full-schedule"
+    },
+    {
+     "venue": "Huntington Place",
+     "title": "Automotive 2026 (Reuters Events)",
+     "time": null,
+     "source": "https://www.huntingtonplacedetroit.com/event/automotive-2026/39/"
+    },
+    {
+     "venue": "Huntington Place",
+     "title": "Materials Week USA",
+     "time": null,
+     "source": "https://www.huntingtonplacedetroit.com/event/materials-week-usa/37/"
+    }
+   ]
+  },
+  {
+   "date": "2026-10-29",
+   "events": [
+    {
+     "venue": "Detroit Riverwalk",
+     "title": "We Run 313 5k/10k",
+     "time": "6:30pm",
+     "source": "https://www.detroitriverfront.org/events/calendar/2026/10/29/we-run-313-5k10k-thursday"
+    },
+    {
+     "venue": "Greektown to Corktown",
+     "title": "Detroit Fright Crawl (21+ bar crawl, ticketed, through Oct 31)",
+     "time": null,
+     "source": "https://www.cbsnews.com/detroit/news/halloween-treats-haunted-events-metro-detroit/"
+    },
+    {
+     "venue": "Detroit Historical Museum",
+     "title": "Free Admission Evening",
+     "time": "5:00-8:00pm",
+     "source": "https://detroithistorical.org/events/free-admission-5-8pm-4"
+    },
+    {
+     "venue": "Detroit Historical Museum",
+     "title": "Lecture: Detroit Was Wild About Harry (Houdini)",
+     "time": "6:30pm",
+     "source": "https://detroithistorical.org/events/detroit-was-wild-about-harry-houdini"
+    },
+    {
+     "venue": "Walking Tour with Mic Drop Comedy",
+     "title": "Detroit Ghost Walk",
+     "time": "7:30pm",
+     "source": "https://www.micdropcomedydetroit.com/events/139572"
+    },
+    {
+     "venue": "Detroit Institute of Arts",
+     "title": "Big Picture Guided Tour",
+     "time": "1:00pm",
+     "source": "https://dia.org/events/big-picture-guided-tour"
+    },
+    {
+     "venue": "Henry Ford Museum",
+     "title": "Celebrate Indigenous History",
+     "time": "9:30am-5:00pm",
+     "source": "https://www.thehenryford.org/visit/things-to-do/calendar/celebrate-indigenous-history"
+    },
+    {
+     "venue": "Henry Ford Museum",
+     "title": "Guided Tour",
+     "time": "1:00pm",
+     "source": "https://www.thehenryford.org/visit/things-to-do/calendar/celebrate-indigenous-history"
+    },
+    {
+     "venue": "Aretha's Jazz Café @ Music Hall",
+     "title": "Lexie Blue",
+     "time": "8:00pm",
+     "source": "https://jazzcafedetroit.com/events/October-2026/Lexie-Blue"
+    },
+    {
+     "venue": "Detroit Opera House",
+     "title": "Premium Sip & Stroll: Tosca",
+     "time": "6:00pm",
+     "source": "https://detroitopera.org/show/sip-stroll-experience-passion-peril-tosca/"
+    },
+    {
+     "venue": "Fisher Theatre",
+     "title": "Maybe Happy Ending",
+     "time": "7:30pm",
+     "source": "https://us.atgtickets.com/events/maybe-happy-ending/fisher-theatre/"
+    },
+    {
+     "venue": "Cranbrook",
+     "title": "Frank Lloyd Wright Smith House Tour",
+     "time": "1:00pm & 6:00pm",
+     "source": "https://center.cranbrook.edu/events"
+    },
+    {
+     "venue": "Cranbrook",
+     "title": "Saarinen House Tour",
+     "time": "3:00pm",
+     "source": "https://center.cranbrook.edu/events"
+    },
+    {
+     "venue": "The Scarab Club",
+     "title": "Sketch Sessions",
+     "time": "6:00-9:00pm",
+     "source": "https://www.eventbrite.com/e/sketch-sessions-at-the-scarab-club-tickets-688578947167"
+    },
+    {
+     "venue": "J. White Theatre @Masonic Temple",
+     "title": "BEAT: Belew/Vai/Levin/Bozzio - The Music of King Crimson",
+     "time": "6:30pm",
+     "source": "https://aegwebprod.blob.core.windows.net/json/events/151/events.json"
+    },
+    {
+     "venue": "Majestic Theatre",
+     "title": "The Damned: Final Damnation 50 (with The Flamin' Groovies and The Courettes)",
+     "time": "6:00pm",
+     "source": "https://www.axs.com/jp/events/1413608/the-damned-final-damnation-50-tickets"
+    },
+    {
+     "venue": "The Fillmore Detroit",
+     "title": "Rodrigo y Gabriela - OurHome Tour",
+     "time": "7:00pm",
+     "source": "https://www.thefillmoredetroit.com/"
+    },
+    {
+     "venue": "The Shelter @Saint Andrew's Hall",
+     "title": "Certified Psychos, Under the Lotus: The Final Act",
+     "time": "7:00pm",
+     "source": "https://www.saintandrewsdetroit.com/"
+    },
+    {
+     "venue": "Mark Ridley's Comedy Castle",
+     "title": "Comedy Rumble Competition",
+     "time": "7:30pm",
+     "source": "https://www.comedycastle.com/"
+    },
+    {
+     "venue": "Mic Drop Comedy",
+     "title": "Ali Macofsky",
+     "time": "7:30pm",
+     "source": "https://www.micdropcomedydetroit.com/events/132653"
+    },
+    {
+     "venue": "Cliff Bell's",
+     "title": "The Vincent Chandler Experience",
+     "time": "7:30pm & 9:30pm",
+     "source": "https://cliffbells.com/event/the-vincent-chandler-experience-10/"
+    },
+    {
+     "venue": "Red Wings @Little Caesar's Arena",
+     "title": "vs Chicago Blackhawks",
+     "time": "7:30pm",
+     "source": "https://www.nhl.com/gamecenter/chi-vs-det/2026/10/29/2026020203"
+    },
+    {
+     "venue": "Huntington Place",
+     "title": "Materials Week USA",
+     "time": null,
+     "source": "https://www.huntingtonplacedetroit.com/event/materials-week-usa/37/"
+    }
+   ]
+  }
+ ],
+ "film": [
+  {
+   "venue": "Detroit Film Theatre",
+   "note": null,
+   "films": [
+    {
+     "title": "Fjord (2026)",
+     "times": "F: 7:00pm; Sa: 3:00pm & 7:00pm; Su: 2:00pm",
+     "source": "https://dia.org/events/fjord"
+    }
+   ]
+  },
+  {
+   "venue": "Aretha's Jazz Café @ Music Hall",
+   "note": "with live score",
+   "films": [
+    {
+     "title": "Night of the Living Dead (1968)",
+     "times": "Sa: 8:00pm",
+     "source": "https://jazzcafedetroit.com/events/October-2026/Night-of-Living-Dead-Live-with-Patrick-Prouty-s-Orchestra-Cinematique"
+    }
+   ]
+  },
+  {
+   "venue": "Orchestra Hall",
+   "note": "with live score",
+   "films": [
+    {
+     "title": "Harry Potter and the Goblet of Fire (2005)",
+     "times": "F: 7:30pm",
+     "source": "https://www.dso.org/events-and-tickets/calendar"
+    }
+   ]
+  },
+  {
+   "venue": "The Redford Theatre",
+   "note": null,
+   "films": [
+    {
+     "title": "Fright Night Part 2 (1988) w/ Julie Carmen signing & Q&A",
+     "times": "F: doors 6:30pm, film 8:00pm",
+     "source": "https://redfordtheatre.com/events/special-event-fright-night-part-2/"
+    },
+    {
+     "title": "The Unknown (1927)",
+     "times": "Sa: 8:00pm",
+     "source": "https://www.redfordtheatre.com/events/"
+    }
+   ]
+  }
+ ],
+ "happy": [
+  {
+   "venue": "Sullivan's Steakhouse",
+   "hours": "Mon-Thu 3:00-6:00pm"
+  },
+  {
+   "venue": "Parc",
+   "hours": "Mon-Fri 2:30-5:00pm"
+  },
+  {
+   "venue": "Anchor Bar",
+   "hours": "Mon-Fri 3:00-6:00pm"
+  },
+  {
+   "venue": "The Old Shillelagh",
+   "hours": "Mon-Fri 4:00-7:00pm"
+  },
+  {
+   "venue": "Besa",
+   "hours": "Mon-Fri 4:00-6:30pm"
+  },
+  {
+   "venue": "Joe Muer",
+   "hours": "Mon-Fri 4:00-6:00pm"
+  },
+  {
+   "venue": "Batch Brewing Company",
+   "hours": "Wed-Thu 5:00-7:00pm"
+  }
+ ],
+ "happyNote": "Per the Oct 23 concierge sheet"
+}
