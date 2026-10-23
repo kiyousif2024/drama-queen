@@ -181,14 +181,14 @@ select { width: auto; padding: 6px 10px; background: var(--surface); }
 .hero > p { margin: 16px 0 0; max-width: 54ch; color: var(--muted); font-size: 17.5px; }
 .hero .acts { margin-top: 22px; display: flex; gap: 10px; flex-wrap: wrap; justify-content: flex-start; }
 .hero .acts .btn:last-child { margin-left: 0; }
-/* What's happening in Detroit: shown only to visitors on Detroit time (app.js, DETROIT) */
-.detroit { display: inline-flex; align-items: center; gap: 10px; margin-top: 16px; padding: 4px 16px 4px 4px; max-width: 100%;
-  border: 1px solid var(--line); border-radius: 999px; background: var(--surface); color: var(--ink); text-decoration: none;
-  font: 600 14px/1.2 var(--font-ui); box-shadow: var(--card-shadow); }
-.detroit:hover { border-color: var(--gold); color: var(--gold); }
-.detroit .d { flex: none; display: grid; place-items: center; width: 36px; height: 36px; border-radius: 50%; background: #1d1a1b; color: #fff;
-  font: 700 26px/1 "UnifrakturCook", "Old English Text MT", serif; padding-top: 2px; }
-.detroit span:last-child { min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+/* What's happening in Detroit: an Easter egg for visitors on Detroit time (app.js, DETROIT): the Spirit of Detroit
+   in a dark circle on the left curtain, low down, just bright enough to be found */
+.detroit { position: absolute; left: clamp(4px, 2vw, 26px); bottom: clamp(120px, 22%, 190px); z-index: 4; text-decoration: none;
+  opacity: 0.72; transition: opacity 0.2s, transform 0.2s; }
+.detroit:hover, .detroit:focus-visible { opacity: 1; transform: scale(1.08); }
+.detroit img { display: block; width: 70px; height: auto; filter: drop-shadow(0 4px 8px rgb(0 0 0 / 0.35)); }
+@media (max-width: 640px) { .detroit { bottom: 96px; } .detroit img { width: 62px; } }  /* clear of the buttons, on the stage's edge */
+.fh-head .detroit { position: static; display: inline-block; margin-top: 12px; }  /* the members' feed home has no stage */
 .lets { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 10px; margin-top: 30px; }
 .let { display: flex; gap: 12px; align-items: center; padding: 14px 16px; border-radius: var(--radius); background: var(--surface); border: 1px solid var(--line-soft); color: inherit; text-decoration: none; font: inherit; text-align: left; cursor: pointer; transition: transform .15s ease, border-color .15s ease; }
 .let:hover { transform: translateY(-2px); border-color: var(--gold); }

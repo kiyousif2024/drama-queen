@@ -606,8 +606,10 @@
     let tz = ""; try { tz = Intl.DateTimeFormat().resolvedOptions().timeZone || ""; } catch (e) { /* an old browser: no link */ }
     return tz === "America/Detroit" || /[?&]detroit\b/.test(location.search);
   })();
-  const detroitHTML = () => !DETROIT ? "" : `<a class="detroit" href="${APP ? "https://billd.theater/detroit/" : "detroit/"}"${APP ? ' target="_blank" rel="noopener"' : ""}>
-    <span class="d" aria-hidden="true">D</span><span>What's happening in Detroit</span></a>`;
+  // the Spirit of Detroit (Marshall Fredericks, 1958; public domain), from an illustration made for Billd (icons/spirit.png),
+  // tucked into the side of the stage: an Easter egg for Detroiters, so no words beside it (screen readers still hear where it goes)
+  const SPIRIT = `<img src="icons/spirit.png" alt="" width="70" height="56">`;
+  const detroitHTML = () => !DETROIT ? "" : `<a class="detroit" href="${APP ? "https://billd.theater/detroit/" : "detroit/"}"${APP ? ' target="_blank" rel="noopener"' : ""} aria-label="What's happening in Detroit this week">${SPIRIT}</a>`;
   if (HALLOWEEN) {
     document.documentElement.classList.add("season-halloween");
     $(".nav")?.insertAdjacentHTML("afterbegin", `<a href="#/spooky" data-nav="spooky" class="nav-spooky">Spooky season</a>`);
@@ -619,7 +621,7 @@
           <div class="st-floor" aria-hidden="true"></div><div class="st-pool" aria-hidden="true"></div>
           <div class="st-copy">${copy}</div>
           <div class="st-seats" aria-hidden="true"></div>
-          <div class="st-drape l" aria-hidden="true"></div><div class="st-drape r" aria-hidden="true"></div><div class="st-valance" aria-hidden="true"></div>
+          <div class="st-drape l" aria-hidden="true"></div><div class="st-drape r" aria-hidden="true"></div><div class="st-valance" aria-hidden="true"></div>${detroitHTML()}
           ${HALLOWEEN ? `<div class="st-moon" aria-hidden="true"></div><div class="st-webs" aria-hidden="true"><i></i><i></i></div>
           <div class="st-lanterns" aria-hidden="true"><i></i><i></i></div>
           <div class="st-bats" aria-hidden="true">${`<i>${BAT}</i>`.repeat(5)}</div>` : ""}
@@ -642,7 +644,7 @@
         ${stageHTML(`<h1>Your <em>show biz.</em></h1>
             <p>Every play you've watched, from your first school trip to last night's preview, kept in one place, with the plays of every culture and era to browse between curtains.</p>
             <div class="acts">${S.kind === "local" ? `<button class="btn" type="button" data-log>Log a show</button>` : `<button class="btn" type="button" data-auth-open="up">Join Billd</button>`}
-              ${APP && S.kind !== "local" ? `<button class="btn ghost" type="button" data-auth-open="in">Log in</button>` : `<a class="btn ghost" href="#/onstage">What's on now</a>`}</div>${detroitHTML()}`)}
+              ${APP && S.kind !== "local" ? `<button class="btn ghost" type="button" data-auth-open="in">Log in</button>` : `<a class="btn ghost" href="#/onstage">What's on now</a>`}</div>`)}
         <div class="lets" aria-label="What you can do on Billd">
           <a class="let" href="#/onstage">${ICONS.ticket}<p><b>What's on</b><span>Tonight, near you</span></p></a>
           <button class="let" type="button" data-log>${ICONS.cal}<p><b>Log it</b><span>Every show you see</span></p></button>
@@ -652,7 +654,7 @@
         ${S.kind === "local" ? `<p class="banner"><b>Preview mode.</b> Your diary is saved on this device. Member accounts, following and shared reviews switch on when Billd's server is connected.</p>` : ""}
       </section>` : `<section class="hero hero-member">${stageHTML(`<h1>Welcome back, <em>${who(me)}.</em></h1>
             <div class="acts"><button class="btn" type="button" data-log>Log a show</button><a class="btn ghost" href="#/onstage">What's on now</a>
-              <a class="btn ghost" href="#/u/${esc(me.username)}/diary">Your diary</a></div>${detroitHTML()}`)}</section>`;
+              <a class="btn ghost" href="#/u/${esc(me.username)}/diary">Your diary</a></div>`)}</section>`;
     const feedHome = look.has("feed") && me && S.kind !== "local";
     const ahead = signedIn() ? comingUp() : [];
     const sec = {
