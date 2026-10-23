@@ -188,6 +188,11 @@ select { width: auto; padding: 6px 10px; background: var(--surface); }
 .detroit:hover, .detroit:focus-visible { opacity: 1; transform: scale(1.08); }
 .detroit img { display: block; width: 70px; height: auto; filter: drop-shadow(0 4px 8px rgb(0 0 0 / 0.35)); }
 @media (max-width: 640px) { .detroit { left: 18%; } .detroit img { width: 56px; } }
+/* once the stage settles into its short band the buttons come down to the floor: the Spirit gets smaller and keeps
+   to the floor's front edge, below them */
+.stage.settled .detroit { bottom: 13%; }
+.stage.settled .detroit img { width: 44px; }
+@media (max-width: 640px) { .stage.settled .detroit { left: 14%; } .stage.settled .detroit img { width: 38px; } }
 .fh-head .detroit { position: static; display: inline-block; margin-top: 12px; }  /* the members' feed home has no stage */
 .lets { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 10px; margin-top: 30px; }
 .let { display: flex; gap: 12px; align-items: center; padding: 14px 16px; border-radius: var(--radius); background: var(--surface); border: 1px solid var(--line-soft); color: inherit; text-decoration: none; font: inherit; text-align: left; cursor: pointer; transition: transform .15s ease, border-color .15s ease; }
