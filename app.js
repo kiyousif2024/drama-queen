@@ -104,10 +104,28 @@
     (document.querySelector("dialog[open]") || document.body).appendChild(t);  // modal dialogs sit above everything else
     clearTimeout(toast.t); toast.t = setTimeout(() => (t.hidden = true), msg.length > 60 ? 6000 : 2600);
   }
+  // A member's picture: their profile photo if they added one (on Billd's server, or kept on this
+  // device in preview mode), otherwise the first letter of their name on a colour of their own.
+  function avatarSrc(p) {
+    const u = typeof p?.avatar_url === "string" ? p.avatar_url : "";
+    return /^https:\/\/[a-z0-9-]+\.supabase\.co\/storage\/v1\/object\/public\/avatars\/[\w./-]+$/.test(u)
+      || /^data:image\/(jpeg|webp|png);base64,[A-Za-z0-9+/=]+$/.test(u) ? u : "";
+  }
+  const AVATAR_PX = { lg: 132, sm: 26 };
+  function avatarFace(p, cls = "") {
+    const src = avatarSrc(p), px = AVATAR_PX[cls] || 44;
+    const name = p?.display_name || cap(p?.username) || "?";
+    return src ? `<img src="${esc(src)}" alt="" width="${px}" height="${px}" loading="lazy" decoding="async">` : esc(name.trim()[0] || "?");
+  }
   function avatar(p, cls = "") {
     const name = p?.display_name || cap(p?.username) || "?";
-    return `<a class="avatar ${cls}" href="#/u/${esc(p?.username || "")}" style="--hue:${hash(p?.username || "") % 360}" aria-label="${esc(name)}">${esc(name.trim()[0] || "?")}</a>`;
+    return `<a class="avatar ${cls}${avatarSrc(p) ? " has-photo" : ""}" href="#/u/${esc(p?.username || "")}" style="--hue:${hash(p?.username || "") % 360}" aria-label="${esc(name)}" data-initial="${esc(name.trim()[0] || "?")}">${avatarFace(p, cls)}</a>`;
   }
+  // a photo that has gone (removed, or no connection): back to the initial
+  document.addEventListener("error", (e) => {
+    const a = e.target?.tagName === "IMG" && e.target.parentElement;
+    if (a && a.classList.contains("avatar")) { a.classList.remove("has-photo"); a.textContent = a.dataset.initial || "?"; }
+  }, true);
   const cap = (u) => (u ? u.charAt(0).toUpperCase() + u.slice(1) : "");
   const who = (p) => esc(p?.display_name || cap(p?.username) || "Someone");
   const playUrl = (id) => "#/play/" + encodeURIComponent(id);
@@ -549,7 +567,7 @@
     if (me && S.kind !== "local") {
       const name = me.display_name || cap(me.username) || "?";
       el.innerHTML = `${myRank() ? `<a class="btn ghost sm acct-admin" href="#/admin">Admin</a>` : ""}<button class="btn sm" type="button" data-log>+ Log</button>`
-        + `<span class="acct-menu"><button class="avatar" type="button" id="acct-btn" style="--hue:${hash(me.username || "") % 360}" aria-haspopup="menu" aria-expanded="false" aria-controls="acct-pop" aria-label="${esc(name)}: your account">${esc(name.trim()[0] || "?")}</button>`
+        + `<span class="acct-menu"><button class="avatar${avatarSrc(me) ? " has-photo" : ""}" type="button" id="acct-btn" style="--hue:${hash(me.username || "") % 360}" aria-haspopup="menu" aria-expanded="false" aria-controls="acct-pop" aria-label="${esc(name)}: your account" data-initial="${esc(name.trim()[0] || "?")}">${avatarFace(me)}</button>`
         + `<div class="acct-pop" id="acct-pop" role="menu" hidden><div class="who">@${esc(me.username)}</div><a role="menuitem" href="#/u/${esc(me.username)}">Your profile and diary</a>${myRank() ? `<a role="menuitem" href="#/admin">Admin</a>` : ""}<a role="menuitem" href="#/settings">Settings</a><button role="menuitem" type="button" data-logout>Log out</button></div></span>`;
     } else if (S.kind === "local") {
       el.innerHTML = `<button class="btn sm" type="button" data-log>+ Log</button>${avatar(S.me())}`;
@@ -2609,7 +2627,7 @@
       <header class="prof">${avatar(p, "lg")}
         <div class="prof-main"><h1>${who(p)}’s Show Diary</h1><div class="handle">@${esc(p.username)}${S.kind === "local" ? " · saved on this device" : ""} ${roleBadge(p.id)}</div>${p.bio ? `<p class="bio">${esc(p.bio)}</p>` : ""}
           <div style="margin-top:12px;display:flex;gap:8px;flex-wrap:wrap">${mine ? `<a class="btn ghost sm" href="#/settings">Edit profile</a>${S.kind !== "local" ? `<button class="btn ghost sm" type="button" data-logout>Log out</button>` : ""}` : S.kind !== "local" && !blocked ? `<button class="btn sm${fset.has(p.id) ? " on" : ""}" type="button" data-follow="${p.id}" data-on="${fset.has(p.id)}">${fset.has(p.id) ? "Following" : "Follow"}</button>` : ""}
-            ${!mine && me && S.kind !== "local" ? (outranks(p.id) ? `<button class="btn ghost sm" type="button" data-manage="${p.id}">Manage</button>` : `<button class="btn ghost sm" type="button" data-report="profile:${p.id}:${p.id}">Report</button>`) : ""}
+            ${!mine && me && S.kind !== "local" ? (outranks(p.id) ? `<button class="btn ghost sm" type="button" data-manage="${p.id}">Manage</button>` : `<button class="btn ghost sm" type="button" data-report="profile:${p.id}:${p.id}">Report</button>${avatarSrc(p) ? `<button class="btn ghost sm" type="button" data-report="photo:${p.id}:${p.id}">Report photo</button>` : ""}`) : ""}
             ${!mine && me && S.kind !== "local" ? `<button class="btn ghost sm${blocked ? "" : " danger"}" type="button" data-block="${p.id}" data-name="${esc(p.display_name || p.username)}">${blocked ? "Unblock" : "Block"}</button>` : ""}
             <button class="btn ghost sm" type="button" id="share-prof">Share</button></div></div>
         <div class="prof-stats"><a href="${base}/seen"><b>${seen.length.toLocaleString()}</b><span>Shows</span></a><a href="${base}/diary"><b>${year.toLocaleString()}</b><span>This year</span></a><a href="${base}/lists"><b>${lists.length}</b><span>Lists</span></a>
@@ -2959,11 +2977,52 @@
       $("#fb-text").value = "Please delete my Billd account.\nUsername: \nEmail address on the account: ";
     });
   }
+  // A profile photo, made ready in the browser before it leaves the device: cropped to a centred
+  // square and scaled to 256 x 256, then re-encoded as JPEG, which leaves out the camera's EXIF data
+  // (including where it was taken).
+  const PHOTO_MAX_MB = 15, PHOTO_PX = 256;
+  async function squarePhoto(file) {
+    if (!file || !(/^image\//.test(file.type || "") || (!file.type && /\.(jpe?g|png|gif|webp|heic|heif|avif|bmp)$/i.test(file.name || "")))) throw new Error("Choose a picture: a photo or an image file.");
+    if (file.size > PHOTO_MAX_MB * 1024 * 1024) throw new Error(`That picture is over ${PHOTO_MAX_MB} MB. Choose a smaller one.`);
+    let img;
+    try { img = await createImageBitmap(file, { imageOrientation: "from-image" }); }
+    catch (e) {  // older browsers; a data URL, since the page's rules don't allow blob: pictures
+      const url = await new Promise((ok, fail) => { const r = new FileReader(); r.onload = () => ok(r.result); r.onerror = fail; r.readAsDataURL(file); });
+      img = await new Promise((ok, fail) => { const i = new Image(); i.onload = () => ok(i); i.onerror = fail; i.src = url; })
+        .catch(() => { throw new Error("Billd can't read that picture. Try a JPEG or PNG."); });
+    }
+    const w = img.naturalWidth || img.width, h = img.naturalHeight || img.height, side = Math.min(w, h);
+    if (!side) throw new Error("Billd can't read that picture. Try a JPEG or PNG.");
+    // halve in steps for a smooth result from a large photo
+    let src = img, sx = (w - side) / 2, sy = (h - side) / 2, sz = side;
+    while (sz / 2 >= PHOTO_PX * 2) {
+      const c = document.createElement("canvas"); c.width = c.height = Math.round(sz / 2);
+      const g = c.getContext("2d"); g.imageSmoothingQuality = "high"; g.drawImage(src, sx, sy, sz, sz, 0, 0, c.width, c.height);
+      src = c; sx = sy = 0; sz = c.width;
+    }
+    const out = document.createElement("canvas"); out.width = out.height = PHOTO_PX;
+    const g = out.getContext("2d");
+    g.fillStyle = "#fff"; g.fillRect(0, 0, PHOTO_PX, PHOTO_PX);  // a transparent picture gets a white background
+    g.imageSmoothingQuality = "high"; g.drawImage(src, sx, sy, sz, sz, 0, 0, PHOTO_PX, PHOTO_PX);
+    img.close?.();
+    const blob = await new Promise((ok) => out.toBlob(ok, "image/jpeg", 0.85));
+    if (!blob) throw new Error("Billd can't read that picture. Try a JPEG or PNG.");
+    return { blob, url: out.toDataURL("image/jpeg", 0.85) };
+  }
   function editProfile() {
     const favs = [...(me.favorites || [])];
+    // the photo as it will be after Save: unchanged, a new one (blob and its preview), or removed
+    const photo = { blob: null, url: avatarSrc(me), busy: false };
     $("#edit-title").textContent = "Edit profile";
     const draw = (vals) => {
+      const face = { ...me, ...vals, avatar_url: photo.url };
       $("#edit-form").innerHTML = `
+        <div class="field"><span class="label">Photo <span class="opt">(optional)</span></span>
+          <div class="photo-edit"><span class="avatar lg${photo.url ? " has-photo" : ""}" style="--hue:${hash(me.username || "") % 360}" data-initial="${esc((face.display_name || cap(face.username) || "?").trim()[0] || "?")}">${avatarFace(face, "lg")}</span>
+            <div class="photo-acts"><div class="photo-btns"><button class="btn ghost sm" type="button" data-photo-pick${photo.busy ? " disabled" : ""}>${photo.busy ? "Preparing…" : photo.url ? "Change photo" : "Add a photo"}</button>
+              ${photo.url ? `<button class="btn ghost sm" type="button" data-photo-rm>Remove photo</button>` : ""}</div>
+              <input id="ep-photo" type="file" accept="image/*" hidden>
+              <p class="hint">${S.kind === "local" ? "Kept in this browser with your diary." : "Everyone can see it. Billd crops it to a square and removes the camera details and location."}</p></div></div></div>
         ${S.kind !== "local" ? `<div class="field"><label for="ep-user">Username</label><input id="ep-user" maxlength="20" value="${esc(vals.username)}" autocapitalize="none" spellcheck="false"></div>` : ""}
         <div class="field"><label for="ep-name">Display name</label><input id="ep-name" maxlength="50" value="${esc(vals.display_name)}"></div>
         <div class="field"><label for="ep-bio">Bio <span class="opt">(optional)</span></label><textarea id="ep-bio" maxlength="500" style="min-height:5em">${esc(vals.bio)}</textarea></div>
@@ -2974,6 +3033,14 @@
         <div class="acts"><button class="btn" type="submit">Save</button></div>`;
     };
     const vals = () => ({ username: $("#ep-user")?.value ?? me.username, display_name: $("#ep-name").value, bio: $("#ep-bio").value });
+    $("#edit-form").onchange = async (e) => {
+      if (e.target.id !== "ep-photo") return;
+      const file = e.target.files?.[0]; if (!file) return;
+      const v = vals();
+      photo.busy = true; draw(v);
+      try { Object.assign(photo, await squarePhoto(file)); note("#ep-note", ""); photo.busy = false; draw(vals()); refocus([["data-photo-pick", ""]]); }
+      catch (err) { photo.busy = false; draw(vals()); note("#ep-note", err.message, true); }
+    };
     draw({ username: me.username, display_name: me.display_name || "", bio: me.bio || "" });
     const form = $("#edit-form");
     form.oninput = (e) => {
@@ -2986,6 +3053,8 @@
       const a = e.target.closest("[data-fadd]"), r = e.target.closest("[data-frm]");
       if (a && favs.length < 4 && !favs.includes(a.dataset.fadd)) { const v = vals(); favs.push(a.dataset.fadd); draw(v); $("#ep-add")?.focus(); }
       if (r) { const v = vals(); favs.splice(+r.dataset.frm, 1); draw(v); refocus([["data-frm", r.dataset.frm]]); }
+      if (e.target.closest("[data-photo-pick]")) { const f = $("#ep-photo"); f.value = ""; f.click(); }
+      if (e.target.closest("[data-photo-rm]")) { const v = vals(); photo.blob = null; photo.url = ""; draw(v); refocus([["data-photo-pick", ""]]); }
     };
     form.onsubmit = async (e) => {
       e.preventDefault();
@@ -2993,7 +3062,10 @@
       try {
         const patch = { display_name: v.display_name.trim() || null, bio: v.bio.trim() || null, favorites: favs };
         if (S.kind !== "local" && v.username.trim().toLowerCase() !== me.username) patch.username = v.username.trim().toLowerCase();
+        if (photo.busy) return note("#ep-note", "Wait a moment: the photo is still being prepared.", true);
         me = await S.updateProfile(patch);
+        if (photo.blob) { me = await S.setAvatar(photo.blob); photo.blob = null; }
+        else if (!photo.url && me.avatar_url) me = await S.removeAvatar();
         $("#editd").close(); toast("Profile saved"); renderAcct();
         if (location.hash.startsWith("#/u/")) location.hash = "#/u/" + encodeURIComponent(me.username); else route();
       } catch (err) { note("#ep-note", /duplicate|unique/i.test(err.message) ? "That username is taken." : err.message, true); }
@@ -3234,8 +3306,15 @@
       run: async (w) => { await S.removeContent(kind, id, w); toast("Removed"); after ? after() : route(); } });
   }
 
+  // the team removes a member's profile photo (the file is deleted; their initial shows again)
+  function removePhoto(p, after = route) {
+    teamAction({ title: `Remove ${p.display_name || p.username}'s photo?`, go: "Remove", danger: true, why: "Reason, for the team log",
+      body: `<p class="hint">The photo is deleted and their initial shows instead. They can add another. It's recorded in the team log.</p>`,
+      run: async (w) => { await S.removeAvatarOf(p.id, w); toast("Photo removed"); after(); } });
+  }
+
   const REPORT_REASONS = ["Spam or advertising", "Harassment or hate", "Spoilers without a warning", "Offensive or explicit", "Copyright infringement", "Something else"];
-  const KIND_NAME = { review: "review", comment: "comment", list: "list", profile: "member" };
+  const KIND_NAME = { review: "review", comment: "comment", list: "list", profile: "member", photo: "profile photo" };
   function openReport(kind, id, uid) {
     if (!requireMe("Log in to report something.")) return;
     const canBlock = !!uid && uid !== me.id && !blockedSet.has(uid);
@@ -3291,6 +3370,7 @@
         ${st.status === "pending" ? `<button class="btn sm" type="button" data-mm="approve">Approve</button>` : ""}
         ${st.status === "suspended" ? `<button class="btn sm" type="button" data-mm="reinstate">Reinstate</button>` : `<button class="btn ghost sm danger" type="button" data-mm="suspend">Suspend</button>`}
         <button class="btn ghost sm" type="button" data-mm="clear">Clear name and bio</button>
+        ${avatarSrc(p) ? `<button class="btn ghost sm" type="button" data-mm="photo">Remove photo</button>` : ""}
       </div>
       ${roles.length ? `<div class="field"><label for="mm-role">Role on the Billd team</label>
         <div style="display:flex;gap:8px"><select id="mm-role">${roles.map(([k, n]) => `<option value="${k}"${k === role ? " selected" : ""}>${n}</option>`).join("")}</select>
@@ -3312,6 +3392,7 @@
           why: "Reason (they'll see this)", run: async (w) => { await S.setStanding(p.id, "suspended", w); toast("Suspended"); after(); } });
         if (k === "clear") teamAction({ title: "Clear their display name and bio?", go: "Clear", danger: true, why: "Reason, for the team log",
           body: `<p class="hint">Their username stays. It's recorded in the team log.</p>`, run: async (w) => { await S.clearProfile(p.id, w); toast("Cleared"); after(); } });
+        if (k === "photo") removePhoto(p, after);
       } catch (err) { note("#mm-note", err.message, true); }
     };
     $("#editd").showModal();
@@ -3323,6 +3404,7 @@
     if (r.kind === "comment") { const c = await S.getComment(r.target_id); return c && { who: c.profile, uid: c.user_id, text: c.body, link: `#/review/${c.log_id}` }; }
     if (r.kind === "list") { const l = await S.getList(r.target_id); return l && { who: l.profile, uid: l.user_id, title: l.title, text: l.description, link: `#/list/${l.id}` }; }
     const p = await S.profileById(r.target_id);
+    if (r.kind === "photo") return p && avatarSrc(p) && { who: p, uid: p.id, photo: avatarSrc(p), link: `#/u/${encodeURIComponent(p.username)}` };
     return p && { who: p, uid: p.id, title: p.display_name, text: p.bio, link: `#/u/${encodeURIComponent(p.username)}` };
   }
   const nameLink = (p) => (p ? `<a href="#/u/${esc(p.username)}">${who(p)}</a>` : "a former member");
@@ -3484,10 +3566,11 @@
         if (t?.who) people[t.uid] = t.who;
         return `<li class="adm-item"><div class="adm-meta"><span class="badge">${KIND_NAME[r.kind]}</span> reported by ${nameLink(r.reporter_p)} · ${ago(r.created_at)}</div>
           <p class="adm-reason">${esc(r.reason)}</p>
-          ${t ? `<blockquote class="adm-quote">${t.title ? `<b>${esc(t.title)}</b> ` : ""}${t.text ? esc(String(t.text).slice(0, 600)) : `<i>${r.kind === "review" ? "The review's text has been removed." : "Nothing written."}</i>`}</blockquote>
+          ${t ? `<blockquote class="adm-quote">${t.photo ? `<img class="adm-photo" src="${esc(t.photo)}" alt="The reported photo" width="128" height="128" loading="lazy">` : `${t.title ? `<b>${esc(t.title)}</b> ` : ""}${t.text ? esc(String(t.text).slice(0, 600)) : `<i>${r.kind === "review" ? "The review's text has been removed." : "Nothing written."}</i>`}`}</blockquote>
             <div class="hint">by ${nameLink(t.who)} ${roleBadge(t.uid)} · <a href="${t.link}">Open</a></div>` : `<p class="hint">It's already gone.</p>`}
           <div class="adm-acts">
-            ${t && r.kind !== "profile" && (t.text || r.kind !== "review") && (outranks(t.uid) || t.uid === me.id) ? `<button class="btn sm danger" type="button" data-adm="remove" data-kind="${r.kind}" data-id="${esc(r.target_id)}" data-rep="${r.id}">Remove ${KIND_NAME[r.kind]}</button>` : ""}
+            ${t && r.kind === "photo" && outranks(t.uid) ? `<button class="btn sm danger" type="button" data-adm="remove-photo" data-uid="${t.uid}" data-rep="${r.id}">Remove photo</button>` : ""}
+            ${t && r.kind !== "profile" && r.kind !== "photo" && (t.text || r.kind !== "review") && (outranks(t.uid) || t.uid === me.id) ? `<button class="btn sm danger" type="button" data-adm="remove" data-kind="${r.kind}" data-id="${esc(r.target_id)}" data-rep="${r.id}">Remove ${KIND_NAME[r.kind]}</button>` : ""}
             ${t && outranks(t.uid) ? `<button class="btn ghost sm" type="button" data-adm="member" data-uid="${t.uid}">Manage member</button>` : ""}
             <button class="btn ghost sm" type="button" data-adm="resolve" data-rep="${r.id}">Done</button>
             <button class="btn ghost sm" type="button" data-adm="dismiss" data-rep="${r.id}">Dismiss</button></div></li>`;
@@ -3667,6 +3750,7 @@
         if (k === "member") { const p = people[b.dataset.uid] || (await S.profileById(b.dataset.uid)); if (p) manageMember(p, again); return; }
         if (k === "resolve" || k === "dismiss") { b.disabled = true; await S.resolveReport(rid, k === "resolve" ? "resolved" : "dismissed"); toast(k === "resolve" ? "Marked done" : "Dismissed"); return again(); }
         if (k === "remove") return removePost(b.dataset.kind, b.dataset.id, async () => { await S.resolveReport(rid, "resolved"); again(); });
+        if (k === "remove-photo") { const p = people[b.dataset.uid] || (await S.profileById(b.dataset.uid)); if (p) removePhoto(p, async () => { await S.resolveReport(rid, "resolved"); again(); }); return; }
         if (k === "held-approve") { b.disabled = true; await S.reviewHeld(b.dataset.kind, b.dataset.id, "approve"); toast("Approved: it's live"); return again(); }
         if (k === "held-remove") return teamAction({ title: "Remove this post?", go: "Remove", danger: true, why: "Note for the team",
           body: `<p class="hint">${{ log: "The review is deleted, and the theatre or town if the word is there; the diary entry and rating stay.", comment: "The comment is deleted.", list: "The whole list is deleted.", list_item: "The note is deleted; the show stays on the list." }[b.dataset.kind] || ""}</p>`,

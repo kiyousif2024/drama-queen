@@ -87,6 +87,13 @@ main { outline: none; min-height: 60vh; }
   background: hsl(var(--hue) 45% 38%); color: #fff; font: 700 14px/1 var(--font-ui); text-transform: uppercase; text-decoration: none; }
 .avatar.lg { width: 84px; height: 84px; font-size: 34px; font-family: var(--font-display); font-style: italic; }
 .avatar.sm { width: 26px; height: 26px; font-size: 11px; }
+.avatar.has-photo { overflow: hidden; background: var(--raise); }
+.avatar > img { display: block; width: 100%; height: 100%; object-fit: cover; border-radius: 50%; }
+.photo-edit { display: flex; align-items: center; gap: 16px; }
+.photo-acts { min-width: 0; }
+.photo-btns { display: flex; gap: 8px; flex-wrap: wrap; }
+.photo-acts .hint { margin: 8px 0 0; font-size: 12.5px; }
+.adm-photo { display: block; width: 128px; height: 128px; border-radius: 50%; object-fit: cover; }
 
 /* ---------------- buttons, fields ---------------- */
 .btn { display: inline-flex; align-items: center; justify-content: center; gap: 8px; border: 0; border-radius: 999px; cursor: pointer;

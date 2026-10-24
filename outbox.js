@@ -102,7 +102,7 @@
   S.deleteAccount = async (username) => { const id = uid(); await raw.deleteAccount(username); generation++; forgetMember(id); };
 
   // ---- how a waiting change looks on the page
-  const author = () => { const p = S.me() || {}; return { id: p.id, username: p.username, display_name: p.display_name }; };
+  const author = () => { const p = S.me() || {}; return { id: p.id, username: p.username, display_name: p.display_name, avatar_url: p.avatar_url || null }; };
   const pendingLog = (op) => ({ ...(op.prev || {}), ...op.row, id: op.kind === "insert" ? op.tempId : op.logId, user_id: op.uid,
     created_at: op.prev?.created_at || op.at, updated_at: op.at, profile: author(), likes: op.prev?.likes || 0, comments: op.prev?.comments || 0, liked_by_me: false, pending: true });
   // the same rules as the server's setStatus (social.js)

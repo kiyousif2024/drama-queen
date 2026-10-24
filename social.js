@@ -35,7 +35,7 @@
     const save = () => { try { localStorage.setItem(LS_KEY, JSON.stringify(db)); } catch (e) { /* private mode: kept for this visit only */ } };
     const id = () => db.seq++;
     const me = () => db.profile;
-    const author = () => ({ id: "local", username: db.profile.username, display_name: db.profile.display_name });
+    const author = () => ({ id: "local", username: db.profile.username, display_name: db.profile.display_name, avatar_url: db.profile.avatar_url || null });
     const withAuthor = (l) => ({ ...l, profile: author(), likes: 0, liked_by_me: false, comments: 0 });
     const listOut = (l) => ({ ...l, profile: author(), count: l.items.length, likes: 0, liked_by_me: false });
     return {
@@ -52,6 +52,12 @@
       async resetPassword() { throw err("Accounts are not set up on this site yet.", "no_server"); },
       async handleAuthLink() { throw err("Accounts are not set up on this copy of Billd.", "no_server"); },
       async updateProfile(p) { Object.assign(db.profile, p); save(); emit(me()); return me(); },
+      // the profile photo, already cropped to 256 x 256 JPEG by the page: kept in this browser as a data URL
+      async setAvatar(blob) {
+        const url = await new Promise((ok, fail) => { const r = new FileReader(); r.onload = () => ok(r.result); r.onerror = () => fail(err("Couldn't read that picture.", "bad_image")); r.readAsDataURL(blob); });
+        db.profile.avatar_url = url; save(); emit(me()); return me();
+      },
+      async removeAvatar() { delete db.profile.avatar_url; save(); emit(me()); return me(); },
       async getProfile(username) { return username === db.profile.username ? me() : null; },
       async members() { return [me()]; },
       async status(playId) { return db.status[playId] || null; },
@@ -198,7 +204,7 @@
     let offline = false;  // signed in from the saved session while the server can't be reached
     let role = null, standing = { status: "active", note: null };  // the signed-in member's team role and standing
     let termsVersion = null;  // the Terms members must have accepted to post, while they are switched on
-    const PROFILE = "profile:profiles!user_id(id,username,display_name)";
+    const PROFILE = "profile:profiles!user_id(id,username,display_name,avatar_url)";
     // the HTTP status travels with the error, so the offline diary can tell "log in again" (401) from a refusal
     const check = ({ data, error, status }) => { if (error) throw Object.assign(friendly(error), { status }); return data; };
     function friendly(e) {
@@ -229,6 +235,16 @@
       }
     }
     const needMe = () => { if (!uid) throw err("Log in to do that.", "signed_out"); return uid; };
+    // delete a member's photo files (all but keep): their own, or as the team. A file left behind is only
+    // untidy, since nothing points at it, so this never fails the change.
+    async function clearAvatarFiles(owner, keep) {
+      try {
+        const bucket = sb.storage.from("avatars");
+        const { data } = await bucket.list(owner, { limit: 100 });
+        const old = (data || []).map((f) => `${owner}/${f.name}`).filter((p) => p !== keep);
+        if (old.length) await bucket.remove(old);
+      } catch (e) { console.warn("Old profile photo not deleted", e); }
+    }
     async function loadProfile() {
       if (!uid) { profile = null; role = null; standing = { status: "active", note: null }; return null; }
       const [{ data }, st, ms] = await Promise.all([sb.from("profiles").select("*").eq("id", uid).maybeSingle(),
@@ -382,6 +398,26 @@
         if (row.username && !USERNAME.test(row.username)) throw err("Usernames are 3 to 20 letters, numbers or underscores.", "bad_username");
         if (row.username && /^member_[0-9a-f]{8}$/.test(row.username) && row.username !== profile?.username) throw err("Choose a username of your own.", "bad_username");
         profile = check(await sb.from("profiles").update(row).eq("id", uid).select().single());
+        emit(profile); return profile;
+      },
+      // ---- the profile photo: the page crops and re-encodes it (256 x 256 JPEG, no EXIF or location), then
+      // it goes to the public "avatars" bucket at <user id>/<new name>.jpg. A new name each time means a
+      // changed photo shows at once everywhere; the old file is deleted once the profile points at the new one.
+      async setAvatar(blob) {
+        needMe();
+        const bucket = sb.storage.from("avatars");
+        const path = `${uid}/${Date.now().toString(36)}${Math.random().toString(36).slice(2, 6)}.${blob.type === "image/webp" ? "webp" : "jpg"}`;
+        const up = await bucket.upload(path, blob, { contentType: blob.type || "image/jpeg", cacheControl: "31536000", upsert: false });
+        if (up.error) throw friendly(up.error);
+        try { profile = check(await sb.from("profiles").update({ avatar_url: bucket.getPublicUrl(path).data.publicUrl }).eq("id", uid).select().single()); }
+        catch (e) { await bucket.remove([path]).catch(() => {}); throw e; }
+        await clearAvatarFiles(uid, path);
+        emit(profile); return profile;
+      },
+      async removeAvatar() {
+        needMe();
+        profile = check(await sb.from("profiles").update({ avatar_url: null }).eq("id", uid).select().single());
+        await clearAvatarFiles(uid);
         emit(profile); return profile;
       },
       async getProfile(username) { return check(await sb.from("profiles").select("*").eq("username", String(username).toLowerCase()).maybeSingle()); },
@@ -552,10 +588,10 @@
         else check(await sb.from("follows").delete().eq("follower", uid).eq("followee", userId));
       },
       async following(userId) {
-        return check(await sb.from("follows").select("profile:profiles!followee(id,username,display_name)").eq("follower", userId)).map((r) => r.profile);
+        return check(await sb.from("follows").select("profile:profiles!followee(id,username,display_name,avatar_url)").eq("follower", userId)).map((r) => r.profile);
       },
       async followers(userId) {
-        return check(await sb.from("follows").select("profile:profiles!follower(id,username,display_name)").eq("followee", userId)).map((r) => r.profile);
+        return check(await sb.from("follows").select("profile:profiles!follower(id,username,display_name,avatar_url)").eq("followee", userId)).map((r) => r.profile);
       },
       async playStats(playId) {
         const r = check(await sb.from("play_stats").select("*").eq("play_id", playId).maybeSingle());
@@ -621,7 +657,7 @@
       role: () => role,
       standing: () => standing,
       async team() {
-        const { data, error } = await sb.from("staff").select("user_id,role,added_at,profile:profiles!user_id(id,username,display_name),adder:profiles!added_by(username)").order("added_at");
+        const { data, error } = await sb.from("staff").select("user_id,role,added_at,profile:profiles!user_id(id,username,display_name,avatar_url),adder:profiles!added_by(username)").order("added_at");
         return error ? [] : data;
       },
       async settings() {
@@ -635,6 +671,7 @@
       setStanding: (userId, status, why) => rpc("set_member_status", { target: userId, new_status: status, why: why || null }),
       removeContent: (kind, id, why) => rpc("moderate_remove", { kind, target_id: Number(id), why: why || null }),
       clearProfile: (userId, why) => rpc("moderate_profile", { target: userId, why: why || null }),
+      async removeAvatarOf(userId, why) { await rpc("moderate_avatar", { target: userId, why: why || null }); await clearAvatarFiles(userId); },
       resolveReport: (id, status) => rpc("resolve_report", { report_id: id, new_status: status }),
       reviewSuggestion: (id, status, why) => rpc("review_suggestion", { suggestion_id: id, new_status: status, why: why || null }),
       // shows the importers found that Billd can't match to a play (scripts/import_review.py fills the queue)
@@ -667,7 +704,7 @@
       // ---- blocking: the database hides the blocked member's posts and stops them following, liking or commenting
       async blocks() {
         if (!uid) return [];
-        return check(await sb.from("blocks").select("blocked,created_at,profile:profiles!blocked(id,username,display_name)").eq("blocker", uid).order("created_at", { ascending: false }));
+        return check(await sb.from("blocks").select("blocked,created_at,profile:profiles!blocked(id,username,display_name,avatar_url)").eq("blocker", uid).order("created_at", { ascending: false }));
       },
       async block(userId, on) {
         needMe();
@@ -714,7 +751,7 @@
         return check(await q);
       },
       async standings(status) {
-        return check(await sb.from("member_status").select("user_id,status,note,changed_at,profile:profiles!user_id(id,username,display_name,created_at)")
+        return check(await sb.from("member_status").select("user_id,status,note,changed_at,profile:profiles!user_id(id,username,display_name,avatar_url,created_at)")
           .eq("status", status).order("changed_at", { ascending: false }).limit(200));
       },
       async standingsFor(ids) {

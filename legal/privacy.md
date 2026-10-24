@@ -1,10 +1,11 @@
 # Billd Privacy Policy
 
-**Last updated:** 15 October 2026 · **Who runs Billd:** Billd Media LLC, Michigan, USA · **Contact:** support@billd.theater
+**Last updated:** 24 October 2026 · **Who runs Billd:** Billd Media LLC, Michigan, USA · **Contact:** support@billd.theater
 
 ## What Billd collects
 
 - **Your account** (if you join): email address, a password (stored only as a hash by our database provider), username, display name, bio and favourite shows, and when you accepted the Terms of Use.
+- **Your profile photo** (optional): if you add one, it's public, like your profile. Before it leaves your device, Billd crops it to a square, makes it small (256 × 256 pixels) and saves it again, which removes the camera details and any location stored in the file. It's stored with Supabase, and you can change or remove it at any time (Settings → Edit profile); removing it deletes the file. In preview mode (no account) it's kept only in your browser.
 - **If you continue with Google**: Google tells Billd your email address, your name and a link to your Google profile picture. Billd uses your name as your starting display name (you can change it) and doesn't show the picture; our database provider keeps these details with your login. Billd never sees your Google password, and if your Google email matches an existing Billd account, you're signed into that account.
 - **What you post**: shows you've marked seen, liked or want to see, ratings, diary entries and reviews (with who can see each), comments, likes, lists, follows, members you've blocked, reports you send, and productions or plays you suggest (including the web page you gave and what Billd read from it).
 - **Messages you send through forms**: feedback, corrections and copyright reports (your comment and, if you give it, your name; when you're logged in, your display name and username are added) are kept for the Billd team and emailed to Billd Media LLC.
@@ -20,7 +21,7 @@
 
 ## Who processes it
 
-- **Supabase** (United States: US East) hosts the database and logins, and runs Billd's server functions (the "Add a production" page reader and account deletion).
+- **Supabase** (United States: US East) hosts the database, profile photos and logins, and runs Billd's server functions (the "Add a production" page reader and account deletion).
 - **Brevo** sends sign-up and password emails.
 - **Google** confirms who you are when you choose "Continue with Google".
 - **Web3Forms** delivers form messages to Billd Media LLC's email.
@@ -32,7 +33,7 @@ Viewing Billd loads fonts from **Google Fonts**, pictures from **Wikimedia Commo
 
 ## Who can see what
 
-Your profile, public diary entries, reviews, lists, follows and likes are public. Entries marked "Friends" are visible only to the members you follow; "Only me" only to you. Members you block can still see your public posts, but can't follow you or like or comment on them, and you no longer see theirs. Reports, blocks and suggestions are seen only by you and, for reports and suggestions, the Billd team.
+Your profile (with your photo, if you add one), public diary entries, reviews, lists, follows and likes are public. Entries marked "Friends" are visible only to the members you follow; "Only me" only to you. Members you block can still see your public posts, but can't follow you or like or comment on them, and you no longer see theirs. Reports, blocks and suggestions are seen only by you and, for reports and suggestions, the Billd team.
 
 ## Your choices and rights
 
