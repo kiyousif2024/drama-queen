@@ -655,8 +655,11 @@
     $(".nav")?.insertAdjacentHTML("afterbegin", `<a href="#/spooky" data-nav="spooky" class="nav-spooky">Spooky season</a>`);
   }
   const BAT = `<svg viewBox="0 0 64 28" aria-hidden="true"><path d="M32 9c1.4-3 3-4 3-4s.2 2.6 1.2 3.4C40 6 46 1 64 3c-6 2-9 6-10 11-3-2-7-2-10 1-1.5-2-4-3-6-1-1-1.6-3-2.4-6-2.4s-5 .8-6 2.4c-2-2-4.5-1-6 1-3-3-7-3-10-1C9 9 6 5 0 3c18-2 24 3 27.8 5.4C28.8 7.6 29 5 29 5s1.6 1 3 4z"/></svg>`;
+  // The curtains open and the lights come up the first time the home page is shown in a visit; after that
+  // (back from another page, or a reload in the same tab) the stage starts as it ends, open and settled.
+  let stagePlayed = false; try { stagePlayed = sessionStorage.getItem("billd-stage") === "1"; } catch (e) { /* storage blocked */ }
   function stageHTML(copy) {
-    return `<div class="stage">
+    return `<div class="stage${stagePlayed ? " instant settled" : ""}">
           <div class="st-back" aria-hidden="true"></div><div class="st-beam" aria-hidden="true"></div>
           <div class="st-floor" aria-hidden="true"></div><div class="st-pool" aria-hidden="true"></div>
           <div class="st-copy">${copy}</div>
@@ -672,6 +675,8 @@
   function settleStage() {
     const st = pageEl().querySelector(".hero .stage");
     if (!st) return;
+    if (!stagePlayed) { stagePlayed = true; try { sessionStorage.setItem("billd-stage", "1"); } catch (e) { /* this visit only */ } }
+    if (st.classList.contains("instant")) return;
     const still = matchMedia("(prefers-reduced-motion: reduce)").matches;
     setTimeout(() => { if (st.isConnected && window.scrollY < 40) st.classList.add("settled"); }, still ? 0 : 2700);
   }
@@ -718,7 +723,7 @@
     };
     const order = feedHome ? ["spooky", "feed", "plans", "onstage", "pop", "explore"]
       : APP ? ["plans", "spooky", "diary", "friends", "rev", "onstage", "pop", "explore"] : ["plans", "spooky", "onstage", "rev", "pop", "friends", "explore"];
-    pageEl().innerHTML = `<div class="wrap">${feedHome ? "" : intro}${order.map((k) => sec[k]).join("")}</div>`;
+    pageEl().innerHTML = `<div class="wrap">${whereBarHTML(now)}${feedHome ? "" : intro}${order.map((k) => sec[k]).join("")}</div>`;
     if (feedHome) {
       // friends first; when they haven't logged anything yet, everyone's latest
       (async () => {
@@ -947,15 +952,23 @@
       row: list.slice(0, 18).map((w) => cell(w, `<div class="cell-cap">${esc(cap(w))}</div>`, id && runIn(w, id).st)).join("") || `<p class="empty">No current listings.</p>`,
     };
   }
-  function homeOnstageHTML(now) {
+  // the home page's city, at the very top: where Billd thinks the visitor is, and the picker to change it
+  // (a city, or "Use my location"); the On stage row, the Detroit and New York links follow it
+  const PIN = `<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 2a7 7 0 0 0-7 7c0 5.2 7 13 7 13s7-7.8 7-13a7 7 0 0 0-7-7Zm0 9.6A2.6 2.6 0 1 1 12 6.4a2.6 2.6 0 0 1 0 5.2Z"/></svg>`;
+  function whereBarHTML(now) {
     const h = homeOnstage(now), geo = !APP && "geolocation" in navigator && window.isSecureContext;
+    return `<div class="where-bar"><span class="where-now">${PIN}<b id="where-city">${h.hc ? esc(cityName(h.hc.id)) : "Everywhere"}</b><small id="where-why">${h.hc ? esc(WHY[h.hc.by]) : "No city chosen"}</small></span>
+        <button class="linkbtn" type="button" id="hos-change" aria-expanded="false" aria-controls="near-pick">${h.change}</button></div>
+      <div class="near-pick where-pick" id="near-pick" hidden>
+        <label class="city-pick"><span>Your city</span><select id="near-city">${cityOptions(h.counts, h.hc?.id || "", h.hc?.id, now.length)}</select></label>
+        ${geo ? `<button class="btn ghost sm" type="button" id="near-geo">${PIN}Use my location</button>` : ""}
+        <p class="hint" id="near-msg" role="status"></p>
+      </div>`;
+  }
+  function homeOnstageHTML(now) {
+    const h = homeOnstage(now);
     return `<section class="sec" id="home-onstage"><div class="sec-head"><h2 id="hos-title">${h.title}</h2>${h.all}</div>
-        <p class="near"><span id="hos-why">${h.why}</span><button class="linkbtn" type="button" id="hos-change" aria-expanded="false" aria-controls="near-pick">${h.change}</button><span id="hos-every"${h.hc ? "" : " hidden"}> · <a href="#/onstage">See everywhere</a></span></p>
-        <div class="near-pick" id="near-pick" hidden>
-          <label class="city-pick"><span>Your city</span><select id="near-city">${cityOptions(h.counts, h.hc?.id || "", h.hc?.id, now.length)}</select></label>
-          ${geo ? `<button class="btn ghost sm" type="button" id="near-geo">Use my location</button>` : ""}
-          <p class="hint" id="near-msg" role="status"></p>
-        </div>
+        <p class="near"><span id="hos-why">${h.why}</span><button class="linkbtn" type="button" data-where>${h.change}</button><span id="hos-every"${h.hc ? "" : " hidden"}> · <a href="#/onstage">See everywhere</a></span></p>
         <div class="row-scroll" id="hos-row">${h.row}</div></section>`;
   }
   // after a change, redraw the row and its heading but not the picker, so focus stays where it is
@@ -966,11 +979,24 @@
     $("#hos-all").outerHTML = h.all;
     $("#hos-why").textContent = h.why;
     $("#hos-change").textContent = h.change;
+    $$("[data-where]").forEach((b) => (b.textContent = h.change));
+    $("#where-city").textContent = h.hc ? cityName(h.hc.id) : "Everywhere";
+    $("#where-why").textContent = h.hc ? WHY[h.hc.by] : "No city chosen";
+    // the Detroit and New York links follow the city
+    pageEl().querySelectorAll("a.detroit, a.nyc").forEach((a) => a.remove());
+    const host = pageEl().querySelector(".hero .stage") || pageEl().querySelector(".fh-head");
+    if (host) host.insertAdjacentHTML("beforeend", detroitHTML() + nycHTML());
     $("#hos-every").hidden = !h.hc;
     $("#hos-row").innerHTML = h.row;
     $("#hos-row").scrollLeft = 0;
   }
   document.addEventListener("click", (e) => {
+    if (e.target.closest("[data-where]")) {  // "Change city" by the On stage row opens the picker at the top
+      const b = $("#hos-change"); if (!b) return;
+      if (b.getAttribute("aria-expanded") !== "true") b.click();
+      window.scrollTo({ top: 0, behavior: "smooth" });
+      return;
+    }
     if (e.target.closest("#hos-change")) {
       const b = $("#hos-change"), open = b.getAttribute("aria-expanded") !== "true";
       b.setAttribute("aria-expanded", String(open)); $("#near-pick").hidden = !open;
