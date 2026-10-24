@@ -1,0 +1,2885 @@
+{
+ "generated": "2026-10-24T13:11:28-04:00",
+ "timezone": "America/New_York",
+ "boroughs": [
+  "Manhattan",
+  "Brooklyn",
+  "Queens"
+ ],
+ "days": [
+  {
+   "date": "2026-10-24",
+   "events": [
+    {
+     "title": "82 Street Greenmarket Saturday",
+     "venue": "East 82nd Street between 1st Avenue and York Avenue",
+     "borough": "Manhattan",
+     "time": "6am–6pm",
+     "source": "https://data.cityofnewyork.us/d/tvpp-9vvx",
+     "tags": [
+      "markets"
+     ]
+    },
+    {
+     "title": "Down to Earth Chelsea Farmers Market",
+     "venue": "West 23rd Street between 8th Avenue and 9th Avenue",
+     "borough": "Manhattan",
+     "lat": 40.74594,
+     "lon": -74.0,
+     "time": "6am–6pm",
+     "source": "https://data.cityofnewyork.us/d/tvpp-9vvx",
+     "tags": [
+      "markets"
+     ]
+    },
+    {
+     "title": "Inwood Greenmarket Saturday",
+     "venue": "Isham Street between Seaman Avenue and Cooper Street",
+     "borough": "Manhattan",
+     "lat": 40.869,
+     "lon": -73.9209,
+     "time": "6am–5pm",
+     "source": "https://data.cityofnewyork.us/d/tvpp-9vvx",
+     "tags": [
+      "markets"
+     ]
+    },
+    {
+     "title": "The Last 10",
+     "venue": "East 60th Street between 1st Avenue and York Avenue",
+     "address": "407 East 59th Street",
+     "borough": "Manhattan",
+     "time": "6:30–8:30am",
+     "source": "https://data.cityofnewyork.us/d/tvpp-9vvx",
+     "tags": [
+      "special"
+     ]
+    },
+    {
+     "title": "End Polio Walk 2026",
+     "venue": "Brooklyn Bridge",
+     "address": "Brooklyn Bridge Pedestrian: 1 between Park Row (S) and Tillary Street",
+     "borough": "Manhattan",
+     "time": "7–8:15am",
+     "source": "https://data.cityofnewyork.us/d/tvpp-9vvx",
+     "tags": [
+      "parades",
+      "special"
+     ]
+    },
+    {
+     "title": "4th Avenue Sunset Park Greenmarket Saturday",
+     "venue": "60th Street between 3rd Avenue and 4th Avenue",
+     "borough": "Brooklyn",
+     "lat": 40.64798,
+     "lon": -74.00374,
+     "time": "8am–5pm",
+     "source": "https://data.cityofnewyork.us/d/tvpp-9vvx",
+     "tags": [
+      "markets"
+     ]
+    },
+    {
+     "title": "57 Street Saturday Greenmarket",
+     "venue": "10th Avenue between West 57th Street and West 58th Street",
+     "borough": "Manhattan",
+     "time": "8am–6pm",
+     "source": "https://data.cityofnewyork.us/d/tvpp-9vvx",
+     "tags": [
+      "markets"
+     ]
+    },
+    {
+     "title": "HHFM Lenox Avenue Market",
+     "venue": "Lenox Avenue between West 117th Street and West 118th Street",
+     "borough": "Manhattan",
+     "lat": 40.76693,
+     "lon": -73.95795,
+     "time": "8am–3pm",
+     "source": "https://data.cityofnewyork.us/d/tvpp-9vvx",
+     "tags": [
+      "markets"
+     ]
+    },
+    {
+     "title": "RiseBoro Farmers Markets at Maria Hernandez Park",
+     "venue": "Knickerbocker Avenue between Starr Street and Suydam Street",
+     "borough": "Brooklyn",
+     "lat": 40.70281,
+     "lon": -73.92539,
+     "time": "8am–3pm",
+     "source": "https://data.cityofnewyork.us/d/tvpp-9vvx",
+     "tags": [
+      "markets"
+     ]
+    },
+    {
+     "title": "Run for Jesus",
+     "venue": "West 128th Street between 7th Avenue and Lenox Avenue",
+     "borough": "Manhattan",
+     "time": "8am–12:30pm",
+     "source": "https://data.cityofnewyork.us/d/tvpp-9vvx",
+     "tags": [
+      "special"
+     ]
+    },
+    {
+     "title": "Fulton Stall Market/Seaport Farmers Market",
+     "venue": "South Street between Fulton Street and John Street",
+     "borough": "Manhattan",
+     "lat": 40.7058,
+     "lon": -74.00257,
+     "time": "9am–5pm",
+     "source": "https://data.cityofnewyork.us/d/tvpp-9vvx",
+     "tags": [
+      "markets"
+     ]
+    },
+    {
+     "title": "Youth Led Farmers Market",
+     "venue": "Nostrand Avenue between Flatbush Avenue and Glenwood Road",
+     "borough": "Brooklyn",
+     "time": "9am–4pm",
+     "source": "https://data.cityofnewyork.us/d/tvpp-9vvx",
+     "tags": [
+      "markets"
+     ]
+    },
+    {
+     "title": "Halloween Family Parade",
+     "venue": "Ditmars Park",
+     "borough": "Queens",
+     "time": "10am–12pm",
+     "source": "https://data.cityofnewyork.us/d/tvpp-9vvx",
+     "tags": [
+      "parades",
+      "holiday",
+      "special"
+     ]
+    },
+    {
+     "title": "4th Annual Loisaida Fall Festival",
+     "venue": "East 3rd Street between Avenue B and Avenue C",
+     "borough": "Manhattan",
+     "time": "10am–6pm",
+     "source": "https://data.cityofnewyork.us/d/tvpp-9vvx",
+     "tags": [
+      "parades",
+      "holiday"
+     ]
+    },
+    {
+     "title": "6th Avenue Autumnfest",
+     "venue": "6th Avenue between West 34th Street and West 42nd Street",
+     "borough": "Manhattan",
+     "time": "10am–6pm",
+     "source": "https://data.cityofnewyork.us/d/tvpp-9vvx",
+     "tags": [
+      "parades"
+     ]
+    },
+    {
+     "title": "Susan G. Komen Race For The Cure NYC",
+     "venue": "Thomas Paine Park (Foley Square)",
+     "address": "Fountain Plaza",
+     "borough": "Manhattan",
+     "time": "10am–12pm",
+     "source": "https://data.cityofnewyork.us/d/tvpp-9vvx",
+     "tags": [
+      "parades",
+      "special"
+     ]
+    },
+    {
+     "title": "Astor Place Fair",
+     "venue": "Astor Place between Broadway and Lafayette Street",
+     "borough": "Manhattan",
+     "time": "10am–6pm",
+     "source": "https://data.cityofnewyork.us/d/tvpp-9vvx",
+     "tags": [
+      "parades"
+     ]
+    },
+    {
+     "title": "BHMS Harvest Festival",
+     "venue": "Dean Street between Court Street and Boerum Place",
+     "borough": "Brooklyn",
+     "time": "10am–2pm",
+     "source": "https://data.cityofnewyork.us/d/tvpp-9vvx",
+     "tags": [
+      "parades",
+      "holiday"
+     ]
+    },
+    {
+     "title": "Ethical Society Fair",
+     "venue": "West 64th Street between Central Park West and Broadway",
+     "borough": "Manhattan",
+     "time": "10am–6pm",
+     "source": "https://data.cityofnewyork.us/d/tvpp-9vvx",
+     "tags": [
+      "parades"
+     ]
+    },
+    {
+     "title": "Trick-or-Streets",
+     "venue": "President Street between Washington Avenue and Classon Avenue",
+     "borough": "Brooklyn",
+     "time": "10:30am–2:30pm",
+     "source": "https://data.cityofnewyork.us/d/tvpp-9vvx",
+     "tags": [
+      "parades",
+      "holiday"
+     ]
+    },
+    {
+     "title": "Smorgasburg Williamsburg",
+     "venue": "Marsha P. Johnson State Park",
+     "address": "90 Kent Ave",
+     "borough": "Brooklyn",
+     "time": "11am–6pm",
+     "source": "https://smorgasburg.com/new-york",
+     "tags": [
+      "markets"
+     ],
+     "note": "300}Closed for the Season"
+    },
+    {
+     "title": "Phoenix Community Garden Farm Stand",
+     "venue": "Phoenix Community Garden",
+     "borough": "Brooklyn",
+     "lat": 40.6784,
+     "lon": -73.9131,
+     "time": "11am–3pm",
+     "source": "https://www.nycgovparks.org/events/2026/10/24/phoenix-community-garden-farm-stand",
+     "tags": [
+      "markets",
+      "outdoors"
+     ]
+    },
+    {
+     "title": "Harway Ave Trick or Streets",
+     "venue": "Harway Avenue between 24th Avenue and Bay 37th Street",
+     "borough": "Brooklyn",
+     "time": "11am–5pm",
+     "source": "https://data.cityofnewyork.us/d/tvpp-9vvx",
+     "tags": [
+      "parades",
+      "holiday"
+     ]
+    },
+    {
+     "title": "Sammaan For All Diwali at Times Square",
+     "venue": "West 46th Street between Broadway and 8th Avenue",
+     "borough": "Manhattan",
+     "time": "11am–9:30pm",
+     "source": "https://data.cityofnewyork.us/d/tvpp-9vvx",
+     "tags": [
+      "parades",
+      "holiday"
+     ]
+    },
+    {
+     "title": "Trick or Streets",
+     "venue": "West 158th Street between Broadway and Amsterdam Avenue",
+     "borough": "Manhattan",
+     "time": "11am–3pm",
+     "source": "https://data.cityofnewyork.us/d/tvpp-9vvx",
+     "tags": [
+      "parades",
+      "holiday"
+     ]
+    },
+    {
+     "title": "Family Halloween",
+     "venue": "Torsney Playground",
+     "address": "Torsney Playground - Whole Park",
+     "borough": "Queens",
+     "time": "11am–1pm",
+     "source": "https://data.cityofnewyork.us/d/tvpp-9vvx",
+     "tags": [
+      "outdoors",
+      "holiday"
+     ]
+    },
+    {
+     "title": "High Line Halloween: Gnome-topia",
+     "venue": "14th Street Passage @The High Line",
+     "borough": "Manhattan",
+     "lat": 40.7417,
+     "lon": -74.0078,
+     "time": "11am–2pm",
+     "source": "https://www.nycgovparks.org/events/2026/10/24/high-line-halloween-gnometopia",
+     "tags": [
+      "outdoors",
+      "holiday"
+     ]
+    },
+    {
+     "title": "Juniper Valley Park Fall Festival",
+     "venue": "Multipurpose Play Area (Hard Top) @Juniper Valley Park",
+     "borough": "Queens",
+     "lat": 40.72094,
+     "lon": -73.87688,
+     "time": "11:30am–2:30pm",
+     "source": "https://www.nycgovparks.org/events/2026/10/24/juniper-valley-park-fall-festival",
+     "tags": [
+      "outdoors",
+      "holiday",
+      "special"
+     ]
+    },
+    {
+     "title": "Arts, Culture & Fun: Día de Muertos Celebration!",
+     "venue": "Herbert Von King Cultural Arts Center @Herbert Von King Park",
+     "borough": "Brooklyn",
+     "lat": 40.6899,
+     "lon": -73.9467,
+     "time": "12–4pm",
+     "source": "https://www.nycgovparks.org/events/2026/10/24/arts-culture-fun-da-de-muertos-celebration",
+     "tags": [
+      "outdoors",
+      "holiday",
+      "special"
+     ]
+    },
+    {
+     "title": "Riverside Park Pup Halloween Parade",
+     "venue": "Dinosaur Playground @Riverside Park",
+     "borough": "Manhattan",
+     "lat": 40.79683,
+     "lon": -73.97499,
+     "time": "12–3pm",
+     "source": "https://www.nycgovparks.org/events/2026/10/24/riverside-park-pup-halloween-parade",
+     "tags": [
+      "outdoors",
+      "parades",
+      "holiday",
+      "special"
+     ]
+    },
+    {
+     "title": "Halloween Boo Bash",
+     "venue": "White Garden @Randall's Island Park",
+     "borough": "Manhattan",
+     "lat": 40.78283,
+     "lon": -73.92665,
+     "time": "12–3pm",
+     "source": "https://www.nycgovparks.org/events/2026/10/24/halloween-boo-bash",
+     "tags": [
+      "markets",
+      "outdoors",
+      "holiday"
+     ]
+    },
+    {
+     "title": "Halloween Fest 2026",
+     "venue": "Monument Plaza @Fort Greene Park",
+     "borough": "Brooklyn",
+     "lat": 40.6915,
+     "lon": -73.9755,
+     "time": "12–4pm",
+     "source": "https://www.nycgovparks.org/events/2026/10/24/halloween-fest-2026",
+     "tags": [
+      "outdoors",
+      "holiday"
+     ]
+    },
+    {
+     "title": "Halloween Trunk or Treat",
+     "venue": "29th Avenue between 204th Street and Clearview Expressway Service Road",
+     "borough": "Queens",
+     "time": "12–2pm",
+     "source": "https://data.cityofnewyork.us/d/tvpp-9vvx",
+     "tags": [
+      "parades",
+      "holiday"
+     ]
+    },
+    {
+     "title": "NIA Halloween Spooktacular",
+     "venue": "11th Avenue between 66th Street and 67th Street",
+     "borough": "Brooklyn",
+     "time": "12–4pm",
+     "source": "https://data.cityofnewyork.us/d/tvpp-9vvx",
+     "tags": [
+      "parades",
+      "holiday"
+     ]
+    },
+    {
+     "title": "Open Streets Fall Festival E. 115 ST",
+     "venue": "East 115 Street - Park Avenue to Madison Avenue",
+     "address": "East 115th Street - Park Avenue to Madison Avenue",
+     "borough": "Manhattan",
+     "time": "12–5pm",
+     "source": "https://data.cityofnewyork.us/d/tvpp-9vvx",
+     "tags": [
+      "parades",
+      "holiday"
+     ]
+    },
+    {
+     "title": "Trick-or-Streets Woodhaven Community Event",
+     "venue": "Forest Parkway between Jamaica Avenue and 86th Road",
+     "borough": "Queens",
+     "time": "12–4pm",
+     "source": "https://data.cityofnewyork.us/d/tvpp-9vvx",
+     "tags": [
+      "parades",
+      "holiday"
+     ]
+    },
+    {
+     "title": "Diwali in Times Square",
+     "venue": "Father Duffy Square",
+     "borough": "Manhattan",
+     "time": "12–9:30pm",
+     "source": "https://data.cityofnewyork.us/d/tvpp-9vvx",
+     "tags": [
+      "outdoors",
+      "holiday"
+     ]
+    },
+    {
+     "title": "Fall Festival",
+     "venue": "Wayanda Park (PS 34)",
+     "address": "Lawn 01",
+     "borough": "Queens",
+     "time": "12–4pm",
+     "source": "https://data.cityofnewyork.us/d/tvpp-9vvx",
+     "tags": [
+      "outdoors",
+      "holiday",
+      "special"
+     ]
+    },
+    {
+     "title": "Family Fun Day- Fall Festival",
+     "venue": "Rufus King Park",
+     "address": "Event Area",
+     "borough": "Queens",
+     "time": "12–4pm",
+     "source": "https://data.cityofnewyork.us/d/tvpp-9vvx",
+     "tags": [
+      "outdoors",
+      "holiday",
+      "special"
+     ]
+    },
+    {
+     "title": "Arts, Culture & Fun: Sugar Skull Art Workshop",
+     "venue": "Herbert Von King Cultural Arts Center @Herbert Von King Park",
+     "borough": "Brooklyn",
+     "lat": 40.6899,
+     "lon": -73.9467,
+     "time": "12–2pm",
+     "source": "https://www.nycgovparks.org/events/2026/10/24/arts-culture-and-fun-sugar-skull-art-workshop",
+     "tags": [
+      "outdoors"
+     ]
+    },
+    {
+     "title": "Catrina Alebrije Parade",
+     "venue": "4211 14th Avenue",
+     "borough": "Brooklyn",
+     "time": "12:30–1:30pm",
+     "source": "https://data.cityofnewyork.us/d/tvpp-9vvx",
+     "tags": [
+      "parades",
+      "special"
+     ]
+    },
+    {
+     "title": "Fall Children's Harvest Celebration",
+     "venue": "Union St. Garden and Community Development",
+     "borough": "Brooklyn",
+     "lat": 40.67014,
+     "lon": -73.95926,
+     "time": "1–5pm",
+     "source": "https://www.nycgovparks.org/events/2026/10/24/fall-childrens-harvest-celebration",
+     "tags": [
+      "markets",
+      "outdoors",
+      "holiday"
+     ]
+    },
+    {
+     "title": "Annual Fall Potluck and Picnic at Two Coves Community Garden",
+     "venue": "Two Coves Community Garden",
+     "borough": "Queens",
+     "lat": 40.77226,
+     "lon": -73.93214,
+     "time": "1–4pm",
+     "source": "https://www.nycgovparks.org/events/2026/10/24/annual-fall-potluck-and-picnic-at-two-coves-community-garden",
+     "tags": [
+      "markets",
+      "outdoors",
+      "holiday"
+     ]
+    },
+    {
+     "title": "Oktoberfest Pumpkin Jamboree in Hammarskjold Plaza, midtown Manhattan",
+     "venue": "Dag Hammarskjold Plaza",
+     "borough": "Manhattan",
+     "lat": 40.75222,
+     "lon": -73.96963,
+     "time": "1–4pm",
+     "source": "https://www.nycgovparks.org/events/2026/10/24/oktoberfest-pumpkin-jamboree-in-dag-hammarskjojold-plaza-mid",
+     "tags": [
+      "outdoors",
+      "holiday"
+     ]
+    },
+    {
+     "title": "Red Shed Community Garden's Fall Potluck",
+     "venue": "Red Shed Garden",
+     "borough": "Brooklyn",
+     "lat": 40.7161,
+     "lon": -73.9403,
+     "time": "1–6pm",
+     "source": "https://www.nycgovparks.org/events/2026/10/24/red-shed-community-gardens-fall-potluck",
+     "tags": [
+      "markets",
+      "outdoors",
+      "holiday"
+     ]
+    },
+    {
+     "title": "FDB Garden Annual Halloween Event",
+     "venue": "Frederick Douglass Blvd Community Garden",
+     "borough": "Manhattan",
+     "lat": 40.82725,
+     "lon": -73.93887,
+     "time": "2–5pm",
+     "source": "https://www.nycgovparks.org/events/2026/10/24/fdb-garden-annual-halloween-event",
+     "tags": [
+      "markets",
+      "outdoors",
+      "holiday"
+     ]
+    },
+    {
+     "title": "Seed Harvest",
+     "venue": "Clayton Williams Garden",
+     "borough": "Manhattan",
+     "lat": 40.811,
+     "lon": -73.951,
+     "time": "2–4pm",
+     "source": "https://www.nycgovparks.org/events/2026/10/24/seed-harvest",
+     "tags": [
+      "markets",
+      "outdoors",
+      "holiday"
+     ]
+    },
+    {
+     "title": "Halloween Fest",
+     "venue": "5th Avenue between 72nd Street and 85th Street",
+     "borough": "Brooklyn",
+     "time": "2–7pm",
+     "source": "https://data.cityofnewyork.us/d/tvpp-9vvx",
+     "tags": [
+      "parades",
+      "holiday"
+     ]
+    },
+    {
+     "title": "Art Halloween in the Garden",
+     "venue": "Red Gate Garden",
+     "borough": "Brooklyn",
+     "lat": 40.6937,
+     "lon": -73.9492,
+     "time": "3–7pm",
+     "source": "https://www.nycgovparks.org/events/2026/10/24/art-halloween-in-the-garden",
+     "tags": [
+      "outdoors",
+      "holiday"
+     ]
+    },
+    {
+     "title": "5th Annual Halloween Party",
+     "venue": "Lentol Garden",
+     "borough": "Brooklyn",
+     "lat": 40.71997,
+     "lon": -73.94527,
+     "time": "3–6pm",
+     "source": "https://www.nycgovparks.org/events/2026/10/24/5th-annual-halloween-party",
+     "tags": [
+      "markets",
+      "outdoors",
+      "holiday"
+     ]
+    },
+    {
+     "title": "Queens Night Market",
+     "venue": "New York Hall of Science @Flushing Meadows Corona Park",
+     "borough": "Queens",
+     "lat": 40.7409,
+     "lon": -73.8491,
+     "time": "4pm–midnight",
+     "source": "https://queensnightmarket.com/",
+     "tags": [
+      "markets",
+      "special"
+     ],
+     "note": "Open-air night market with over 100 independent vendors"
+    },
+    {
+     "title": "La Plaza Cultural 50th Anniversary Celebration",
+     "venue": "La Plaza Cultural",
+     "borough": "Manhattan",
+     "lat": 40.7253,
+     "lon": -73.9786,
+     "time": "4–8pm",
+     "source": "https://www.nycgovparks.org/events/2026/10/24/la-plaza-cultural-50th-anniversary-celebration",
+     "tags": [
+      "outdoors",
+      "special"
+     ]
+    },
+    {
+     "title": "Diwali Motorcade",
+     "venue": "125th Street between Atlantic Avenue and 95th Avenue",
+     "borough": "Queens",
+     "time": "5–8pm",
+     "source": "https://data.cityofnewyork.us/d/tvpp-9vvx",
+     "tags": [
+      "parades",
+      "holiday",
+      "special"
+     ]
+    },
+    {
+     "title": "Pincushion Puppet Parade",
+     "venue": "Woodward Avenue between Linden Street and Grove Street",
+     "borough": "Queens",
+     "time": "5–7:30pm",
+     "source": "https://data.cityofnewyork.us/d/tvpp-9vvx",
+     "tags": [
+      "parades",
+      "special"
+     ]
+    },
+    {
+     "title": "Halloween: Projections",
+     "venue": "Pearl Street Plaza",
+     "address": "Archway (Pearl Street Plaza) water street between Anchorage Pl and adams st",
+     "borough": "Brooklyn",
+     "time": "5pm",
+     "source": "https://data.cityofnewyork.us/d/tvpp-9vvx",
+     "tags": [
+      "parades",
+      "holiday"
+     ]
+    },
+    {
+     "title": "OTCA Halloween PARADE",
+     "venue": "Addabbo Park",
+     "address": "Tudor Park (Joseph P. Addabbo)",
+     "borough": "Queens",
+     "time": "5–6pm",
+     "source": "https://data.cityofnewyork.us/d/tvpp-9vvx",
+     "tags": [
+      "outdoors",
+      "holiday",
+      "special"
+     ]
+    },
+    {
+     "title": "Movie Under the Stars: Coco (2017)",
+     "venue": "Herbert Von King Park",
+     "borough": "Brooklyn",
+     "lat": 40.68938,
+     "lon": -73.94682,
+     "time": "6–8pm",
+     "source": "https://www.nycgovparks.org/events/2026/10/24/movie-under-the-stars-coco-2017",
+     "tags": [
+      "outdoors",
+      "special"
+     ]
+    },
+    {
+     "title": "Movies Under the Stars: Casper | PG",
+     "venue": "Basketball Courts @Lawrence Virgilio Playground",
+     "borough": "Queens",
+     "lat": 40.74758,
+     "lon": -73.91143,
+     "time": "6:15–8pm",
+     "source": "https://www.nycgovparks.org/events/2026/10/24/movies-under-the-stars-casper-pg",
+     "tags": [
+      "outdoors",
+      "special"
+     ]
+    },
+    {
+     "title": "Candlelight Ghost Tours",
+     "venue": "Merchant's House Museum",
+     "borough": "Manhattan",
+     "lat": 40.7277,
+     "lon": -73.9923,
+     "time": "6:30–10pm",
+     "source": "https://www.nycgovparks.org/events/2026/10/24/candlelight-ghost-tours",
+     "tags": [
+      "outdoors",
+      "holiday"
+     ]
+    },
+    {
+     "title": "Super Spooky Candlelight Ghost Tours with Paranormal Investigator Dan Sturges",
+     "venue": "Merchant's House Museum",
+     "borough": "Manhattan",
+     "lat": 40.7277,
+     "lon": -73.9923,
+     "time": "9:30–11pm",
+     "source": "https://www.nycgovparks.org/events/2026/10/24/super-spooky-candlelight-ghost-tours-with-paranormal-investi",
+     "tags": [
+      "outdoors",
+      "holiday"
+     ]
+    }
+   ]
+  },
+  {
+   "date": "2026-10-25",
+   "events": [
+    {
+     "title": "Murray Hill Farmers Market",
+     "venue": "2nd Avenue between East 32nd Street and East 33rd Street",
+     "borough": "Manhattan",
+     "time": "5:30am–7:30pm",
+     "source": "https://data.cityofnewyork.us/d/tvpp-9vvx",
+     "tags": [
+      "markets"
+     ]
+    },
+    {
+     "title": "Carroll Gardens Greenmarket Sunday",
+     "venue": "Carroll Street between Smith Street and Court Street",
+     "borough": "Brooklyn",
+     "lat": 40.68076,
+     "lon": -73.99552,
+     "time": "6am–6pm",
+     "source": "https://data.cityofnewyork.us/d/tvpp-9vvx",
+     "tags": [
+      "markets"
+     ]
+    },
+    {
+     "title": "Cortelyou Greenmarket Sunday",
+     "venue": "Cortelyou Road between Rugby Road and Argyle Road",
+     "borough": "Brooklyn",
+     "lat": 40.64051,
+     "lon": -73.96602,
+     "time": "6am–6pm",
+     "source": "https://data.cityofnewyork.us/d/tvpp-9vvx",
+     "tags": [
+      "markets"
+     ]
+    },
+    {
+     "title": "Down to Earth Park Slope Farmers Market",
+     "venue": "4th Street between Fifth Avenue and Dead End",
+     "borough": "Brooklyn",
+     "lat": 40.67242,
+     "lon": -73.98426,
+     "time": "6am–6pm",
+     "source": "https://data.cityofnewyork.us/d/tvpp-9vvx",
+     "tags": [
+      "markets"
+     ]
+    },
+    {
+     "title": "Jackson Heights Greenmarket Sunday",
+     "venue": "79th Street between Northern Boulevard and 34th Avenue",
+     "borough": "Queens",
+     "lat": 40.75361,
+     "lon": -73.88774,
+     "time": "6am–6pm",
+     "source": "https://data.cityofnewyork.us/d/tvpp-9vvx",
+     "tags": [
+      "markets"
+     ]
+    },
+    {
+     "title": "NYC Century Bike Tour 2026",
+     "venue": "Scott Avenue between Townsend Street and Thomas Street",
+     "borough": "Brooklyn",
+     "time": "6am–6pm",
+     "source": "https://data.cityofnewyork.us/d/tvpp-9vvx",
+     "tags": [
+      "special"
+     ]
+    },
+    {
+     "title": "Columbia Thursday Sunday Greenmarket",
+     "venue": "Broadway between West 113th Street and West 116th Street",
+     "borough": "Manhattan",
+     "lat": 40.80714,
+     "lon": -73.96426,
+     "time": "8am–6pm",
+     "source": "https://data.cityofnewyork.us/d/tvpp-9vvx",
+     "tags": [
+      "markets"
+     ]
+    },
+    {
+     "title": "Forest Hills Greenmarket Sunday",
+     "venue": "Queens Boulevard between 69th Road and 70th Avenue",
+     "borough": "Queens",
+     "lat": 40.72205,
+     "lon": -73.84716,
+     "time": "8am–5pm",
+     "source": "https://data.cityofnewyork.us/d/tvpp-9vvx",
+     "tags": [
+      "markets"
+     ]
+    },
+    {
+     "title": "Halloween 5k",
+     "venue": "Forest Park",
+     "address": "Forest Park Drive (Race)",
+     "borough": "Queens",
+     "lat": 40.69762,
+     "lon": -73.85308,
+     "time": "8–10am",
+     "source": "https://data.cityofnewyork.us/d/tvpp-9vvx",
+     "tags": [
+      "outdoors",
+      "holiday"
+     ]
+    },
+    {
+     "title": "Old Cathedral Outdoor Market",
+     "venue": "Prince Street between Mulberry Street and Mott Street",
+     "borough": "Manhattan",
+     "time": "8am–8pm",
+     "source": "https://data.cityofnewyork.us/d/tvpp-9vvx",
+     "tags": [
+      "markets"
+     ]
+    },
+    {
+     "title": "Pompeii Flea Market",
+     "venue": "Bleecker Street between Leroy Street and Carmine Street",
+     "borough": "Manhattan",
+     "time": "8am–8pm",
+     "source": "https://data.cityofnewyork.us/d/tvpp-9vvx",
+     "tags": [
+      "markets"
+     ]
+    },
+    {
+     "title": "Day of the Dead Half and 5K",
+     "venue": "Flushing Meadows Corona Park",
+     "address": "Around the Unisphere",
+     "borough": "Queens",
+     "lat": 40.7409,
+     "lon": -73.8491,
+     "time": "9am–12pm",
+     "source": "https://data.cityofnewyork.us/d/tvpp-9vvx",
+     "tags": [
+      "outdoors",
+      "holiday"
+     ]
+    },
+    {
+     "title": "RiseBoro Farmers Markets at Irving Square Park",
+     "venue": "Knickerbocker Avenue between Starr Street and Suydam Street",
+     "borough": "Brooklyn",
+     "lat": 40.69376,
+     "lon": -73.9095,
+     "time": "9am–3pm",
+     "source": "https://data.cityofnewyork.us/d/tvpp-9vvx",
+     "tags": [
+      "markets"
+     ]
+    },
+    {
+     "title": "DOT Partner Pell Open Streets Events",
+     "venue": "Pell Street between Bowery and Mott Street",
+     "borough": "Manhattan",
+     "time": "9am–4pm",
+     "source": "https://data.cityofnewyork.us/d/tvpp-9vvx",
+     "tags": [
+      "parades"
+     ]
+    },
+    {
+     "title": "Cunningham Park Farmers' Market",
+     "venue": "Cunningham Park",
+     "address": "Parking Lot 1 - Union TP and 196 PL",
+     "borough": "Queens",
+     "time": "9am–2pm",
+     "source": "https://data.cityofnewyork.us/d/tvpp-9vvx",
+     "tags": [
+      "markets",
+      "outdoors"
+     ]
+    },
+    {
+     "title": "St. Anthony Flea Market",
+     "venue": "West Houston Street between Thompson Street and Macdougal Street",
+     "borough": "Manhattan",
+     "time": "9am–7pm",
+     "source": "https://data.cityofnewyork.us/d/tvpp-9vvx",
+     "tags": [
+      "markets"
+     ]
+    },
+    {
+     "title": "Adventure Course Free Public Sunday Morning Program",
+     "venue": "Alley Pond Adventure Course @Alley Pond Park",
+     "borough": "Queens",
+     "lat": 40.74277,
+     "lon": -73.74113,
+     "time": "9:30–11:30am",
+     "source": "https://www.nycgovparks.org/events/2026/10/25/adventure-course-free-public-sunday-morning-program",
+     "tags": [
+      "outdoors"
+     ]
+    },
+    {
+     "title": "37th Annual Upper Broadway Harvest Festival",
+     "venue": "Broadway between West 96th Street and West 106th Street",
+     "borough": "Manhattan",
+     "time": "10am–6pm",
+     "source": "https://data.cityofnewyork.us/d/tvpp-9vvx",
+     "tags": [
+      "parades",
+      "holiday"
+     ]
+    },
+    {
+     "title": "6th Avenue Autumn Fair",
+     "venue": "6th Avenue between West 14th Street and West 23rd Street",
+     "borough": "Manhattan",
+     "time": "10am–6pm",
+     "source": "https://data.cityofnewyork.us/d/tvpp-9vvx",
+     "tags": [
+      "parades"
+     ]
+    },
+    {
+     "title": "Court Street Spectacular",
+     "venue": "Court Street between Atlantic Avenue and Joralemon Street",
+     "borough": "Brooklyn",
+     "time": "10am–6pm",
+     "source": "https://data.cityofnewyork.us/d/tvpp-9vvx",
+     "tags": [
+      "parades"
+     ]
+    },
+    {
+     "title": "Korean Harvest Festival",
+     "venue": "41st Avenue between 149th Street and 149th Place",
+     "borough": "Queens",
+     "time": "10am–6pm",
+     "source": "https://data.cityofnewyork.us/d/tvpp-9vvx",
+     "tags": [
+      "parades",
+      "holiday"
+     ]
+    },
+    {
+     "title": "Kids In Motions: Carmansville Playground",
+     "venue": "Play Area @Carmansville Playground",
+     "borough": "Manhattan",
+     "lat": 40.8292,
+     "lon": -73.94425,
+     "time": "10am–6pm",
+     "source": "https://www.nycgovparks.org/events/2026/10/25/kids-in-motions-carmansville-playground",
+     "tags": [
+      "outdoors"
+     ]
+    },
+    {
+     "title": "Art in the Garden: Spooky Season Decor",
+     "venue": "Patchen Community Square",
+     "borough": "Brooklyn",
+     "lat": 40.68651,
+     "lon": -73.92724,
+     "time": "10:30am–1:30pm",
+     "source": "https://www.nycgovparks.org/events/2026/10/25/art-in-the-garden-spooky-season-decor",
+     "tags": [
+      "outdoors",
+      "holiday"
+     ]
+    },
+    {
+     "title": "Smorgasburg Prospect Park",
+     "venue": "Breeze Hill @Prospect Park",
+     "address": "Enter at Lincoln Road",
+     "borough": "Brooklyn",
+     "lat": 40.6607,
+     "lon": -73.9654,
+     "time": "11am–6pm",
+     "source": "https://smorgasburg.com/new-york",
+     "tags": [
+      "markets"
+     ],
+     "note": "300}Closed for the Season"
+    },
+    {
+     "title": "Fall Festival of Diasporas: Gleane Street Trick-Or-Streets",
+     "venue": "Gleane Street between Baxter Avenue and Britton Avenue",
+     "borough": "Queens",
+     "time": "11am–9pm",
+     "source": "https://data.cityofnewyork.us/d/tvpp-9vvx",
+     "tags": [
+      "parades",
+      "holiday"
+     ]
+    },
+    {
+     "title": "YCS Fall Festival 2026",
+     "venue": "East 88th Street between York Avenue and 1st Avenue",
+     "borough": "Manhattan",
+     "time": "11am–3pm",
+     "source": "https://data.cityofnewyork.us/d/tvpp-9vvx",
+     "tags": [
+      "parades",
+      "holiday"
+     ]
+    },
+    {
+     "title": "Congo Square Vendor's Market",
+     "venue": "Prospect Park",
+     "address": "Drummer's Grove Market Place",
+     "borough": "Brooklyn",
+     "lat": 40.6607,
+     "lon": -73.9654,
+     "time": "11am–8pm",
+     "source": "https://data.cityofnewyork.us/d/tvpp-9vvx",
+     "tags": [
+      "markets",
+      "outdoors"
+     ]
+    },
+    {
+     "title": "Fall Foliage Canoeing",
+     "venue": "Audubon Center at the Boathouse @Prospect Park",
+     "borough": "Brooklyn",
+     "lat": 40.6607,
+     "lon": -73.9654,
+     "time": "11am–12:30pm",
+     "source": "https://www.nycgovparks.org/events/2026/10/25/fall-foliage-canoeing",
+     "tags": [
+      "outdoors"
+     ]
+    },
+    {
+     "title": "Fall Festival with Councilmember Vernikov",
+     "venue": "Asser Levy Park Play Area @Asser Levy Park",
+     "borough": "Brooklyn",
+     "lat": 40.57526,
+     "lon": -73.97187,
+     "time": "12–3pm",
+     "source": "https://www.nycgovparks.org/events/2026/10/25/fall-festival-with-councilmember-vernikov",
+     "tags": [
+      "outdoors",
+      "holiday",
+      "special"
+     ]
+    },
+    {
+     "title": "Shocktoberfest",
+     "venue": "Playground for All Children @Flushing Meadows Corona Park",
+     "borough": "Queens",
+     "lat": 40.7409,
+     "lon": -73.8491,
+     "time": "12–3pm",
+     "source": "https://www.nycgovparks.org/events/2026/10/25/shocktoberfest",
+     "tags": [
+      "outdoors",
+      "holiday"
+     ]
+    },
+    {
+     "title": "Pumpkin Party",
+     "venue": "Poplar Street Community Garden",
+     "borough": "Brooklyn",
+     "lat": 40.70121,
+     "lon": -73.99329,
+     "time": "12–3pm",
+     "source": "https://www.nycgovparks.org/events/2026/10/25/pumpkin-party",
+     "tags": [
+      "outdoors",
+      "holiday"
+     ]
+    },
+    {
+     "title": "Trick or Streets",
+     "venue": "Columbus Avenue between West 77th Street and West 68th Street",
+     "borough": "Manhattan",
+     "time": "12–6:30pm",
+     "source": "https://data.cityofnewyork.us/d/tvpp-9vvx",
+     "tags": [
+      "parades",
+      "holiday"
+     ]
+    },
+    {
+     "title": "Fall Festival Asser Levy",
+     "venue": "Asser Levy Park",
+     "address": "Lawn",
+     "borough": "Brooklyn",
+     "lat": 40.57526,
+     "lon": -73.97187,
+     "time": "12–3pm",
+     "source": "https://data.cityofnewyork.us/d/tvpp-9vvx",
+     "tags": [
+      "outdoors",
+      "holiday",
+      "special"
+     ]
+    },
+    {
+     "title": "31st Ave Open Street - October 2026 Programming",
+     "venue": "31 Avenue - 33 Street to 35 Street",
+     "address": "31st Avenue - 33rd Street to 35th Street",
+     "borough": "Queens",
+     "time": "12–8pm",
+     "source": "https://data.cityofnewyork.us/d/tvpp-9vvx",
+     "tags": [
+      "parades"
+     ]
+    },
+    {
+     "title": "Boombox in Jamaica",
+     "venue": "Parsons Boulevard between Jamaica Avenue and Archer Avenue",
+     "borough": "Queens",
+     "time": "12pm",
+     "source": "https://data.cityofnewyork.us/d/tvpp-9vvx",
+     "tags": [
+      "parades"
+     ]
+    },
+    {
+     "title": "Lord of Miracles Procession",
+     "venue": "West 51st Street between 9th Avenue and 10th Avenue",
+     "borough": "Manhattan",
+     "time": "12–7pm",
+     "source": "https://data.cityofnewyork.us/d/tvpp-9vvx",
+     "tags": [
+      "parades"
+     ]
+    },
+    {
+     "title": "Old Stone House: Open Hours",
+     "venue": "Old Stone House @Washington Park",
+     "borough": "Brooklyn",
+     "lat": 40.67294,
+     "lon": -73.9846,
+     "time": "12–4pm",
+     "source": "https://www.nycgovparks.org/events/2026/10/25/old-stone-house-open-hours",
+     "tags": [
+      "outdoors"
+     ]
+    },
+    {
+     "title": "Grow Your Own Oyster Mushrooms At Home!",
+     "venue": "Maple Street Community Garden",
+     "borough": "Brooklyn",
+     "lat": 40.66091,
+     "lon": -73.95283,
+     "time": "12–2pm",
+     "source": "https://www.nycgovparks.org/events/2026/10/25/grow-your-own-oyster-mushrooms-at-home",
+     "tags": [
+      "outdoors"
+     ]
+    },
+    {
+     "title": "Autumn Festival",
+     "venue": "Marine Park",
+     "address": "Lawn (Fillmore Avenue)",
+     "borough": "Brooklyn",
+     "lat": 40.60794,
+     "lon": -73.93747,
+     "time": "12–3pm",
+     "source": "https://data.cityofnewyork.us/d/tvpp-9vvx",
+     "tags": [
+      "outdoors",
+      "special"
+     ]
+    },
+    {
+     "title": "CM Lee's Fall Health Fair 2026",
+     "venue": "Cunningham Park",
+     "address": "Parking Lot 1 - Union TP and 196 PL",
+     "borough": "Queens",
+     "time": "12–3pm",
+     "source": "https://data.cityofnewyork.us/d/tvpp-9vvx",
+     "tags": [
+      "outdoors"
+     ]
+    },
+    {
+     "title": "2026 Halloween Parade and Party at Washington Market Park",
+     "venue": "Greenwich Street between Beach Street and Duane Street",
+     "address": "390 Greenwich Street",
+     "borough": "Manhattan",
+     "time": "1–3pm",
+     "source": "https://data.cityofnewyork.us/d/tvpp-9vvx",
+     "tags": [
+      "markets",
+      "parades",
+      "holiday",
+      "special"
+     ]
+    },
+    {
+     "title": "Batty Over Halloween Celebration",
+     "venue": "Great Lawn @Astoria Park",
+     "borough": "Queens",
+     "lat": 40.78046,
+     "lon": -73.92074,
+     "time": "1–4pm",
+     "source": "https://www.nycgovparks.org/events/2026/10/25/batty-over-halloween-celebration",
+     "tags": [
+      "outdoors",
+      "holiday"
+     ]
+    },
+    {
+     "title": "Halloween Dog Costume Parade",
+     "venue": "Stuyvesant Square",
+     "address": "Flagpole Plaza East",
+     "borough": "Manhattan",
+     "time": "1–4pm",
+     "source": "https://data.cityofnewyork.us/d/tvpp-9vvx",
+     "tags": [
+      "outdoors",
+      "holiday",
+      "special"
+     ]
+    },
+    {
+     "title": "Halloween in Tompins Square Park",
+     "venue": "Tompkins Square Park",
+     "address": "Old Bandshell",
+     "borough": "Manhattan",
+     "lat": 40.72667,
+     "lon": -73.98308,
+     "time": "1–7pm",
+     "source": "https://data.cityofnewyork.us/d/tvpp-9vvx",
+     "tags": [
+      "outdoors",
+      "holiday"
+     ]
+    },
+    {
+     "title": "Geology: Central Park Rocks!",
+     "venue": "Harlem Meer @Central Park",
+     "borough": "Manhattan",
+     "lat": 40.79731,
+     "lon": -73.95351,
+     "time": "1–2pm",
+     "source": "https://www.nycgovparks.org/events/2026/10/25/geology-central-park-rocks",
+     "tags": [
+      "outdoors"
+     ]
+    },
+    {
+     "title": "Jazz at Ellison Island",
+     "venue": "Riverside Park",
+     "address": "Ellison Island",
+     "borough": "Manhattan",
+     "lat": 40.79683,
+     "lon": -73.97499,
+     "time": "1–6pm",
+     "source": "https://data.cityofnewyork.us/d/tvpp-9vvx",
+     "tags": [
+      "outdoors"
+     ]
+    },
+    {
+     "title": "Live Music and Activities at Andrew Haswell Green Park",
+     "venue": "Andrew Haswell Green Park",
+     "borough": "Manhattan",
+     "time": "1–4pm",
+     "source": "https://data.cityofnewyork.us/d/tvpp-9vvx",
+     "tags": [
+      "outdoors"
+     ]
+    },
+    {
+     "title": "Great Trees of Tompkins Square Park",
+     "venue": "Avenue A and St. Marks Place @Tompkins Square Park",
+     "borough": "Manhattan",
+     "lat": 40.72667,
+     "lon": -73.98308,
+     "time": "1–2pm",
+     "source": "https://www.nycgovparks.org/events/2026/10/25/great-trees-of-tompkins-square-park",
+     "tags": [
+      "outdoors"
+     ]
+    },
+    {
+     "title": "Outdoor Skills: Orienteering and Navigation Skills",
+     "venue": "Alley Pond Adventure Course @Alley Pond Park",
+     "borough": "Queens",
+     "lat": 40.74277,
+     "lon": -73.74113,
+     "time": "1–2pm",
+     "source": "https://www.nycgovparks.org/events/2026/10/25/outdoor-skills-orienteering-and-navigation-skills",
+     "tags": [
+      "outdoors"
+     ]
+    },
+    {
+     "title": "Day of the Dead Parade",
+     "venue": "5th Avenue between 60th Street and 59th Street",
+     "borough": "Brooklyn",
+     "time": "1:30–3:30pm",
+     "source": "https://data.cityofnewyork.us/d/tvpp-9vvx",
+     "tags": [
+      "parades",
+      "holiday",
+      "special"
+     ]
+    },
+    {
+     "title": "College Point Halloween Parade",
+     "venue": "College Point Boulevard between 14th Avenue and 14th Road",
+     "borough": "Queens",
+     "time": "2–5pm",
+     "source": "https://data.cityofnewyork.us/d/tvpp-9vvx",
+     "tags": [
+      "parades",
+      "holiday",
+      "special"
+     ]
+    },
+    {
+     "title": "Carve a Pumpkin for Halloween!",
+     "venue": "LaGuardia Corner Community Garden",
+     "borough": "Manhattan",
+     "lat": 40.72778,
+     "lon": -73.99905,
+     "time": "2–5pm",
+     "source": "https://www.nycgovparks.org/events/2026/10/25/carve-a-pumpkin-for-halloween",
+     "tags": [
+      "outdoors",
+      "holiday"
+     ]
+    },
+    {
+     "title": "Trick-or-Streets Signature event: Austin Street Open Street/Queens",
+     "venue": "Austin Street between 71st Road and 71st Avenue",
+     "borough": "Queens",
+     "time": "2–7pm",
+     "source": "https://data.cityofnewyork.us/d/tvpp-9vvx",
+     "tags": [
+      "parades",
+      "holiday"
+     ]
+    },
+    {
+     "title": "Jazz in the Park at Ralph Ellison",
+     "venue": "Ralph Ellison Plaza",
+     "borough": "Manhattan",
+     "lat": 40.83035,
+     "lon": -73.94996,
+     "time": "2–5pm",
+     "source": "https://www.nycgovparks.org/events/2026/10/25/jazz-in-the-park-at-ralph-ellison",
+     "tags": [
+      "outdoors",
+      "special"
+     ]
+    },
+    {
+     "title": "Pumpkin Singalong",
+     "venue": "Sakura Park",
+     "address": "Lawn",
+     "borough": "Manhattan",
+     "time": "2–5pm",
+     "source": "https://data.cityofnewyork.us/d/tvpp-9vvx",
+     "tags": [
+      "outdoors",
+      "holiday"
+     ]
+    },
+    {
+     "title": "McGolrick Park Farmers' Market",
+     "venue": "Monsignor McGolrick Park",
+     "address": "Pavilion",
+     "borough": "Brooklyn",
+     "time": null,
+     "source": "https://data.cityofnewyork.us/d/tvpp-9vvx",
+     "tags": [
+      "markets",
+      "outdoors"
+     ]
+    },
+    {
+     "title": "Wayne Tucker and the Bad Mothas - Tribute to Marshal and Ernie Royal",
+     "venue": "Oak Ridge @Forest Park",
+     "borough": "Queens",
+     "lat": 40.69762,
+     "lon": -73.85308,
+     "time": "3–4pm",
+     "source": "https://www.nycgovparks.org/events/2026/10/25/wayne-tucker-and-the-bad-mothas-tribute-to-marshal-and-erni",
+     "tags": [
+      "outdoors",
+      "special"
+     ]
+    },
+    {
+     "title": "Worth Square Food Market",
+     "venue": "Worth Square",
+     "address": "Triangle",
+     "borough": "Manhattan",
+     "time": null,
+     "source": "https://data.cityofnewyork.us/d/tvpp-9vvx",
+     "tags": [
+      "markets",
+      "outdoors"
+     ]
+    },
+    {
+     "title": "New Wave Pier Food Market",
+     "venue": "East River Esplanade 36th-38th",
+     "address": "36th-38th St",
+     "borough": "Manhattan",
+     "time": null,
+     "source": "https://data.cityofnewyork.us/d/tvpp-9vvx",
+     "tags": [
+      "markets",
+      "outdoors"
+     ]
+    },
+    {
+     "title": "Nocturnal Seining and Shore Exploration",
+     "venue": "Fort Totten Front Gate @Fort Totten Park",
+     "borough": "Queens",
+     "lat": 40.78954,
+     "lon": -73.78209,
+     "time": "7–8:30pm",
+     "source": "https://www.nycgovparks.org/events/2026/10/25/nocturnal-seining-and-shore-exploration",
+     "tags": [
+      "outdoors"
+     ]
+    }
+   ]
+  },
+  {
+   "date": "2026-10-26",
+   "events": [
+    {
+     "title": "Tienda de Pueblo",
+     "venue": "34th Avenue between 77th Street and 78th Street",
+     "borough": "Queens",
+     "time": "7am–12pm",
+     "source": "https://data.cityofnewyork.us/d/tvpp-9vvx",
+     "tags": [
+      "parades"
+     ]
+    },
+    {
+     "title": "Immigrant Culture Month at Avenue C Plaza Extension",
+     "venue": "Avenue C Plaza",
+     "address": "Avenue C Plaza Mcdonald Avenue between Avenue C and Church Avenue",
+     "borough": "Brooklyn",
+     "time": "8am–7:30pm",
+     "source": "https://data.cityofnewyork.us/d/tvpp-9vvx",
+     "tags": [
+      "parades"
+     ]
+    },
+    {
+     "title": "New Dendrology at the Arsenal Gallery",
+     "venue": "Arsenal @Central Park",
+     "borough": "Manhattan",
+     "lat": 40.7672,
+     "lon": -73.9713,
+     "time": "9am–5pm",
+     "source": "https://www.nycgovparks.org/events/2026/10/26/new-dendrology-at-the-arsenal-gallery",
+     "tags": [
+      "outdoors"
+     ]
+    },
+    {
+     "title": "Boombox in Jamaica",
+     "venue": "Parsons Boulevard between Jamaica Avenue and Archer Avenue",
+     "borough": "Queens",
+     "time": "12pm",
+     "source": "https://data.cityofnewyork.us/d/tvpp-9vvx",
+     "tags": [
+      "parades"
+     ]
+    },
+    {
+     "title": "Mid-Autumn Festival",
+     "venue": "Alfred E. Smith Recreation Center @Alfred E. Smith Playground",
+     "borough": "Manhattan",
+     "lat": 40.71032,
+     "lon": -73.99764,
+     "time": "3–5pm",
+     "source": "https://www.nycgovparks.org/events/2026/10/26/midautumn-festival",
+     "tags": [
+      "outdoors",
+      "special"
+     ]
+    },
+    {
+     "title": "Wild Oyster Survey",
+     "venue": "Little Hell Gate Salt Marsh @Randall's Island Park",
+     "borough": "Manhattan",
+     "lat": 40.79147,
+     "lon": -73.92688,
+     "time": "3–5pm",
+     "source": "https://www.nycgovparks.org/events/2026/10/26/wild-oyster-survey",
+     "tags": [
+      "outdoors"
+     ]
+    }
+   ]
+  },
+  {
+   "date": "2026-10-27",
+   "events": [
+    {
+     "title": "Elmhurst Greenmarket Tuesday",
+     "venue": "41st Avenue between 80th Street and 81st Street",
+     "borough": "Queens",
+     "lat": 40.74579,
+     "lon": -73.88549,
+     "time": "8am–5pm",
+     "source": "https://data.cityofnewyork.us/d/tvpp-9vvx",
+     "tags": [
+      "markets"
+     ]
+    },
+    {
+     "title": "Ft Washington Greenmarket Tuesday",
+     "venue": "FT Washington Avenue between West 168th Street and West 169th Street",
+     "borough": "Manhattan",
+     "time": "8am–6pm",
+     "source": "https://data.cityofnewyork.us/d/tvpp-9vvx",
+     "tags": [
+      "markets"
+     ]
+    },
+    {
+     "title": "Grass Roots Farmers Market",
+     "venue": "Jackie Robinson Park",
+     "address": "Sidewalk",
+     "borough": "Manhattan",
+     "time": "8am–5pm",
+     "source": "https://data.cityofnewyork.us/d/tvpp-9vvx",
+     "tags": [
+      "markets",
+      "outdoors"
+     ]
+    },
+    {
+     "title": "Immigrant Culture Month at Avenue C Plaza Extension",
+     "venue": "Avenue C Plaza",
+     "address": "Avenue C Plaza Mcdonald Avenue between Avenue C and Church Avenue",
+     "borough": "Brooklyn",
+     "time": "8am–7:30pm",
+     "source": "https://data.cityofnewyork.us/d/tvpp-9vvx",
+     "tags": [
+      "parades"
+     ]
+    },
+    {
+     "title": "New Dendrology at the Arsenal Gallery",
+     "venue": "Arsenal @Central Park",
+     "borough": "Manhattan",
+     "lat": 40.7672,
+     "lon": -73.9713,
+     "time": "9am–5pm",
+     "source": "https://www.nycgovparks.org/events/2026/10/27/new-dendrology-at-the-arsenal-gallery",
+     "tags": [
+      "outdoors"
+     ]
+    },
+    {
+     "title": "WSP Food Market",
+     "venue": "Washington Square Park",
+     "address": "Wash Sq West Sidewalks",
+     "borough": "Manhattan",
+     "lat": 40.73202,
+     "lon": -73.99853,
+     "time": "9am–9pm",
+     "source": "https://data.cityofnewyork.us/d/tvpp-9vvx",
+     "tags": [
+      "markets",
+      "outdoors"
+     ]
+    },
+    {
+     "title": "Kid's Concert with Mike Messer",
+     "venue": "Bella Abzug Park",
+     "address": "Block 1 (between 33rd street & 34th street)",
+     "borough": "Manhattan",
+     "time": "10–11:30am",
+     "source": "https://data.cityofnewyork.us/d/tvpp-9vvx",
+     "tags": [
+      "outdoors",
+      "special"
+     ]
+    },
+    {
+     "title": "CUIMC Fall Festival",
+     "venue": "Haven Plaza",
+     "address": "Haven Plaza Haven Ave between W 169th street and Fort Washington Ave",
+     "borough": "Manhattan",
+     "time": "11:30am–2pm",
+     "source": "https://data.cityofnewyork.us/d/tvpp-9vvx",
+     "tags": [
+      "parades",
+      "holiday"
+     ]
+    },
+    {
+     "title": "Boombox in Jamaica",
+     "venue": "Parsons Boulevard between Jamaica Avenue and Archer Avenue",
+     "borough": "Queens",
+     "time": "12pm",
+     "source": "https://data.cityofnewyork.us/d/tvpp-9vvx",
+     "tags": [
+      "parades"
+     ]
+    },
+    {
+     "title": "Kids in Motion: Columbus Park",
+     "venue": "Columbus Park",
+     "borough": "Manhattan",
+     "lat": 40.7152,
+     "lon": -74.0,
+     "time": "2–6pm",
+     "source": "https://www.nycgovparks.org/events/2026/10/27/kids-in-motion-columbus-park",
+     "tags": [
+      "outdoors"
+     ]
+    },
+    {
+     "title": "Kids in Motion: Tompkins Square Park",
+     "venue": "Avenue A and St. Marks Place @Tompkins Square Park",
+     "borough": "Manhattan",
+     "lat": 40.72667,
+     "lon": -73.98308,
+     "time": "2–6pm",
+     "source": "https://www.nycgovparks.org/events/2026/10/27/kids-in-motion-tompkins-square-park",
+     "tags": [
+      "outdoors"
+     ]
+    },
+    {
+     "title": "October Halloween Series",
+     "venue": "Elizabeth Street Park",
+     "borough": "Manhattan",
+     "time": "6–10pm",
+     "source": "https://data.cityofnewyork.us/d/tvpp-9vvx",
+     "tags": [
+      "outdoors",
+      "holiday"
+     ]
+    },
+    {
+     "title": "Chess on Underhill Plaza",
+     "venue": "Underhill Avenue Plaza",
+     "address": "Underhill Avenue Plaza Underhill Ave between Atlantic Ave and Pacific St",
+     "borough": "Brooklyn",
+     "time": "6:30–9pm",
+     "source": "https://data.cityofnewyork.us/d/tvpp-9vvx",
+     "tags": [
+      "parades"
+     ]
+    },
+    {
+     "title": "Stargazing on the High Line",
+     "venue": "On the High Line at 13th Street @The High Line",
+     "borough": "Manhattan",
+     "lat": 40.74073,
+     "lon": -74.00806,
+     "time": "8:15–10pm",
+     "source": "https://www.nycgovparks.org/events/2026/10/27/stargazing-on-the-high-line",
+     "tags": [
+      "outdoors",
+      "special"
+     ]
+    }
+   ]
+  },
+  {
+   "date": "2026-10-28",
+   "events": [
+    {
+     "title": "GrowNYC @ Washington Market Park",
+     "venue": "Washington Market Park",
+     "borough": "Manhattan",
+     "time": "6am–7pm",
+     "source": "https://data.cityofnewyork.us/d/tvpp-9vvx",
+     "tags": [
+      "markets",
+      "outdoors"
+     ]
+    },
+    {
+     "title": "Fall Festival",
+     "venue": "Harman Street between Myrtle Avenue and Wilson Avenue",
+     "borough": "Brooklyn",
+     "time": "8am–1pm",
+     "source": "https://data.cityofnewyork.us/d/tvpp-9vvx",
+     "tags": [
+      "parades",
+      "holiday"
+     ]
+    },
+    {
+     "title": "HHFM Kings County Hospital Market",
+     "venue": "Clarkson Avenue between East 37th Street and East 38th Street",
+     "borough": "Brooklyn",
+     "time": "8am–3pm",
+     "source": "https://data.cityofnewyork.us/d/tvpp-9vvx",
+     "tags": [
+      "markets"
+     ]
+    },
+    {
+     "title": "Mount Sinai Greenmarket Wednesday",
+     "venue": "Madison Avenue between East 98th Street and East 99th Street",
+     "borough": "Manhattan",
+     "lat": 40.78939,
+     "lon": -73.9526,
+     "time": "8am–5pm",
+     "source": "https://data.cityofnewyork.us/d/tvpp-9vvx",
+     "tags": [
+      "markets"
+     ]
+    },
+    {
+     "title": "Immigrant Culture Month at Avenue C Plaza Extension",
+     "venue": "Avenue C Plaza",
+     "address": "Avenue C Plaza Mcdonald Avenue between Avenue C and Church Avenue",
+     "borough": "Brooklyn",
+     "time": "8am–7:30pm",
+     "source": "https://data.cityofnewyork.us/d/tvpp-9vvx",
+     "tags": [
+      "parades"
+     ]
+    },
+    {
+     "title": "New Dendrology at the Arsenal Gallery",
+     "venue": "Arsenal @Central Park",
+     "borough": "Manhattan",
+     "lat": 40.7672,
+     "lon": -73.9713,
+     "time": "9am–5pm",
+     "source": "https://www.nycgovparks.org/events/2026/10/28/new-dendrology-at-the-arsenal-gallery",
+     "tags": [
+      "outdoors"
+     ]
+    },
+    {
+     "title": "2026 TCS NYC Marathon Blue Line Painting Ceremony",
+     "venue": "Central Park",
+     "address": "West Drive",
+     "borough": "Manhattan",
+     "lat": 40.79731,
+     "lon": -73.95351,
+     "time": "9–10am",
+     "source": "https://data.cityofnewyork.us/d/tvpp-9vvx",
+     "tags": [
+      "outdoors"
+     ]
+    },
+    {
+     "title": "Bro Sis Green Youth Market",
+     "venue": "Johnny Hartman Square",
+     "borough": "Manhattan",
+     "time": "9am–7pm",
+     "source": "https://data.cityofnewyork.us/d/tvpp-9vvx",
+     "tags": [
+      "markets",
+      "outdoors"
+     ]
+    },
+    {
+     "title": "WSP Food Market",
+     "venue": "Washington Square Park",
+     "address": "Wash Sq West Sidewalks",
+     "borough": "Manhattan",
+     "lat": 40.73202,
+     "lon": -73.99853,
+     "time": "9am–9pm",
+     "source": "https://data.cityofnewyork.us/d/tvpp-9vvx",
+     "tags": [
+      "markets",
+      "outdoors"
+     ]
+    },
+    {
+     "title": "National First Responders Day",
+     "venue": "Times Square",
+     "address": "46/47 Broadway Pedestrian Plaza (Times Sq) Broadway between West 46th Street and West 47th",
+     "borough": "Manhattan",
+     "time": "11am–12pm",
+     "source": "https://data.cityofnewyork.us/d/tvpp-9vvx",
+     "tags": [
+      "parades"
+     ]
+    },
+    {
+     "title": "Bank of America Winter Village opens",
+     "venue": "Bryant Park",
+     "borough": "Manhattan",
+     "time": "from noon",
+     "source": "https://bryantpark.org/activities/bank-of-america-winter-village-at-bryant-park",
+     "tags": [
+      "outdoors",
+      "holiday",
+      "special"
+     ],
+     "note": "The rink, holiday shops and The Lodge open for the season"
+    },
+    {
+     "title": "East 125th Street Farmstand",
+     "venue": "East 125th Street between Park Avenue and Lexington Avenue",
+     "borough": "Manhattan",
+     "time": "12–7pm",
+     "source": "https://data.cityofnewyork.us/d/tvpp-9vvx",
+     "tags": [
+      "markets"
+     ]
+    },
+    {
+     "title": "Boombox in Jamaica",
+     "venue": "Parsons Boulevard between Jamaica Avenue and Archer Avenue",
+     "borough": "Queens",
+     "time": "12pm",
+     "source": "https://data.cityofnewyork.us/d/tvpp-9vvx",
+     "tags": [
+      "parades"
+     ]
+    },
+    {
+     "title": "Wednesday Children's Programming - Art in the Park",
+     "venue": "Washington Square Park",
+     "address": "East Playground Picnic Area",
+     "borough": "Manhattan",
+     "lat": 40.73202,
+     "lon": -73.99853,
+     "time": "2–6pm",
+     "source": "https://data.cityofnewyork.us/d/tvpp-9vvx",
+     "tags": [
+      "outdoors"
+     ]
+    },
+    {
+     "title": "Kids in Motion: Columbus Park",
+     "venue": "Columbus Park",
+     "borough": "Manhattan",
+     "lat": 40.7152,
+     "lon": -74.0,
+     "time": "2–6pm",
+     "source": "https://www.nycgovparks.org/events/2026/10/28/kids-in-motion-columbus-park",
+     "tags": [
+      "outdoors"
+     ]
+    },
+    {
+     "title": "Kids in Motion: Tompkins Square Park",
+     "venue": "Avenue A and St. Marks Place @Tompkins Square Park",
+     "borough": "Manhattan",
+     "lat": 40.72667,
+     "lon": -73.98308,
+     "time": "2–6pm",
+     "source": "https://www.nycgovparks.org/events/2026/10/28/kids-in-motion-tompkins-square-park",
+     "tags": [
+      "outdoors"
+     ]
+    },
+    {
+     "title": "Jazz in Bennett Park",
+     "venue": "Bennett Park",
+     "borough": "Manhattan",
+     "time": "3:30pm",
+     "source": "https://data.cityofnewyork.us/d/tvpp-9vvx",
+     "tags": [
+      "outdoors"
+     ]
+    },
+    {
+     "title": "Shine the Light",
+     "venue": "Plaza Alianza Dominicana",
+     "address": "Plaza Alianza Dominicana Audubon ave between 166 th st and St nicholas Ave",
+     "borough": "Manhattan",
+     "time": "5:30–6:45pm",
+     "source": "https://data.cityofnewyork.us/d/tvpp-9vvx",
+     "tags": [
+      "parades"
+     ]
+    },
+    {
+     "title": "October Halloween Series",
+     "venue": "Elizabeth Street Park",
+     "borough": "Manhattan",
+     "time": "6–10pm",
+     "source": "https://data.cityofnewyork.us/d/tvpp-9vvx",
+     "tags": [
+      "outdoors",
+      "holiday"
+     ]
+    },
+    {
+     "title": "SUPER SPOOKY Candlelight Ghost Tour",
+     "venue": "Merchant's House Museum",
+     "borough": "Manhattan",
+     "lat": 40.7277,
+     "lon": -73.9923,
+     "time": "9:30–11pm",
+     "source": "https://www.nycgovparks.org/events/2026/10/28/super-spooky-candlelight-ghost-tour",
+     "tags": [
+      "outdoors",
+      "holiday"
+     ]
+    }
+   ]
+  },
+  {
+   "date": "2026-10-29",
+   "events": [
+    {
+     "title": "HHFM Brower Park Market",
+     "venue": "Brower Park (PS 289 - Playground Only)",
+     "borough": "Brooklyn",
+     "time": "7am–4pm",
+     "source": "https://data.cityofnewyork.us/d/tvpp-9vvx",
+     "tags": [
+      "markets",
+      "outdoors"
+     ]
+    },
+    {
+     "title": "90th Ave PS 95Q Open Streets - Trick or Streets",
+     "venue": "90th Avenue between 179th Street and 179th Place",
+     "borough": "Queens",
+     "time": "8am–3pm",
+     "source": "https://data.cityofnewyork.us/d/tvpp-9vvx",
+     "tags": [
+      "parades",
+      "holiday"
+     ]
+    },
+    {
+     "title": "175 street Greenmarket Thursday",
+     "venue": "West 175th Street between Broadway and Wadsworth Avenue",
+     "borough": "Manhattan",
+     "time": "8am–5pm",
+     "source": "https://data.cityofnewyork.us/d/tvpp-9vvx",
+     "tags": [
+      "markets"
+     ]
+    },
+    {
+     "title": "Borough Park Greenmarket Thursday",
+     "venue": "14th Avenue between 49th Street and 50th Street",
+     "borough": "Brooklyn",
+     "lat": 40.6337,
+     "lon": -73.98992,
+     "time": "8am–4pm",
+     "source": "https://data.cityofnewyork.us/d/tvpp-9vvx",
+     "tags": [
+      "markets"
+     ]
+    },
+    {
+     "title": "Columbia Thursday Sunday Greenmarket",
+     "venue": "Broadway between West 113th Street and West 116th Street",
+     "borough": "Manhattan",
+     "lat": 40.80714,
+     "lon": -73.96426,
+     "time": "8am–6pm",
+     "source": "https://data.cityofnewyork.us/d/tvpp-9vvx",
+     "tags": [
+      "markets"
+     ]
+    },
+    {
+     "title": "HHFM East Harlem Market",
+     "venue": "East 104th Street between Third Avenue and Second Avenue",
+     "borough": "Manhattan",
+     "time": "8am–3pm",
+     "source": "https://data.cityofnewyork.us/d/tvpp-9vvx",
+     "tags": [
+      "markets"
+     ]
+    },
+    {
+     "title": "Farmers Market",
+     "venue": "Richard Tucker Square",
+     "borough": "Manhattan",
+     "time": "8am–8pm",
+     "source": "https://data.cityofnewyork.us/d/tvpp-9vvx",
+     "tags": [
+      "markets",
+      "outdoors"
+     ]
+    },
+    {
+     "title": "Immigrant Culture Month at Avenue C Plaza Extension",
+     "venue": "Avenue C Plaza",
+     "address": "Avenue C Plaza Mcdonald Avenue between Avenue C and Church Avenue",
+     "borough": "Brooklyn",
+     "time": "8am–7:30pm",
+     "source": "https://data.cityofnewyork.us/d/tvpp-9vvx",
+     "tags": [
+      "parades"
+     ]
+    },
+    {
+     "title": "New Dendrology at the Arsenal Gallery",
+     "venue": "Arsenal @Central Park",
+     "borough": "Manhattan",
+     "lat": 40.7672,
+     "lon": -73.9713,
+     "time": "9am–5pm",
+     "source": "https://www.nycgovparks.org/events/2026/10/29/new-dendrology-at-the-arsenal-gallery",
+     "tags": [
+      "outdoors"
+     ]
+    },
+    {
+     "title": "St. Anthony Flea Market",
+     "venue": "West Houston Street between Thompson Street and Macdougal Street",
+     "borough": "Manhattan",
+     "time": "9am–7pm",
+     "source": "https://data.cityofnewyork.us/d/tvpp-9vvx",
+     "tags": [
+      "markets"
+     ]
+    },
+    {
+     "title": "3rd Annual Sea of Pink",
+     "venue": "Riverdale Avenue between Mother Gaston Boulevard and Rockaway Avenue",
+     "borough": "Brooklyn",
+     "time": "10am–12pm",
+     "source": "https://data.cityofnewyork.us/d/tvpp-9vvx",
+     "tags": [
+      "parades",
+      "special"
+     ]
+    },
+    {
+     "title": "Craft & Chill",
+     "venue": "Multi-Use Room B @Detective Keith L Williams Park",
+     "borough": "Queens",
+     "lat": 40.70186,
+     "lon": -73.7835,
+     "time": "11am–12pm",
+     "source": "https://www.nycgovparks.org/events/2026/10/29/craft-chill",
+     "tags": [
+      "outdoors"
+     ]
+    },
+    {
+     "title": "Haunted Carousel",
+     "venue": "Children's Corner @Prospect Park",
+     "borough": "Brooklyn",
+     "lat": 40.66378,
+     "lon": -73.96373,
+     "time": "12–5pm",
+     "source": "https://www.nycgovparks.org/events/2026/10/29/haunted-carousel",
+     "tags": [
+      "outdoors",
+      "holiday"
+     ]
+    },
+    {
+     "title": "Boombox in Jamaica",
+     "venue": "Parsons Boulevard between Jamaica Avenue and Archer Avenue",
+     "borough": "Queens",
+     "time": "12pm",
+     "source": "https://data.cityofnewyork.us/d/tvpp-9vvx",
+     "tags": [
+      "parades"
+     ]
+    },
+    {
+     "title": "Park Open Studio",
+     "venue": "Northwest Corner Seating Area @Washington Square Park",
+     "borough": "Manhattan",
+     "lat": 40.73202,
+     "lon": -73.99853,
+     "time": "1–3pm",
+     "source": "https://www.nycgovparks.org/events/2026/10/29/park-open-studio",
+     "tags": [
+      "outdoors"
+     ]
+    },
+    {
+     "title": "Uptown Farmstand",
+     "venue": "East 115 Street - Park Avenue to Park Avenue",
+     "address": "East 115th Street - Park Avenue to Park Avenue",
+     "borough": "Manhattan",
+     "time": "2–7pm",
+     "source": "https://data.cityofnewyork.us/d/tvpp-9vvx",
+     "tags": [
+      "markets"
+     ]
+    },
+    {
+     "title": "Kids In Motion: Bloomingdale Playground",
+     "venue": "Play Area @Bloomingdale Playground",
+     "borough": "Manhattan",
+     "lat": 40.7993,
+     "lon": -73.966,
+     "time": "2–6pm",
+     "source": "https://www.nycgovparks.org/events/2026/10/29/kids-in-motion-bloomingdale-playground",
+     "tags": [
+      "outdoors"
+     ]
+    },
+    {
+     "title": "Kids in Motion: Columbus Park",
+     "venue": "Columbus Park",
+     "borough": "Manhattan",
+     "lat": 40.7152,
+     "lon": -74.0,
+     "time": "2–6pm",
+     "source": "https://www.nycgovparks.org/events/2026/10/29/kids-in-motion-columbus-park",
+     "tags": [
+      "outdoors"
+     ]
+    },
+    {
+     "title": "Pumpkin Singalong",
+     "venue": "Sakura Park",
+     "address": "Lawn",
+     "borough": "Manhattan",
+     "time": "2:30–5pm",
+     "source": "https://data.cityofnewyork.us/d/tvpp-9vvx",
+     "tags": [
+      "outdoors",
+      "holiday"
+     ]
+    },
+    {
+     "title": "Pershing Square Trick Or Streets Halloween Concert",
+     "venue": "Pershing Square Plaza",
+     "address": "West Park ave between E 42nd street and E 41st street",
+     "borough": "Manhattan",
+     "time": "3–6:30pm",
+     "source": "https://data.cityofnewyork.us/d/tvpp-9vvx",
+     "tags": [
+      "parades",
+      "holiday"
+     ]
+    },
+    {
+     "title": "14th Annual Barnacle Day Parade",
+     "venue": "Pioneer Street between Van Brunt Street and Imlay Street",
+     "borough": "Brooklyn",
+     "time": "3:30–7pm",
+     "source": "https://data.cityofnewyork.us/d/tvpp-9vvx",
+     "tags": [
+      "parades",
+      "special"
+     ]
+    },
+    {
+     "title": "Harvest fest 2026",
+     "venue": "Rugby Road between Church Avenue and Caton Avenue",
+     "borough": "Brooklyn",
+     "time": "3:30–5:30pm",
+     "source": "https://data.cityofnewyork.us/d/tvpp-9vvx",
+     "tags": [
+      "parades",
+      "holiday"
+     ]
+    },
+    {
+     "title": "East 4th Street Open Street",
+     "venue": "East 4th Street between Bowery and Second Avenue",
+     "borough": "Manhattan",
+     "time": "4–9pm",
+     "source": "https://data.cityofnewyork.us/d/tvpp-9vvx",
+     "tags": [
+      "parades"
+     ]
+    },
+    {
+     "title": "Spotlight tour: History",
+     "venue": "The High Line",
+     "borough": "Manhattan",
+     "lat": 40.7467,
+     "lon": -74.0057,
+     "time": "5:30–7pm",
+     "source": "https://www.nycgovparks.org/events/2026/10/29/spotlight-tour-history",
+     "tags": [
+      "outdoors"
+     ]
+    },
+    {
+     "title": "Film Screening: Batman 1989",
+     "venue": "Brooklyn Bridge Arches Plaza",
+     "address": "Rose Street / Pearl Street Avenue of the Finest Avenue of the Finest between Rose Street a",
+     "borough": "Manhattan",
+     "time": "5:45–8:15pm",
+     "source": "https://data.cityofnewyork.us/d/tvpp-9vvx",
+     "tags": [
+      "parades"
+     ]
+    },
+    {
+     "title": "October Halloween Series",
+     "venue": "Elizabeth Street Park",
+     "borough": "Manhattan",
+     "time": "6–10pm",
+     "source": "https://data.cityofnewyork.us/d/tvpp-9vvx",
+     "tags": [
+      "outdoors",
+      "holiday"
+     ]
+    },
+    {
+     "title": "Movie Under the Stars: Corpse Bride (2005)",
+     "venue": "Central Lawn @Sunset Park",
+     "borough": "Brooklyn",
+     "lat": 40.64837,
+     "lon": -74.00442,
+     "time": "6–8pm",
+     "source": "https://www.nycgovparks.org/events/2026/10/29/movie-under-the-stars-corpse-bride-2005",
+     "tags": [
+      "outdoors",
+      "special"
+     ]
+    },
+    {
+     "title": "Spot P! Opening Reception",
+     "venue": "Dyckman Farmhouse Museum @Dyckman House Museum",
+     "borough": "Manhattan",
+     "lat": 40.86742,
+     "lon": -73.9229,
+     "time": "6–8pm",
+     "source": "https://www.nycgovparks.org/events/2026/10/29/spot-p-opening-reception",
+     "tags": [
+      "outdoors"
+     ]
+    },
+    {
+     "title": "Candlelight Ghost Tours",
+     "venue": "Merchant's House Museum",
+     "borough": "Manhattan",
+     "lat": 40.7277,
+     "lon": -73.9923,
+     "time": "6:30–10pm",
+     "source": "https://www.nycgovparks.org/events/2026/10/29/candlelight-ghost-tours",
+     "tags": [
+      "outdoors",
+      "holiday"
+     ]
+    },
+    {
+     "title": "Super Spooky Candlelight Ghost Tours with Paranormal Investigator Dan Sturges",
+     "venue": "Merchant's House Museum",
+     "borough": "Manhattan",
+     "lat": 40.7277,
+     "lon": -73.9923,
+     "time": "9:30–11pm",
+     "source": "https://www.nycgovparks.org/events/2026/10/29/super-spooky-candlelight-ghost-tours-with-paranormal-investi",
+     "tags": [
+      "outdoors",
+      "holiday"
+     ]
+    }
+   ]
+  },
+  {
+   "date": "2026-10-30",
+   "events": [
+    {
+     "title": "97 Street Greenmarket Friday",
+     "venue": "West 97th Street between Columbus Avenue and Amsterdam Avenue",
+     "borough": "Manhattan",
+     "time": "6am–5pm",
+     "source": "https://data.cityofnewyork.us/d/tvpp-9vvx",
+     "tags": [
+      "markets"
+     ]
+    },
+    {
+     "title": "HHFM Coney Island Hospital Market",
+     "venue": "Ocean Parkway Malls",
+     "borough": "Brooklyn",
+     "time": "7am–4pm",
+     "source": "https://data.cityofnewyork.us/d/tvpp-9vvx",
+     "tags": [
+      "markets",
+      "outdoors"
+     ]
+    },
+    {
+     "title": "TMLA 29th Annual Walkathon",
+     "venue": "Wexford Terrace between Edgerton Boulevard and Midland Parkway",
+     "borough": "Queens",
+     "time": "8am–12pm",
+     "source": "https://data.cityofnewyork.us/d/tvpp-9vvx",
+     "tags": [
+      "parades",
+      "special"
+     ]
+    },
+    {
+     "title": "Corona Greenmarket Friday",
+     "venue": "Roosevelt Avenue between 103rd Street and 104th Street",
+     "borough": "Queens",
+     "lat": 40.74987,
+     "lon": -73.86273,
+     "time": "8am–5pm",
+     "source": "https://data.cityofnewyork.us/d/tvpp-9vvx",
+     "tags": [
+      "markets"
+     ]
+    },
+    {
+     "title": "HHFM Harlem Hospital Market",
+     "venue": "Lenox Avenue between West 136th Street and West 137th Street",
+     "borough": "Manhattan",
+     "time": "8am–3pm",
+     "source": "https://data.cityofnewyork.us/d/tvpp-9vvx",
+     "tags": [
+      "markets"
+     ]
+    },
+    {
+     "title": "HHFM Metropolitan Market",
+     "venue": "Second Avenue between East 97th Street and East 99th Street",
+     "borough": "Manhattan",
+     "time": "8am–3pm",
+     "source": "https://data.cityofnewyork.us/d/tvpp-9vvx",
+     "tags": [
+      "markets"
+     ]
+    },
+    {
+     "title": "Immigrant Culture Month at Avenue C Plaza Extension",
+     "venue": "Avenue C Plaza",
+     "address": "Avenue C Plaza Mcdonald Avenue between Avenue C and Church Avenue",
+     "borough": "Brooklyn",
+     "time": "8am–7:30pm",
+     "source": "https://data.cityofnewyork.us/d/tvpp-9vvx",
+     "tags": [
+      "parades"
+     ]
+    },
+    {
+     "title": "Old Cathedral Outdoor Market",
+     "venue": "Prince Street between Mulberry Street and Mott Street",
+     "borough": "Manhattan",
+     "time": "8am–8pm",
+     "source": "https://data.cityofnewyork.us/d/tvpp-9vvx",
+     "tags": [
+      "markets"
+     ]
+    },
+    {
+     "title": "Success Academy Elementary Halloween Parade",
+     "venue": "Marx Brothers Playground",
+     "borough": "Manhattan",
+     "time": "8:10–9am",
+     "source": "https://data.cityofnewyork.us/d/tvpp-9vvx",
+     "tags": [
+      "outdoors",
+      "holiday",
+      "special"
+     ]
+    },
+    {
+     "title": "LT.Petrosino Halloween Parade",
+     "venue": "43rd Street between 30th Avenue and Newtown Road",
+     "borough": "Queens",
+     "time": "8:15–10:30am",
+     "source": "https://data.cityofnewyork.us/d/tvpp-9vvx",
+     "tags": [
+      "parades",
+      "holiday",
+      "special"
+     ]
+    },
+    {
+     "title": "Zeta Inwood Manhattan Middle Halloween Parade",
+     "venue": "West 218th Street between 9th Avenue and 10th Avenue",
+     "borough": "Manhattan",
+     "time": "8:30–10:30am",
+     "source": "https://data.cityofnewyork.us/d/tvpp-9vvx",
+     "tags": [
+      "parades",
+      "holiday"
+     ]
+    },
+    {
+     "title": "New Dendrology at the Arsenal Gallery",
+     "venue": "Arsenal @Central Park",
+     "borough": "Manhattan",
+     "lat": 40.7672,
+     "lon": -73.9713,
+     "time": "9am–5pm",
+     "source": "https://www.nycgovparks.org/events/2026/10/30/new-dendrology-at-the-arsenal-gallery",
+     "tags": [
+      "outdoors"
+     ]
+    },
+    {
+     "title": "St. Anthony Flea Market",
+     "venue": "West Houston Street between Thompson Street and Macdougal Street",
+     "borough": "Manhattan",
+     "time": "9am–7pm",
+     "source": "https://data.cityofnewyork.us/d/tvpp-9vvx",
+     "tags": [
+      "markets"
+     ]
+    },
+    {
+     "title": "Farm Stand",
+     "venue": "Powell Street Garden",
+     "borough": "Brooklyn",
+     "lat": 40.66353,
+     "lon": -73.90233,
+     "time": "9am–3pm",
+     "source": "https://www.nycgovparks.org/events/2026/10/30/farm-stand",
+     "tags": [
+      "outdoors"
+     ]
+    },
+    {
+     "title": "Asphalt Screams",
+     "venue": "East 90th Street between York Avenue and East End Avenue",
+     "borough": "Manhattan",
+     "time": "10am–6pm",
+     "source": "https://data.cityofnewyork.us/d/tvpp-9vvx",
+     "tags": [
+      "parades"
+     ]
+    },
+    {
+     "title": "Halloween Parade",
+     "venue": "Detective Keith L Williams Park",
+     "borough": "Queens",
+     "lat": 40.70186,
+     "lon": -73.7835,
+     "time": "10–11am",
+     "source": "https://data.cityofnewyork.us/d/tvpp-9vvx",
+     "tags": [
+      "outdoors",
+      "holiday",
+      "special"
+     ]
+    },
+    {
+     "title": "Haunted Carousel",
+     "venue": "Children's Corner @Prospect Park",
+     "borough": "Brooklyn",
+     "lat": 40.66378,
+     "lon": -73.96373,
+     "time": "12–5pm",
+     "source": "https://www.nycgovparks.org/events/2026/10/30/haunted-carousel",
+     "tags": [
+      "outdoors",
+      "holiday"
+     ]
+    },
+    {
+     "title": "Boombox in Jamaica",
+     "venue": "Parsons Boulevard between Jamaica Avenue and Archer Avenue",
+     "borough": "Queens",
+     "time": "12pm",
+     "source": "https://data.cityofnewyork.us/d/tvpp-9vvx",
+     "tags": [
+      "parades"
+     ]
+    },
+    {
+     "title": "Old Stone House: Open Hours",
+     "venue": "Old Stone House @Washington Park",
+     "borough": "Brooklyn",
+     "lat": 40.67294,
+     "lon": -73.9846,
+     "time": "12–4pm",
+     "source": "https://www.nycgovparks.org/events/2026/10/30/old-stone-house-open-hours",
+     "tags": [
+      "outdoors"
+     ]
+    },
+    {
+     "title": "Childrens Halloween Parade",
+     "venue": "560 West 169th Street",
+     "borough": "Manhattan",
+     "time": "1–3pm",
+     "source": "https://data.cityofnewyork.us/d/tvpp-9vvx",
+     "tags": [
+      "parades",
+      "holiday",
+      "special"
+     ]
+    },
+    {
+     "title": "Trick-or-Streets event: East 78th St./MN",
+     "venue": "East 78th Street between Park Avenue and Lexington Avenue",
+     "borough": "Manhattan",
+     "time": "1–8pm",
+     "source": "https://data.cityofnewyork.us/d/tvpp-9vvx",
+     "tags": [
+      "parades",
+      "holiday"
+     ]
+    },
+    {
+     "title": "Park Open Studio",
+     "venue": "Northwest Corner Seating Area @Washington Square Park",
+     "borough": "Manhattan",
+     "lat": 40.73202,
+     "lon": -73.99853,
+     "time": "1–3pm",
+     "source": "https://www.nycgovparks.org/events/2026/10/30/park-open-studio",
+     "tags": [
+      "outdoors"
+     ]
+    },
+    {
+     "title": "Halloween Trick o' Treat at Harlem Valley Garden",
+     "venue": "Harlem Valley Garden",
+     "borough": "Manhattan",
+     "lat": 40.8146,
+     "lon": -73.9435,
+     "time": "2–6pm",
+     "source": "https://www.nycgovparks.org/events/2026/10/30/halloween-trick-o-treat-at-harlem-valley-garden",
+     "tags": [
+      "outdoors",
+      "holiday"
+     ]
+    },
+    {
+     "title": "Trick-or-Streets",
+     "venue": "Fort Hamilton Parkway between Bay Ridge Avenue and 70th Street",
+     "borough": "Brooklyn",
+     "time": "2–5pm",
+     "source": "https://data.cityofnewyork.us/d/tvpp-9vvx",
+     "tags": [
+      "parades",
+      "holiday"
+     ]
+    },
+    {
+     "title": "Kids In Motion: Bloomingdale Playground",
+     "venue": "Play Area @Bloomingdale Playground",
+     "borough": "Manhattan",
+     "lat": 40.7993,
+     "lon": -73.966,
+     "time": "2–6pm",
+     "source": "https://www.nycgovparks.org/events/2026/10/30/kids-in-motion-bloomingdale-playground",
+     "tags": [
+      "outdoors"
+     ]
+    },
+    {
+     "title": "Kids in Motion: Columbus Park",
+     "venue": "Columbus Park",
+     "borough": "Manhattan",
+     "lat": 40.7152,
+     "lon": -74.0,
+     "time": "2–6pm",
+     "source": "https://www.nycgovparks.org/events/2026/10/30/kids-in-motion-columbus-park",
+     "tags": [
+      "outdoors"
+     ]
+    },
+    {
+     "title": "Juggling in Greeley Square Park",
+     "venue": "Greeley Square Park",
+     "borough": "Manhattan",
+     "lat": 40.74864,
+     "lon": -73.98809,
+     "time": "2–3pm",
+     "source": "https://www.nycgovparks.org/events/2026/10/30/juggling-in-greeley-square-park",
+     "tags": [
+      "outdoors"
+     ]
+    },
+    {
+     "title": "Pumpkin on Sherman",
+     "venue": "Sherman Avenue between West 204th Street and West 207th Street",
+     "borough": "Manhattan",
+     "time": "2:30–4:30pm",
+     "source": "https://data.cityofnewyork.us/d/tvpp-9vvx",
+     "tags": [
+      "parades",
+      "holiday"
+     ]
+    },
+    {
+     "title": "Trick-or-Streets",
+     "venue": "Gates Ave Plaza",
+     "address": "Gates Avenue Plaza Gates Ave between Fulton street and Vanderbilt Ave",
+     "borough": "Brooklyn",
+     "time": "2:30–4:30pm",
+     "source": "https://data.cityofnewyork.us/d/tvpp-9vvx",
+     "tags": [
+      "parades",
+      "holiday"
+     ]
+    },
+    {
+     "title": "Haunted House and Hallow Gala",
+     "venue": "Gymnasium @Nostrand Playground",
+     "borough": "Brooklyn",
+     "lat": 40.63793,
+     "lon": -73.94676,
+     "time": "3–7pm",
+     "source": "https://www.nycgovparks.org/events/2026/10/30/haunted-house-and-hallow-gala1",
+     "tags": [
+      "outdoors",
+      "holiday",
+      "special"
+     ]
+    },
+    {
+     "title": "Haunted Heights: Halloween at Morningside Park",
+     "venue": "North Lawn @Morningside Park",
+     "borough": "Manhattan",
+     "lat": 40.8087,
+     "lon": -73.9565,
+     "time": "3–6pm",
+     "source": "https://www.nycgovparks.org/events/2026/10/30/haunted-heights-halloween-at-morningside-park",
+     "tags": [
+      "outdoors",
+      "holiday"
+     ]
+    },
+    {
+     "title": "Halloween Pumpkin Decorating and Candy Giveaway!",
+     "venue": "Family Community Garden",
+     "borough": "Manhattan",
+     "lat": 40.795,
+     "lon": -73.94374,
+     "time": "3–5pm",
+     "source": "https://www.nycgovparks.org/events/2026/10/30/halloween-pumpkin-decorating-and-candy-giveaway",
+     "tags": [
+      "outdoors",
+      "holiday"
+     ]
+    },
+    {
+     "title": "Halloween",
+     "venue": "Olgas El Gallo Community Garden",
+     "borough": "Manhattan",
+     "lat": 40.79972,
+     "lon": -73.94059,
+     "time": "3–5pm",
+     "source": "https://www.nycgovparks.org/events/2026/10/30/halloween",
+     "tags": [
+      "outdoors",
+      "holiday"
+     ]
+    },
+    {
+     "title": "Pumpkin Decorating at Brisas del Caribe",
+     "venue": "Brisas Del Caribe Garden",
+     "borough": "Manhattan",
+     "lat": 40.72218,
+     "lon": -73.98151,
+     "time": "3–5pm",
+     "source": "https://www.nycgovparks.org/events/2026/10/30/pumpkin-decorating-at-brisas-del-caribe",
+     "tags": [
+      "outdoors",
+      "holiday"
+     ]
+    },
+    {
+     "title": "Halloween - 2026",
+     "venue": "Wadsworth Avenue between West 177th Street and West 176th Street",
+     "borough": "Manhattan",
+     "time": "3–5pm",
+     "source": "https://data.cityofnewyork.us/d/tvpp-9vvx",
+     "tags": [
+      "parades",
+      "holiday"
+     ]
+    },
+    {
+     "title": "HHP Halloween Event",
+     "venue": "Morningside Park",
+     "address": "West 120th Street BBQ Area 05",
+     "borough": "Manhattan",
+     "lat": 40.8087,
+     "lon": -73.9565,
+     "time": "3–6pm",
+     "source": "https://data.cityofnewyork.us/d/tvpp-9vvx",
+     "tags": [
+      "outdoors",
+      "holiday"
+     ]
+    },
+    {
+     "title": "Mad Monster Lab Haunted House & Fall Festival",
+     "venue": "Bowne Park Field House @Bowne Park",
+     "borough": "Queens",
+     "lat": 40.7705,
+     "lon": -73.8073,
+     "time": "4–8pm",
+     "source": "https://www.nycgovparks.org/events/2026/10/30/mad-monster-lab-haunted-house-fall-festival",
+     "tags": [
+      "outdoors",
+      "holiday",
+      "special"
+     ]
+    },
+    {
+     "title": "Family Halloween Themed Activities",
+     "venue": "Hamilton Fish Recreation Center @Hamilton Fish Park",
+     "borough": "Manhattan",
+     "lat": 40.7198,
+     "lon": -73.9818,
+     "time": "4–7pm",
+     "source": "https://www.nycgovparks.org/events/2026/10/30/family-halloween-themed-activities",
+     "tags": [
+      "outdoors",
+      "holiday"
+     ]
+    },
+    {
+     "title": "2026 TCS NYC Marathon - Opening Ceremony",
+     "venue": "Central Park",
+     "address": "West Drive",
+     "borough": "Manhattan",
+     "lat": 40.79731,
+     "lon": -73.95351,
+     "time": "4–7pm",
+     "source": "https://data.cityofnewyork.us/d/tvpp-9vvx",
+     "tags": [
+      "outdoors"
+     ]
+    },
+    {
+     "title": "Thomas Jefferson Hunted Walk",
+     "venue": "Dance Room @Thomas Jefferson Park",
+     "borough": "Manhattan",
+     "lat": 40.7935,
+     "lon": -73.9367,
+     "time": "5–7pm",
+     "source": "https://www.nycgovparks.org/events/2026/10/30/thomas-jefferson-hunted-house",
+     "tags": [
+      "outdoors",
+      "holiday"
+     ]
+    },
+    {
+     "title": "Haunted Highland",
+     "venue": "Highland Park",
+     "address": "Reservoir Path",
+     "borough": "Queens",
+     "time": "6–9pm",
+     "source": "https://data.cityofnewyork.us/d/tvpp-9vvx",
+     "tags": [
+      "outdoors",
+      "holiday"
+     ]
+    },
+    {
+     "title": "Movies Under the Stars: Hoppers | PG",
+     "venue": "Colden St. & 45th Avenue @Kissena Corridor Park",
+     "borough": "Queens",
+     "lat": 40.75073,
+     "lon": -73.82321,
+     "time": "6–7:45pm",
+     "source": "https://www.nycgovparks.org/events/2026/10/30/movies-under-the-stars-hoppers-pg",
+     "tags": [
+      "outdoors",
+      "special"
+     ]
+    },
+    {
+     "title": "Candlelight Ghost Tours",
+     "venue": "Merchant's House Museum",
+     "borough": "Manhattan",
+     "lat": 40.7277,
+     "lon": -73.9923,
+     "time": "6:30–10pm",
+     "source": "https://www.nycgovparks.org/events/2026/10/30/candlelight-ghost-tours",
+     "tags": [
+      "outdoors",
+      "holiday"
+     ]
+    },
+    {
+     "title": "Movie Night",
+     "venue": "Kissena Corridor West",
+     "address": "Lawn Area -Colden & 45th Ave",
+     "borough": "Queens",
+     "time": "6:30–8:15pm",
+     "source": "https://data.cityofnewyork.us/d/tvpp-9vvx",
+     "tags": [
+      "outdoors",
+      "special"
+     ]
+    },
+    {
+     "title": "Super Spooky Candlelight Ghost Tours with Paranormal Investigator Dan Sturges",
+     "venue": "Merchant's House Museum",
+     "borough": "Manhattan",
+     "lat": 40.7277,
+     "lon": -73.9923,
+     "time": "9:30–11pm",
+     "source": "https://www.nycgovparks.org/events/2026/10/30/super-spooky-candlelight-ghost-tours-with-paranormal-investi",
+     "tags": [
+      "outdoors",
+      "holiday"
+     ]
+    }
+   ]
+  }
+ ],
+ "seasonal": [
+  {
+   "title": "Ice skating at Bank of America Winter Village",
+   "venue": "Bryant Park",
+   "borough": "Manhattan",
+   "time": "8am–10pm daily (to midnight Nov 19 – Jan 3)",
+   "source": "https://bryantpark.org/activities/bank-of-america-winter-village-at-bryant-park",
+   "tags": [
+    "outdoors",
+    "holiday"
+   ],
+   "note": "Free admission; skate rental extra",
+   "from": "2026-10-28",
+   "to": "2027-02-28"
+  },
+  {
+   "title": "Lightscape at Brooklyn Botanic Garden",
+   "venue": "Brooklyn Botanic Garden",
+   "borough": "Brooklyn",
+   "time": "evenings",
+   "source": "https://www.bbg.org/lightscape",
+   "tags": [
+    "outdoors",
+    "holiday"
+   ],
+   "note": "A trail of light installations through the Garden; ticketed",
+   "from": "2026-11-20",
+   "to": "2027-01-03"
+  }
+ ],
+ "sources": [
+  {
+   "name": "NYC Parks Public Events (NYC Open Data)",
+   "url": "https://data.cityofnewyork.us/d/w3wp-dpdi"
+  },
+  {
+   "name": "NYC Permitted Event Information (NYC Open Data)",
+   "url": "https://data.cityofnewyork.us/d/tvpp-9vvx"
+  },
+  {
+   "name": "NYC Farmers Markets (NYC Open Data)",
+   "url": "https://data.cityofnewyork.us/d/8vwk-6iz2"
+  },
+  {
+   "name": "Each event's own official page, where linked",
+   "url": null
+  }
+ ]
+}

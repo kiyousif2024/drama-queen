@@ -201,6 +201,18 @@ select { width: auto; padding: 6px 10px; background: var(--surface); }
 .stage.settled .detroit img { width: 44px; }
 @media (max-width: 640px) { .stage.settled .detroit { left: 14%; } .stage.settled .detroit img { width: 38px; } }
 .fh-head .detroit { position: static; display: inline-block; margin-top: 12px; }  /* the members' feed home has no stage */
+/* What's happening in New York (app.js, nycHTML): the Statue of Liberty on the same floor, stage right, mirroring the Spirit;
+   sized by height since she is tall and narrow, and kept to the same footprint so she never reaches the buttons */
+.nyc { position: absolute; right: 21%; bottom: 15%; z-index: 4; text-decoration: none;
+  opacity: 0.72; transition: opacity 0.2s, transform 0.2s; }
+.nyc:hover, .nyc:focus-visible { opacity: 1; transform: scale(1.08); }
+.nyc img { display: block; height: 64px; width: auto; filter: drop-shadow(0 4px 8px rgb(0 0 0 / 0.35)); }
+@media (max-width: 640px) { .nyc { right: 18%; } .nyc img { height: 52px; } }
+.stage.settled .nyc { bottom: 13%; }
+.stage.settled .nyc img { height: 40px; }
+@media (max-width: 640px) { .stage.settled .nyc { right: 14%; } .stage.settled .nyc img { height: 34px; } }
+.fh-head .nyc { position: static; display: inline-block; margin-top: 12px; vertical-align: bottom; }
+.fh-head .detroit + .nyc { margin-left: 16px; }
 .lets { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 10px; margin-top: 30px; }
 .let { display: flex; gap: 12px; align-items: center; padding: 14px 16px; border-radius: var(--radius); background: var(--surface); border: 1px solid var(--line-soft); color: inherit; text-decoration: none; font: inherit; text-align: left; cursor: pointer; transition: transform .15s ease, border-color .15s ease; }
 .let:hover { transform: translateY(-2px); border-color: var(--gold); }

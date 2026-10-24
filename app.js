@@ -628,6 +628,20 @@
   // tucked into the side of the stage: an Easter egg for Detroiters, so no words beside it (screen readers still hear where it goes)
   const SPIRIT = `<img src="icons/spirit.png" alt="" width="70" height="56">`;
   const detroitHTML = () => !DETROIT ? "" : `<a class="detroit" href="${APP ? "https://billd.theater/detroit/" : "detroit/"}"${APP ? ' target="_blank" rel="noopener"' : ""} aria-label="What's happening in Detroit this week">${SPIRIT}</a>`;
+  // "What's happening in New York": the same for New Yorkers, the Statue of Liberty (Bartholdi, 1886; public domain) from an
+  // illustration made for Billd (icons/liberty.png), on the other side of the stage. Shown when the visitor's city on Billd is
+  // New York because they chose it or "Use my location" found it (homeCity, CITY_KEY), not from the time zone, which New York
+  // shares with the whole East Coast. ?nyc in the address shows it anywhere, to preview it.
+  const NYC_PREVIEW = /[?&]nyc\b/.test(location.search);
+  const LIBERTY = `<img src="icons/liberty.png" alt="" width="63" height="64">`;
+  function isNewYorker() {
+    if (NYC_PREVIEW) return true;
+    const c = store.get(CITY_KEY, null);
+    if (!c || typeof c.id !== "string" || (c.by !== "chosen" && c.by !== "located")) return false;
+    if (c.id === "new_york") return true;
+    try { return metroOf(c.id) === "new_york"; } catch (e) { return false; }  // a borough or suburb kept from before
+  }
+  const nycHTML = () => !isNewYorker() ? "" : `<a class="nyc" href="${APP ? "https://billd.theater/nyc/" : "nyc/"}"${APP ? ' target="_blank" rel="noopener"' : ""} aria-label="What's happening in New York this week">${LIBERTY}</a>`;
   if (HALLOWEEN) {
     document.documentElement.classList.add("season-halloween");
     $(".nav")?.insertAdjacentHTML("afterbegin", `<a href="#/spooky" data-nav="spooky" class="nav-spooky">Spooky season</a>`);
@@ -639,7 +653,7 @@
           <div class="st-floor" aria-hidden="true"></div><div class="st-pool" aria-hidden="true"></div>
           <div class="st-copy">${copy}</div>
           <div class="st-seats" aria-hidden="true"></div>
-          <div class="st-drape l" aria-hidden="true"></div><div class="st-drape r" aria-hidden="true"></div><div class="st-valance" aria-hidden="true"></div>${detroitHTML()}
+          <div class="st-drape l" aria-hidden="true"></div><div class="st-drape r" aria-hidden="true"></div><div class="st-valance" aria-hidden="true"></div>${detroitHTML()}${nycHTML()}
           ${HALLOWEEN ? `<div class="st-moon" aria-hidden="true"></div><div class="st-webs" aria-hidden="true"><i></i><i></i></div>
           <div class="st-lanterns" aria-hidden="true"><i></i><i></i></div>
           <div class="st-bats" aria-hidden="true">${`<i>${BAT}</i>`.repeat(5)}</div>` : ""}
@@ -677,7 +691,7 @@
     const ahead = signedIn() ? comingUp() : [];
     const sec = {
       feed: feedHome ? `<section class="feed-home"><div class="fh-head"><h1 class="h1">Hello, <em>${who(me)}</em></h1>
-          <div class="acts"><button class="btn" type="button" data-log>Log a show</button><a class="btn ghost" href="#/onstage">What's on now</a><a class="btn ghost" href="#/u/${esc(me.username)}/diary">Your diary</a></div>${detroitHTML()}</div>
+          <div class="acts"><button class="btn" type="button" data-log>Log a show</button><a class="btn ghost" href="#/onstage">What's on now</a><a class="btn ghost" href="#/u/${esc(me.username)}/diary">Your diary</a></div>${detroitHTML()}${nycHTML()}</div>
           <div class="sec-head"><h2 id="fh-title">From the people you follow</h2><a href="#/activity">All activity →</a></div>
           <ul class="feed" id="home-feed"><li class="hint">Loading…</li></ul></section>` : "",
       plans: ahead.length ? `<section class="sec" id="home-plans"><div class="sec-head"><h2>Coming up</h2></div><ul class="stubs">${ahead.map(planStubHTML).join("")}</ul></section>` : "",
