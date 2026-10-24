@@ -618,16 +618,24 @@
   // crossing the stage, a pumpkin by the logo and a row of spooky shows on the home page. Off by itself on 1 November.
   const HALLOWEEN = (() => { const d = new Date(); return d.getMonth() === 9; })();
   // "What's happening in Detroit": a link on the home page for visitors whose device is on Detroit time
-  // (Michigan reports America/Detroit). No location prompt and no lookup: just the clock's time zone.
-  // ?detroit in the address shows it anywhere, to preview it.
-  const DETROIT = (() => {
-    let tz = ""; try { tz = Intl.DateTimeFormat().resolvedOptions().timeZone || ""; } catch (e) { /* an old browser: no link */ }
+  // (Michigan phones report America/Detroit), or whose city on Billd is Detroit because they chose it or
+  // "Use my location" found it (Windows often reports Michigan as plain Eastern time, America/New_York).
+  // No location prompt and no lookup. ?detroit in the address shows it anywhere, to preview it.
+  const DETROIT_TZ = (() => {
+    let tz = ""; try { tz = Intl.DateTimeFormat().resolvedOptions().timeZone || ""; } catch (e) { /* an old browser */ }
     return tz === "America/Detroit" || /[?&]detroit\b/.test(location.search);
   })();
+  function isDetroiter() {
+    if (DETROIT_TZ) return true;
+    const c = store.get(CITY_KEY, null);
+    if (!c || typeof c.id !== "string" || (c.by !== "chosen" && c.by !== "located")) return false;
+    if (c.id === "wd-detroit") return true;
+    try { return metroOf(c.id) === "wd-detroit"; } catch (e) { return false; }  // a suburb kept from before
+  }
   // the Spirit of Detroit (Marshall Fredericks, 1958; public domain), from an illustration made for Billd (icons/spirit.png),
   // tucked into the side of the stage: an Easter egg for Detroiters, so no words beside it (screen readers still hear where it goes)
   const SPIRIT = `<img src="icons/spirit.png" alt="" width="70" height="56">`;
-  const detroitHTML = () => !DETROIT ? "" : `<a class="detroit" href="${APP ? "https://billd.theater/detroit/" : "detroit/"}"${APP ? ' target="_blank" rel="noopener"' : ""} aria-label="What's happening in Detroit this week">${SPIRIT}</a>`;
+  const detroitHTML = () => !isDetroiter() ? "" : `<a class="detroit" href="${APP ? "https://billd.theater/detroit/" : "detroit/"}"${APP ? ' target="_blank" rel="noopener"' : ""} aria-label="What's happening in Detroit this week">${SPIRIT}</a>`;
   // "What's happening in New York": the same for New Yorkers, the Statue of Liberty (Bartholdi, 1886; public domain) from an
   // illustration made for Billd (icons/liberty.png), on the other side of the stage. Shown when the visitor's city on Billd is
   // New York because they chose it or "Use my location" found it (homeCity, CITY_KEY), not from the time zone, which New York
