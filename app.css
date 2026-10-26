@@ -1108,6 +1108,12 @@ input:focus, textarea:focus, select:focus { border-bottom-color: var(--gold); ou
 .auth-alt { margin-top: 16px; }
 .google-btn { width: 100%; justify-content: center; gap: 10px; display: inline-flex; align-items: center; }
 .google-btn svg { flex: none; }
+/* Sign in with Apple: Apple's black style (Human Interface Guidelines), the same size as Google's */
+.apple-btn { width: 100%; justify-content: center; gap: 10px; display: inline-flex; align-items: center; margin-top: 8px;
+  background: #000; color: #fff; border: 1px solid #000; box-shadow: none; }
+.apple-btn:hover { background: #1a1a1a; }
+.apple-btn svg { flex: none; }
+.apple-btn[hidden], .google-btn[hidden] { display: none; }
 .auth-or { display: flex; align-items: center; gap: 10px; margin: 14px 0 2px; font-size: 13px; color: var(--muted); }
 .auth-or::before, .auth-or::after { content: ""; flex: 1; height: 1px; background: currentColor; opacity: .3; }
 /* the account menu under your picture */

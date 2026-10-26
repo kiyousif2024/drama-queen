@@ -79,7 +79,9 @@
     const keys = views.map((v) => v.key);
     let view = keys.includes(location.hash.slice(1)) ? location.hash.slice(1) : (days.find((d) => d.today)?.key || "week");
     let q = "", cat = "", here = null, nearOn = false, asking = false;
-    let boro = store.get(BORO_KEY); if (!BOROUGHS.includes(boro)) boro = "";
+    // a link can open on a borough (the daily posts link ?borough=Brooklyn); otherwise the one kept on this device
+    const linked = new URLSearchParams(location.search).get("borough");
+    let boro = BOROUGHS.includes(linked) ? linked : store.get(BORO_KEY); if (!BOROUGHS.includes(boro)) boro = "";
     const msg = (text, warn) => { $("ny-msg").textContent = text || ""; $("ny-msg").classList.toggle("warn", !!warn); };
 
     const chipsHTML = (list, cur, attr) => list.map((v) =>

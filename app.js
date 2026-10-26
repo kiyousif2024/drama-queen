@@ -3160,9 +3160,20 @@
     $("#auth-go").textContent = mode === "up" ? "Create account" : mode === "reset" ? "Email me a reset link" : "Log in";
     $("#auth-forgot").hidden = mode !== "in";
     $("#auth-terms-f").hidden = !(mode === "up" && termsState().live);
-    // Google on the website only for now: in the app, Apple requires Sign in with Apple alongside it
-    $("#auth-alt").hidden = APP || mode === "reset";
+    $("#auth-alt").hidden = mode === "reset";
+    showProviders();
     note("#auth-note", "");
+  }
+  // Continue with Google / Apple, each once it's switched on in Supabase (S.providers). The iPhone app
+  // shows Google only beside Apple (App Store guideline 4.8); before then, email only.
+  let provs = null;
+  async function showProviders() {
+    if (!S.providers) return;
+    if (!provs) { $("#auth-google").hidden = true; $("#auth-apple").hidden = true; provs = await S.providers(); }
+    const ios = N.platform === "ios";
+    $("#auth-apple").hidden = !provs.apple;
+    $("#auth-google").hidden = !provs.google || (ios && !provs.apple);
+    $("#auth-alt").hidden = authMode === "reset" || ($("#auth-google").hidden && $("#auth-apple").hidden);
   }
   // Google refuses sign-in inside apps' built-in browsers (Instagram, Facebook, TikTok…: "disallowed_useragent"),
   // so there Billd explains and offers a way out to the real browser instead of sending people to Google's error
@@ -3179,15 +3190,18 @@
       catch (err) { prompt("Copy this link:", url); }
     });
   }
-  $("#auth-google").addEventListener("click", async (e) => {
-    if (IN_APP) return inAppHelp();
+  async function providerSignIn(provider, btn) {
     const terms = termsState();
     if (authMode === "up" && terms.live && !$("#auth-terms").checked) return note("#auth-note", "Tick the box to agree to the Terms of Use and Community Guidelines.", true);
-    e.currentTarget.disabled = true;
-    try { await S.signInWithGoogle(); }  // leaves for Google's page
-    catch (err) { note("#auth-note", err.message, true); e.currentTarget.disabled = false; }
-  });
-  // ---- a member who joined with Google chooses a username (asked again on each visit until they do)
+    btn.disabled = true;
+    // the website leaves for the provider's page; the app opens it in the in-app browser (or Apple's
+    // sheet on iPhone), so the button comes back for another try
+    try { await S.signInWith(provider); if (APP) { btn.disabled = false; if (me) { $("#auth").close(); toast("You're signed in. Welcome to Billd"); } } }
+    catch (err) { if (err.message) note("#auth-note", err.message, true); btn.disabled = false; }
+  }
+  $("#auth-google").addEventListener("click", (e) => (IN_APP ? inAppHelp() : providerSignIn("google", e.currentTarget)));
+  $("#auth-apple").addEventListener("click", (e) => providerSignIn("apple", e.currentTarget));
+  // ---- a member who joined with Google or Apple chooses a username (asked again on each visit until they do)
   let askedName = false;
   function maybePickName() {
     if (askedName || !me || S.kind === "local" || !S.needsUsername?.() || $("#pickname").open) return;
@@ -3948,9 +3962,11 @@
   N.onAuthLink(async (url) => {
     try {
       const r = await S.handleAuthLink(url);
+      if ($("#auth").open) $("#auth").close();
       if (r.type === "recovery") { location.hash = "#/settings"; setTimeout(() => toast("Choose a new password below"), 400); }
+      else if (r.type === "oauth") { location.hash = "#/"; toast("You're signed in. Welcome to Billd"); }
       else { location.hash = "#/"; toast("Your email address is confirmed. Welcome to Billd"); }
-    } catch (e) { toast(e.message); }
+    } catch (e) { if (e.message) toast(e.message); }
   });
   // web/auth/confirm.html verified a password-reset link and sent the member here
   try { if (sessionStorage.getItem("billd-recovery")) { sessionStorage.removeItem("billd-recovery"); setTimeout(() => toast("Choose a new password below"), 1200); } } catch (e) { /* storage blocked */ }

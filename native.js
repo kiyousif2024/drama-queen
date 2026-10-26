@@ -15,7 +15,9 @@
 //   reminders                        local notifications ("Your show is tonight"), app only
 //   position()                       where the phone is, once, while Billd is open (check-in at the theatre)
 //   catalogue                        the bundled catalogue, and newer copies downloaded from billd.theater
-//   onAuthLink(fn), onResume(fn)     email sign-in links that opened the app; the app coming back to the front
+//   onAuthLink(fn), onResume(fn)     email sign-in links, and Google or Apple coming back (authCallback), that
+//                                    opened the app; the app coming back to the front
+//   apple                            Sign in with Apple's own sheet, iPhone app only (apple.available)
 //   push                             phase 2 (docs/app-build.md): not built yet
 "use strict";
 (function () {
@@ -257,9 +259,14 @@
 
   // ---------------------------------------------------------------- app events
   const authHandlers = [], pendingLinks = [], resumeHandlers = [];
+  // Google and Apple sign-in come back to the app's own address (theater.billd.app://auth/callback),
+  // which works before app links are verified; the in-app browser they ran in is closed then.
+  const SCHEME = "theater.billd.app:";
   function incoming(url) {
     let u; try { u = new URL(url); } catch (e) { return; }
-    if (u.origin === SITE && u.pathname.startsWith("/auth/")) {
+    const own = u.protocol === SCHEME && (u.host === "auth" || u.pathname.replace(/^\/+/, "").startsWith("auth/"));
+    if (own) { const B = plugin("Browser"); if (B) B.close().catch(() => {}); }
+    if (own || (u.origin === SITE && u.pathname.startsWith("/auth/"))) {
       if (authHandlers.length) authHandlers.forEach((f) => f(url)); else pendingLinks.push(url);
     } else if (u.origin === SITE) {
       location.hash = u.hash || "#/";
@@ -295,5 +302,22 @@
   // table, and add a Settings section for which notifications to get. Nothing calls this yet.
   const push = { available: false, async register() { return null; } };
 
-  window.BilldNative = { isApp, platform, site: SITE, publicUrl, openExternal, share, saveFile, prefs, reminders, position, catalogue, onAuthLink, onResume, push };
+  // ---------------------------------------------------------------- Sign in with Apple (iPhone)
+  // The app's own small plugin (app/ios/App/App/AppleSignInPlugin.swift): Apple's sheet, which hands
+  // back an identity token for Supabase. Elsewhere (Android, the website) Apple goes through the
+  // browser like Google. `nonce` is the SHA-256 of the one Supabase is given.
+  const apple = {
+    get available() { return platform === "ios" && !!plugin("BilldAppleSignIn"); },
+    async signIn(nonce) {
+      const P = plugin("BilldAppleSignIn");
+      if (!P) throw err("Sign in with Apple isn't available here.", "unavailable");
+      try { return await P.authorize({ nonce }); }
+      catch (e) {
+        if (/cancel/i.test(e && (e.code || e.message) || "")) throw err("", "cancelled");
+        throw err("Sign in with Apple didn't finish. Try again, or log in with your email.", "apple_failed");
+      }
+    },
+  };
+
+  window.BilldNative = { isApp, platform, site: SITE, publicUrl, openExternal, share, saveFile, prefs, reminders, position, catalogue, onAuthLink, onResume, push, apple, authCallback: "theater.billd.app://auth/callback" };
 })();

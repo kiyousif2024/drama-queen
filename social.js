@@ -46,6 +46,8 @@
       async signUp() { throw err("Accounts are not set up on this site yet.", "no_server"); },
       async signIn() { throw err("Accounts are not set up on this site yet.", "no_server"); },
       async signInWithGoogle() { throw err("Accounts are not set up on this site yet.", "no_server"); },
+      async signInWith() { throw err("Accounts are not set up on this site yet.", "no_server"); },
+      async providers() { return {}; },
       needsUsername: () => false,
       async usernameFree() { return true; },
       async signOut() {},
@@ -207,6 +209,66 @@
     const PROFILE = "profile:profiles!user_id(id,username,display_name,avatar_url)";
     // the HTTP status travels with the error, so the offline diary can tell "log in again" (401) from a refusal
     const check = ({ data, error, status }) => { if (error) throw Object.assign(friendly(error), { status }); return data; };
+    let providersP = null, oauthSb = null;
+    function oauthClient() {
+      if (!oauthSb) oauthSb = window.supabase.createClient(cfg.url, cfg.anonKey,
+        { auth: { flowType: "pkce", storageKey: "billd-oauth", persistSession: true, autoRefreshToken: false, detectSessionInUrl: false } });
+      return oauthSb;
+    }
+    // the session the sign-in client got goes to the main client; the sign-in client keeps nothing
+    async function adopt(session) {
+      const { error } = await sb.auth.setSession({ access_token: session.access_token, refresh_token: session.refresh_token });
+      try { localStorage.removeItem("billd-oauth"); localStorage.removeItem("billd-oauth-code-verifier"); } catch (e) { /* storage blocked */ }
+      if (error) throw err("Signing in didn't finish. Try again, or log in with your email.", "oauth_failed");
+      const { data } = await sb.auth.getSession();
+      uid = data.session?.user?.id || null; await loadProfile(); emit(profile);
+    }
+    // SHA-256 as hex: Web Crypto where the page has it; a plain version otherwise (WebKit may keep
+    // crypto.subtle from the iPhone app's capacitor:// page)
+    async function sha256hex(text) {
+      const bytes = new TextEncoder().encode(text);
+      const hex = (a) => [...a].map((b) => b.toString(16).padStart(2, "0")).join("");
+      if (window.crypto?.subtle) return hex(new Uint8Array(await crypto.subtle.digest("SHA-256", bytes)));
+      const K = [], H = [0x6a09e667, 0xbb67ae85, 0x3c6ef372, 0xa54ff53a, 0x510e527f, 0x9b05688c, 0x1f83d9ab, 0x5be0cd19];
+      for (let n = 2, c = 0; c < 64; n++) {
+        let prime = true; for (let d = 2; d * d <= n; d++) if (n % d === 0) { prime = false; break; }
+        if (prime) K[c++] = (Math.cbrt(n) % 1) * 2 ** 32 | 0;
+      }
+      const len = bytes.length, total = ((len + 9 + 63) >> 6) << 6, m = new Uint8Array(total);
+      m.set(bytes); m[len] = 0x80; new DataView(m.buffer).setUint32(total - 4, len * 8);
+      const w = new Int32Array(64), rot = (x, n) => (x >>> n) | (x << (32 - n));
+      for (let o = 0; o < total; o += 64) {
+        for (let i = 0; i < 16; i++) w[i] = new DataView(m.buffer).getInt32(o + i * 4);
+        for (let i = 16; i < 64; i++) {
+          const s0 = rot(w[i - 15], 7) ^ rot(w[i - 15], 18) ^ (w[i - 15] >>> 3), s1 = rot(w[i - 2], 17) ^ rot(w[i - 2], 19) ^ (w[i - 2] >>> 10);
+          w[i] = (w[i - 16] + s0 + w[i - 7] + s1) | 0;
+        }
+        let [a, b, c, d, e, f, g, h] = H;
+        for (let i = 0; i < 64; i++) {
+          const t1 = (h + (rot(e, 6) ^ rot(e, 11) ^ rot(e, 25)) + ((e & f) ^ (~e & g)) + K[i] + w[i]) | 0;
+          const t2 = ((rot(a, 2) ^ rot(a, 13) ^ rot(a, 22)) + ((a & b) ^ (a & c) ^ (b & c))) | 0;
+          h = g; g = f; f = e; e = (d + t1) | 0; d = c; c = b; b = a; a = (t1 + t2) | 0;
+        }
+        [a, b, c, d, e, f, g, h].forEach((v, i) => { H[i] = (H[i] + v) | 0; });
+      }
+      return H.map((v) => (v >>> 0).toString(16).padStart(8, "0")).join("");
+    }
+    async function appleNative() {
+      const raw = [...crypto.getRandomValues(new Uint8Array(24))].map((b) => b.toString(16).padStart(2, "0")).join("");
+      const res = await N.apple.signIn(await sha256hex(raw));
+      const r = res?.response || res || {};
+      if (!r.identityToken) throw err("Sign in with Apple didn't finish. Try again, or log in with your email.", "apple_failed");
+      const { error } = await sb.auth.signInWithIdToken({ provider: "apple", token: r.identityToken, nonce: raw });
+      if (error) throw friendly(error);
+      const { data } = await sb.auth.getSession();
+      uid = data.session?.user?.id || null; await loadProfile();
+      // Apple gives the name only the first time, and never puts it in the token: keep it if the profile has none
+      const name = [r.givenName, r.familyName].filter(Boolean).join(" ").trim().slice(0, 50);
+      if (name && profile && !profile.display_name) {
+        try { profile = check(await sb.from("profiles").update({ display_name: name }).eq("id", uid).select().single()); } catch (e) { /* the member can add it in Settings */ }
+      }
+      emit(profile);
+    }
     function friendly(e) {
       const m = e?.message || String(e);
       if (/Invalid login credentials/i.test(m)) return err("That email and password don't match an account.", "bad_login");
@@ -336,12 +398,35 @@
         if (!data.session) return { confirm: true };  // the project asks new members to confirm their email
         uid = data.user.id; await loadProfile(); emit(profile); return { confirm: false };
       },
-      // Continue with Google: Google's page, then back to this page signed in (route() in app.js tidies
-      // the address). A new member gets a placeholder username and chooses one (needsUsername).
-      async signInWithGoogle() {
-        const { error } = await sb.auth.signInWithOAuth({ provider: "google", options: { redirectTo: returnTo() } });
-        if (error) throw friendly(error);
+      // Which of Google and Apple are switched on in Supabase (Authentication -> Sign In / Providers),
+      // from its public settings, so a button only shows once its provider works. Asked once a visit.
+      providers() {
+        if (!providersP) providersP = fetch(`${cfg.url}/auth/v1/settings`, { headers: { apikey: cfg.anonKey } })
+          .then((r) => (r.ok ? r.json() : {})).then((j) => ({ google: !!j.external?.google, apple: !!j.external?.apple }))
+          .catch(() => { providersP = null; return { google: true, apple: false }; });  // offline: as before
+        return providersP;
       },
+      // Continue with Google, or Apple. A new member gets a placeholder username and chooses one
+      // (needsUsername).
+      //   Website: the provider's page, then back to this page signed in (route() in app.js tidies the address).
+      //   iPhone app, Apple: Apple's own sheet; its identity token signs in here (signInWithIdToken).
+      //   App, otherwise: the provider's page in the in-app browser (Google refuses Billd's own web view),
+      //   which comes back to theater.billd.app://auth/callback?code=… and handleAuthLink finishes it.
+      //   That uses PKCE, through a second client kept only for this, so the code is useless to anyone
+      //   else who catches the address; email links keep the main client's flow.
+      async signInWith(provider) {
+        await ready;
+        if (provider === "apple" && N.apple?.available) return appleNative();
+        if (!N.isApp) {
+          const { error } = await sb.auth.signInWithOAuth({ provider, options: { redirectTo: returnTo() } });
+          if (error) throw friendly(error);
+          return;
+        }
+        const { data, error } = await oauthClient().auth.signInWithOAuth({ provider, options: { redirectTo: N.authCallback, skipBrowserRedirect: true } });
+        if (error || !data?.url) throw friendly(error || new Error("no url"));
+        await N.openExternal(data.url);
+      },
+      signInWithGoogle() { return this.signInWith("google"); },
       needsUsername: () => !!profile && /^member_[0-9a-f]{8}$/.test(profile.username || ""),
       async usernameFree(username) {
         username = String(username || "").toLowerCase();
@@ -377,8 +462,18 @@
         await ready;
         const u = new URL(href);
         const q = u.searchParams, h = new URLSearchParams(u.hash.replace(/^#/, ""));
-        if (q.get("error_description") || h.get("error_description")) throw err("That link didn't work (it may have expired). Try logging in, or ask for a new link.", "bad_link");
+        const oauth = u.protocol === "theater.billd.app:";
+        if (q.get("error_description") || h.get("error_description")) {
+          if (oauth) throw err(/cancel|denied/i.test(q.get("error") || h.get("error") || "") ? "" : "Signing in didn't finish. Try again, or log in with your email.", "oauth_failed");
+          throw err("That link didn't work (it may have expired). Try logging in, or ask for a new link.", "bad_link");
+        }
         const type = q.get("type") || h.get("type") || "";
+        if (oauth && q.get("code")) {  // Google or Apple, in the app (signInWith)
+          const { data, error } = await oauthClient().auth.exchangeCodeForSession(q.get("code"));
+          if (error || !data?.session) throw err("Signing in didn't finish. Try again, or log in with your email.", "oauth_failed");
+          await adopt(data.session);
+          return { type: "oauth" };
+        }
         if (q.get("token_hash")) {
           const { error } = await sb.auth.verifyOtp({ token_hash: q.get("token_hash"), type: OTP_TYPES.has(type) ? type : "email" });
           if (error) throw err("That link didn't work (it may have expired, or been used already). Try logging in, or ask for a new link.", "bad_link");
