@@ -642,12 +642,11 @@ function billdMain() {
   // shares with the whole East Coast. ?nyc in the address shows it anywhere, to preview it.
   const NYC_PREVIEW = /[?&]nyc\b/.test(location.search);
   const LIBERTY = `<img src="icons/liberty.png" alt="" width="63" height="64">`;
+  // New York is the city in the city bar: the one picked (or found by location), else the time-zone guess,
+  // as the bar shows it. A city picked elsewhere wins over the guess.
   function isNewYorker() {
     if (NYC_PREVIEW) return true;
-    const c = store.get(CITY_KEY, null);
-    if (!c || typeof c.id !== "string" || (c.by !== "chosen" && c.by !== "located")) return false;
-    if (c.id === "new_york") return true;
-    try { return metroOf(c.id) === "new_york"; } catch (e) { return false; }  // a borough or suburb kept from before
+    try { return homeCity(cityCounts(onNow()))?.id === "new_york"; } catch (e) { return false; }  // before the plays load
   }
   const nycHTML = () => !isNewYorker() ? "" : `<a class="nyc" href="${APP ? "https://billd.theater/nyc/" : "nyc/"}"${APP ? ' target="_blank" rel="noopener"' : ""} aria-label="What's happening in New York this week">${LIBERTY}</a>`;
   if (HALLOWEEN) {
