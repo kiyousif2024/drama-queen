@@ -3,7 +3,7 @@
 // come from social.js. Pages are drawn from the address (#/play/…, #/u/…), so every
 // page has a link that can be shared, and the back button works.
 "use strict";
-(function () {
+function billdMain() {
   const $ = (s, r = document) => r.querySelector(s);
   const $$ = (s, r = document) => [...r.querySelectorAll(s)];
   const esc = (s) => String(s ?? "").replace(/[&<>"']/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]));
@@ -3981,5 +3981,30 @@
   const social = loadSocial().then(() => { if (D) { renderAcct(); totals(); route(); } });
   Promise.all([load(), Promise.race([social, new Promise((ok) => setTimeout(ok, 5000))])]).then(([data]) => init(data)).catch((err) => {
     $("#loading").innerHTML = `Could not load the plays (${esc(err.message)}). Run <code>python3 build_db.py</code>, or serve the <code>web/</code> folder with <code>python3 -m http.server</code>.`;
+  });
+}
+
+// A visitor on a weak connection can lose one of the scripts the page needs. Rather than stopping on
+// "Raising the curtain…" with an error, each missing one is fetched once more, in the order index.html
+// loads them, and the page starts when they're all there; if one still can't load, the page says so.
+(function boot() {
+  const NEED = [["DQ_CONFIG", "config.js"], ["BilldNative", "native.js"], ["BilldSocial", "social.js"],
+    ["BilldOutbox", "outbox.js"], ["BilldExtract", "extract.js"]];
+  const missing = NEED.filter(([name]) => !window[name]);
+  if (!missing.length) { billdMain(); return; }
+  const load = (src) => new Promise((ok) => {
+    const el = document.createElement("script");
+    el.src = src; el.onload = ok; el.onerror = ok;  // a second failure is reported below, not thrown
+    document.head.appendChild(el);
+  });
+  missing.reduce((p, [, src]) => p.then(() => load(src)), Promise.resolve()).then(() => {
+    if (NEED.every(([name]) => window[name])) { billdMain(); return; }
+    const box = document.getElementById("loading");
+    if (!box) return;
+    box.textContent = "Billd couldn't finish loading. Check your connection, then ";
+    const again = document.createElement("button");
+    again.type = "button"; again.className = "btn sm"; again.textContent = "Reload";
+    again.addEventListener("click", () => location.reload());
+    box.appendChild(again);
   });
 })();
