@@ -1,6 +1,470 @@
 {
  "days": [
   {
+   "date": "2026-11-01",
+   "events": [
+    {
+     "venue": "Patton Park @Southwest",
+     "title": "Run of the Dead 5K/10K & Walk (Día de los Muertos)",
+     "time": "9:00am",
+     "source": "https://runsignup.com/Race/MI/Detroit/RunOfTheDead2026"
+    },
+    {
+     "venue": "Royal Oak Farmers Market @Royal Oak",
+     "title": "Sunday Antiques & Collectibles Market",
+     "time": "8:00am-3:00pm",
+     "source": "https://www.romi.gov/Calendar.aspx?EID=8291&month=11&year=2026&day=1&calType=0",
+     "tag": "food"
+    },
+    {
+     "venue": "Henry Ford Museum",
+     "title": "Celebrate Indigenous History (Henry Ford Museum & Greenfield Village)",
+     "time": "9:30am-5:00pm",
+     "source": "https://www.thehenryford.org/visit/things-to-do/calendar/celebrate-indigenous-history"
+    },
+    {
+     "venue": "Michigan Central @Corktown",
+     "title": "Halloween & Día de los Muertos at Michigan Central: Coco screenings (10am, 2:30pm), Ballet Folklórico (1pm), community ofrenda (free)",
+     "time": "12:00pm-4:00pm",
+     "source": "https://www.hourdetroit.com/things-to-do/things-to-do-this-weekend-2/"
+    },
+    {
+     "venue": "Valade Park @The Riverwalk",
+     "title": "Día de los Muertos on the Detroit Riverfront (free; ofrenda, folklórico, mariachi)",
+     "time": "11:00am-3:00pm",
+     "source": "https://www.detroitriverfront.org/events/calendar/2026/11/01/da-de-los-muertos"
+    },
+    {
+     "venue": "Detroit Institute of Arts",
+     "title": "14th Annual Ofrendas: Celebrating el Día de Muertos (final day)",
+     "time": null,
+     "source": "https://visitdetroit.com/inside-the-d/things-to-do-in-detroit-in-november/"
+    },
+    {
+     "venue": "Cranbrook",
+     "title": "Frank Lloyd Wright Smith House Tour (registration closed)",
+     "time": "1:00pm-2:00pm",
+     "source": "https://center.cranbrook.edu/events/2026-11/frank-lloyd-wright-smith-house-tour"
+    },
+    {
+     "venue": "Detroit Opera House",
+     "title": "Tosca Pre-Performance Talk with director Louisa Proske and conductor Roberto Kalb",
+     "time": "1:30pm",
+     "source": "https://www.detroitopera.org/show/tosca/"
+    },
+    {
+     "venue": "Detroit Public Library @Midtown",
+     "title": "Sunday Stitch-In (crochet; materials provided)",
+     "time": "1:30pm-4:30pm",
+     "source": "https://www.eventbrite.com/e/sunday-stitch-in-tickets-2003678032934"
+    },
+    {
+     "venue": "Detroit Public Library @Midtown",
+     "title": "Nightmares: Black Horror Movie Marathon, final day: Blacula + special feature (17+)",
+     "time": "2:00pm-5:00pm",
+     "source": "https://www.eventbrite.com/e/nightmares-black-horror-movie-marathon-tickets-2002665290795"
+    },
+    {
+     "venue": "Tenhave Woods @Royal Oak",
+     "title": "Fall Color Walk with the Nature Society (free)",
+     "time": "2:00pm-3:00pm",
+     "source": "https://www.romi.gov/Calendar.aspx?EID=8580&month=11&year=2026&day=1&calType=0"
+    },
+    {
+     "venue": "Cranbrook",
+     "title": "Saarinen House Tour",
+     "time": "3:00pm-4:15pm",
+     "source": "https://center.cranbrook.edu/events/2026-11/saarinen-house-tour"
+    },
+    {
+     "venue": "The Shepherd @East Village",
+     "title": "Keynote: South Africa's Poet Laureate Mongane Wally Serote (City of Asylum/Detroit; free)",
+     "time": "3:00pm-6:00pm",
+     "source": "https://www.eventbrite.com/e/keynote-south-africas-poet-laureate-mongane-wally-serote-tickets-2003188236941"
+    },
+    {
+     "venue": "Tulum Detroit @Mexicantown",
+     "title": "Día de los Muertos Celebration: The Smiling Flowers (film premiere, poetry open mic, community ofrenda; late-night party after 9pm)",
+     "time": "6:00pm-9:00pm",
+     "source": "https://www.eventbrite.com/e/dia-de-los-muertos-celebration-mexican-town-detroit-the-smiling-flowers-tickets-2003021033832"
+    },
+    {
+     "venue": "Hush Haunted Attraction @Westland",
+     "title": "Hush Haunted Attraction",
+     "time": "7:00pm-10:00pm",
+     "source": "https://hushhauntedattractions.com/"
+    },
+    {
+     "venue": "Detroit Opera House",
+     "title": "Tosca",
+     "time": "2:30pm",
+     "source": "https://detroitopera.org/show/tosca/"
+    },
+    {
+     "venue": "Lions @Ford Field",
+     "title": "vs Minnesota Vikings",
+     "time": "1:00pm",
+     "source": "https://www.fordfield.com/events/detail/vikings-vs-lions-2026"
+    },
+    {
+     "venue": "Little Caesar's Arena",
+     "title": "Maná: Vivir Sin Aire Tour",
+     "time": "9:00pm",
+     "source": "https://www.313presents.com/events/detail/mana"
+    },
+    {
+     "venue": "The Majestic",
+     "title": "Akeem Ali: The Texture Tour",
+     "time": "7:00pm",
+     "source": "https://www.majesticdetroit.com/events/detail/akeem-ali-the-texture-tour"
+    },
+    {
+     "venue": "Saint Andrew's Hall",
+     "title": "Amble",
+     "time": null,
+     "source": "https://www.saintandrewsdetroit.com/"
+    },
+    {
+     "venue": "Cliff Bell's",
+     "title": "The Laith Al-Saadi Organ Trio",
+     "time": "5:30-7:30pm",
+     "source": "https://cliffbells.com/event/the-laith-al-saadi-organtrio/"
+    },
+    {
+     "venue": "Aretha's Jazz Café @ Music Hall",
+     "title": "Aretha's Jazz Jam",
+     "time": "7:00-10:00pm",
+     "source": "https://www.jazzcafedetroit.com/events/November-2026/Aretha-s-Jazz-Jam"
+    },
+    {
+     "venue": "Mic Drop Comedy",
+     "title": "Detroit Ghost Walk (walking tour)",
+     "time": "6:00pm",
+     "source": "https://micdropcomedydetroit.com/events/139572"
+    },
+    {
+     "venue": "Huntington Place",
+     "title": "Youmacon 2026 (final day)",
+     "time": null,
+     "source": "https://youmacon.com/faq"
+    }
+   ]
+  },
+  {
+   "date": "2026-11-02",
+   "events": [
+    {
+     "venue": "Henry Ford Museum",
+     "title": "Celebrate Indigenous History",
+     "time": "9:30am-5:00pm",
+     "source": "https://www.thehenryford.org/visit/things-to-do/calendar/celebrate-indigenous-history"
+    },
+    {
+     "venue": "Little Caesar's Arena",
+     "title": "Journey: Final Frontier Tour",
+     "time": "7:30pm",
+     "source": "https://www.313presents.com/events/detail/journey-1"
+    },
+    {
+     "venue": "Saint Andrew's Hall",
+     "title": "Hunxho",
+     "time": null,
+     "source": "https://www.saintandrewsdetroit.com/"
+    },
+    {
+     "venue": "Aretha's Jazz Café @ Music Hall",
+     "title": "A Tribute to Betty Carter ft. Sheila Slaughter",
+     "time": "7:00pm",
+     "source": "https://www.jazzcafedetroit.com/events/November-2026/A-Tribute-to-Betty-Carter-ft.-Sheila-Slaughter"
+    },
+    {
+     "venue": "The Ringwald",
+     "title": "Equus (closing performance)",
+     "time": null,
+     "source": "https://www.theringwald.com/productions/equus/"
+    }
+   ]
+  },
+  {
+   "date": "2026-11-03",
+   "events": [
+    {
+     "venue": "Henry Ford Museum",
+     "title": "Celebrate Indigenous History",
+     "time": "9:30am-5:00pm",
+     "source": "https://www.thehenryford.org/visit/things-to-do/calendar/celebrate-indigenous-history"
+    },
+    {
+     "venue": "Dennis Archer Greenway @The Riverwalk",
+     "title": "Two Mile Tuesdays (meet at Breadless)",
+     "time": "6:00pm",
+     "source": "https://www.detroitriverfront.org/events/calendar/2026/11/03/two-mile-tuesdays"
+    },
+    {
+     "venue": "Little Caesar's Arena",
+     "title": "KATSEYE: The Wildworld Tour",
+     "time": "8:00pm",
+     "source": "https://www.313presents.com/events/detail/katseye"
+    },
+    {
+     "venue": "Fisher Theatre",
+     "title": "SIX The Musical",
+     "time": null,
+     "source": "https://www.michigan.org/event/six-musical-detroit-mi"
+    },
+    {
+     "venue": "The Fillmore",
+     "title": "Loe Shimmy (free concert)",
+     "time": "5:30pm",
+     "source": "https://makeanimpactconcerts.org/detroit"
+    },
+    {
+     "venue": "Saint Andrew's Hall",
+     "title": "20 Years of Nekrogoblikon with Aborted",
+     "time": null,
+     "source": "https://www.saintandrewsdetroit.com/"
+    },
+    {
+     "venue": "Mic Drop Comedy",
+     "title": "Dan Docimo",
+     "time": "7:30pm",
+     "source": "https://micdropcomedydetroit.com/events"
+    },
+    {
+     "venue": "Huntington Place",
+     "title": "International Robot Safety Conference (Nov 3-5)",
+     "time": null,
+     "source": "https://www.automate.org/robotics/news/a3s-international-robot-safety-conference-comes-to-detroit-november-3-5"
+    }
+   ]
+  },
+  {
+   "date": "2026-11-04",
+   "events": [
+    {
+     "venue": "Henry Ford Museum",
+     "title": "Celebrate Indigenous History",
+     "time": "9:30am-5:00pm",
+     "source": "https://www.thehenryford.org/visit/things-to-do/calendar/celebrate-indigenous-history"
+    },
+    {
+     "venue": "MOCAD",
+     "title": "20 Years of MOCAD: A Practice of Multiplicity, Parts II-IV (opens)",
+     "time": "11:00am-5:00pm",
+     "source": "https://mocadetroit.org/exhibition/20-years-of-mocad-a-practice-of-multiplicity-parts-ii-iv/"
+    },
+    {
+     "venue": "MOCAD",
+     "title": "Choir: The Theology of Preservation (weekly listening session; free)",
+     "time": "12:00pm-2:00pm",
+     "source": "https://mocadetroit.org/event/choir-the-theology-of-preservation/"
+    },
+    {
+     "venue": "Valade Park @The Riverwalk",
+     "title": "Wisdom Wednesdays with the Wise Guys Chess Club (free lessons 6:00-7:30pm)",
+     "time": "6:00pm-9:00pm",
+     "source": "https://www.detroitriverfront.org/events/calendar/2026/11/04/wisdom-wednesdays"
+    },
+    {
+     "venue": "Pistons @Little Caesar's Arena",
+     "title": "vs Philadelphia 76ers",
+     "time": "7:00pm",
+     "source": "https://www.nba.com/game/0022600173/"
+    },
+    {
+     "venue": "Ford Field",
+     "title": "Central Michigan vs Eastern Michigan (football)",
+     "time": null,
+     "source": "https://www.fordfield.com/events/detail/central-michigan-vs-eastern-michigan"
+    },
+    {
+     "venue": "Fisher Theatre",
+     "title": "SIX The Musical",
+     "time": null,
+     "source": "https://www.michigan.org/event/six-musical-detroit-mi"
+    },
+    {
+     "venue": "Masonic Temple (Jack White Theatre)",
+     "title": "The Blasting Company plays Over the Garden Wall",
+     "time": "7:00pm",
+     "source": "https://aegwebprod.blob.core.windows.net/json/events/151/events.json"
+    },
+    {
+     "venue": "Royal Oak Music Theatre",
+     "title": "Arch Enemy & The Black Dahlia Murder",
+     "time": "5:00pm",
+     "source": "https://www.royaloakmusictheatre.com/events/detail/1446592"
+    },
+    {
+     "venue": "The Majestic",
+     "title": "Lil Peep 30th Birthday Celebration",
+     "time": "7:00pm",
+     "source": "https://www.majesticdetroit.com/events/detail/lil-peep-30th-birthday-celebration-1541905"
+    },
+    {
+     "venue": "The Shelter @Saint Andrew's Hall",
+     "title": "Static Dress: Injury Episode USA Tour",
+     "time": null,
+     "source": "https://www.saintandrewsdetroit.com/"
+    },
+    {
+     "venue": "Cliff Bell's",
+     "title": "Louis Jones III and Session",
+     "time": "7:30-9:30pm",
+     "source": "https://cliffbells.com/event/louis-jones-iii-and-session/"
+    },
+    {
+     "venue": "Aretha's Jazz Café @ Music Hall",
+     "title": "CHōzn Music Group",
+     "time": "8:00pm",
+     "source": "https://www.jazzcafedetroit.com/events/November-2026/CHozn-Music-Group"
+    },
+    {
+     "venue": "Mark Ridley's Comedy Castle",
+     "title": "Emo Philips",
+     "time": "7:30pm",
+     "source": "https://www.comedycastle.com/events/category/series/emo-philips/mark-ridleys-comedy-castle/royal-oak/"
+    },
+    {
+     "venue": "Huntington Place",
+     "title": "International Robot Safety Conference (exhibits day)",
+     "time": null,
+     "source": "https://www.automate.org/robotics/news/a3s-international-robot-safety-conference-comes-to-detroit-november-3-5"
+    }
+   ]
+  },
+  {
+   "date": "2026-11-05",
+   "events": [
+    {
+     "venue": "Henry Ford Museum",
+     "title": "Celebrate Indigenous History",
+     "time": "9:30am-5:00pm",
+     "source": "https://www.thehenryford.org/visit/things-to-do/calendar/celebrate-indigenous-history"
+    },
+    {
+     "venue": "Pewabic Pottery",
+     "title": "Holiday Showcase opens (runs through Dec 27)",
+     "time": "10:00am-5:00pm",
+     "source": "https://www.pewabic.org/pages/holiday-showcase"
+    },
+    {
+     "venue": "Cranbrook",
+     "title": "Frank Lloyd Wright Smith House Tour",
+     "time": "1:00pm-2:00pm",
+     "source": "https://center.cranbrook.edu/events/2026-11/frank-lloyd-wright-smith-house-tour-0"
+    },
+    {
+     "venue": "Cranbrook",
+     "title": "Saarinen House Tour",
+     "time": "3:00pm-4:15pm",
+     "source": "https://center.cranbrook.edu/events/2026-11/saarinen-house-tour-0"
+    },
+    {
+     "venue": "Cranbrook",
+     "title": "Adult ArtMaking Workshop: Block Weaving (Cranbrook Art Museum)",
+     "time": "5:30pm",
+     "source": "https://cranbrookartmuseum.org/events/adult-artmaking-workshop-block-weaving/"
+    },
+    {
+     "venue": "Cranbrook",
+     "title": "Frank Lloyd Wright Smith House Tour (evening)",
+     "time": "6:00pm-7:00pm",
+     "source": "https://center.cranbrook.edu/events/2026-11/frank-lloyd-wright-smith-house-tour-1"
+    },
+    {
+     "venue": "Detroit Opera House",
+     "title": "Tosca Pre-Performance Talk with Travis Leon Williams",
+     "time": "6:30pm",
+     "source": "https://www.detroitopera.org/show/tosca/"
+    },
+    {
+     "venue": "DHS @Highland Township Public Library",
+     "title": "Detroit Historical Society Lecture: Becoming Hockeytown - The Detroit Red Wings at 100 (free)",
+     "time": "6:30pm-8:00pm",
+     "source": "https://www.detroithistorical.org/events/lecture-becoming-hockeytown-detroit-red-wings-100-0"
+    },
+    {
+     "venue": "Valade Park @The Riverwalk",
+     "title": "We Run 313 5K/10K Thursday",
+     "time": "6:30pm",
+     "source": "https://www.detroitriverfront.org/events/calendar/2026/11/05/we-run-313-5k10k-thursday"
+    },
+    {
+     "venue": "Red Wings @Little Caesar's Arena",
+     "title": "vs Vegas Golden Knights",
+     "time": "7:00pm",
+     "source": "https://www.nhl.com/redwings/news/red-wings-release-2026-27-regular-season-schedule"
+    },
+    {
+     "venue": "Detroit Opera House",
+     "title": "Tosca",
+     "time": "7:30pm",
+     "source": "https://detroitopera.org/show/tosca/"
+    },
+    {
+     "venue": "DSO @Orchestra Hall",
+     "title": "French Splendor: Ravel, Debussy, and More",
+     "time": null,
+     "source": "https://www.dso.org/events-and-tickets/events/26-27-fall/french-splendor-ravel-debussy-and-more"
+    },
+    {
+     "venue": "Fisher Theatre",
+     "title": "SIX The Musical",
+     "time": null,
+     "source": "https://www.michigan.org/event/six-musical-detroit-mi"
+    },
+    {
+     "venue": "The Fillmore",
+     "title": "The String Cheese Incident: Just Keep Spinning Tour",
+     "time": null,
+     "source": "https://www.thefillmoredetroit.com/"
+    },
+    {
+     "venue": "Royal Oak Music Theatre",
+     "title": "Charles Wesley Godwin",
+     "time": "7:00pm",
+     "source": "https://www.royaloakmusictheatre.com/events/detail/1447453"
+    },
+    {
+     "venue": "The Majestic",
+     "title": "Chat Pile with Soul Glo & Shallowater",
+     "time": "6:30pm",
+     "source": "https://www.majesticdetroit.com/events/detail/chat-pile-1477946"
+    },
+    {
+     "venue": "Cliff Bell's",
+     "title": "Charu Suri",
+     "time": "7:30-9:30pm",
+     "source": "https://cliffbells.com/event/charu-suri-4-2/"
+    },
+    {
+     "venue": "Aretha's Jazz Café @ Music Hall",
+     "title": "Frankie Beverly and Maze Encore Tribute",
+     "time": "7:00pm",
+     "source": "https://www.jazzcafedetroit.com/events/November-2026/Frankie-Beverly-and-the-Maze-Encore-Tribute"
+    },
+    {
+     "venue": "Mark Ridley's Comedy Castle",
+     "title": "SOCH Spread the Laughs",
+     "time": "5:00pm",
+     "source": "https://www.comedycastle.com/event/soch-spread-the-laughs/"
+    },
+    {
+     "venue": "Mic Drop Comedy",
+     "title": "Alec Flynn",
+     "time": "7:30pm",
+     "source": "https://micdropcomedydetroit.com/events"
+    },
+    {
+     "venue": "Huntington Place",
+     "title": "International Robot Safety Conference (final day)",
+     "time": null,
+     "source": "https://www.automate.org/robotics/news/a3s-international-robot-safety-conference-comes-to-detroit-november-3-5"
+    }
+   ]
+  },
+  {
    "date": "2026-11-06",
    "events": [
     {
