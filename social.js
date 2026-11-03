@@ -818,10 +818,25 @@
         needMe();
         return check(await sb.rpc("set_moderation_term", { new_term: String(term || ""), new_severity: severity || "block", remove: !!remove }));
       },
-      // ---- delete my account: the server function checks the session and the typed username, then deletes everything
+      // ---- delete my account: the server function checks the session and the typed username, then deletes everything.
+      // In the iPhone app, a login that uses Apple confirms with Apple's sheet first: its fresh authorization code
+      // lets the function revoke Billd's Sign in with Apple authorization (App Review asks for it). Elsewhere Apple
+      // gives the page no code, so the reply's appleRevoked is false and the page says how to remove Billd at Apple.
       async deleteAccount(username) {
         needMe();
-        const { data, error } = await sb.functions.invoke("delete-account", { body: { username } });
+        const body = { username };
+        if (N.apple?.available) {
+          const { data: u } = await sb.auth.getUser();
+          if ((u?.user?.identities || []).some((i) => i.provider === "apple")) {
+            const raw = [...crypto.getRandomValues(new Uint8Array(24))].map((b) => b.toString(16).padStart(2, "0")).join("");
+            let res;
+            try { res = await N.apple.signIn(await sha256hex(raw)); }
+            catch (e) { throw err("Confirm with Apple to delete this account. Nothing was deleted.", "apple_cancelled"); }
+            const code = (res?.response || res || {}).authorizationCode;
+            if (code) body.appleCode = code;
+          }
+        }
+        const { data, error } = await sb.functions.invoke("delete-account", { body });
         if (error || !data?.ok) {
           let msg = data?.error || "Your account couldn't be deleted. Try again later.";
           try { const b = await error?.context?.json?.(); if (b?.error) msg = b.error; } catch (e) { /* keep the general message */ }
@@ -831,6 +846,7 @@
         uid = null; profile = null; role = null; standing = { status: "active", note: null };
         try { localStorage.removeItem(ME_KEY); } catch (e) { /* none */ }
         emit(null);
+        return { apple: !!data.apple, appleRevoked: !!data.appleRevoked };
       },
       async report(kind, targetId, reason) {
         needMe();

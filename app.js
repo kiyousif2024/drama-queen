@@ -2980,13 +2980,13 @@ function billdMain() {
       $("#del-go").disabled = true; note("#del-note", "");
       try {
         const planned = planKey();
-        await S.deleteAccount(typed);
+        const done = await S.deleteAccount(typed);
         clearPlans(planned);
         myStatus = {}; blockedSet = new Set(); followingSet = null;
         $("#editd").close();
         if (local) { me = S.me(); toast("Erased"); location.hash = "#/"; route(); return; }
         me = null; renderAcct(); renderStanding(); renderTermsBar();
-        location.hash = "#/delete-account/done";
+        location.hash = done?.apple && !done.appleRevoked ? "#/delete-account/done-apple" : "#/delete-account/done";
       } catch (err) { note("#del-note", err.message, true); $("#del-go").disabled = false; }
     };
     $("#editd").showModal();
@@ -2995,9 +2995,10 @@ function billdMain() {
   function renderDeleteAccount(sub) {
     document.title = "Delete your account · Billd";
     const mail = CFG.contact?.support || CFG.contact?.privacy || "";
-    if (sub === "done") {
+    if (sub === "done" || sub === "done-apple") {
       pageEl().innerHTML = `<div class="wrap prose" style="padding-top:30px"><h1 class="h1">Your account has been deleted</h1>
         <p>Your Billd account and everything you posted are gone, and you've been logged out on this device. Thank you for using Billd.</p>
+        ${sub === "done-apple" ? `<p>You used Sign in with Apple. To remove Billd from the apps that use your Apple Account, open your Apple Account settings (on iPhone: Settings → your name → Sign-In &amp; Security → Sign in with Apple), choose Billd and stop using it.</p>` : ""}
         <p>You can keep browsing the plays, and you're welcome to join again any time.</p><p><a class="btn ghost" href="#/">Go to the home page</a></p></div>`;
       return;
     }
