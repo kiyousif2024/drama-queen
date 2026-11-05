@@ -99,6 +99,9 @@ function billdMain() {
     return ws.length ? ws : w.people;  // e.g. a musical credited only to its composer and lyricist
   }
   const byText = (w) => writers(w).map((p) => ppl[p.person]?.name || p.person).join(", ");
+  // Never pan sideways. iOS (the iPhone app especially) can let the whole page slide left and right even
+  // though app.css clips anything wider than the screen: put it straight back at the left edge.
+  addEventListener("scroll", () => { if (window.scrollX) window.scrollTo(0, window.scrollY); }, { passive: true });
   function toast(msg) {
     const t = $("#toast"); t.textContent = msg; t.hidden = false;
     (document.querySelector("dialog[open]") || document.body).appendChild(t);  // modal dialogs sit above everything else
@@ -1957,7 +1960,7 @@ function billdMain() {
     draw();
     $("#cm-form")?.addEventListener("submit", async (e) => {
       e.preventDefault();
-      const body = $("#cm-body").value.trim(); if (!body) return;
+      const body = $("#cm-body").value.trim(); if (!body) { toast("Write your comment first."); $("#cm-body").focus(); return; }
       try { const c = await S.addComment(l.id, body); $("#cm-body").value = ""; draw(); if (c?.held) toast(HELD_SAVED); } catch (err) { toast(err.message); }
     });
     $("#cm-list").addEventListener("click", async (e) => {
@@ -2036,7 +2039,8 @@ function billdMain() {
   $("#log-like").addEventListener("click", (e) => { logState.liked = !logState.liked; e.currentTarget.setAttribute("aria-pressed", String(logState.liked)); });
   $("#log-form").addEventListener("submit", async (e) => {
     e.preventDefault();
-    const w = logState.play; if (!w) return;
+    const w = logState.play;
+    if (!w) { note("#log-note", "Choose the show first: type its title above and pick it from the list.", true); $("#log-pick")?.focus(); return; }
     const row = { play_id: w.id, play_title: w.title, seen_on: $("#log-date").value || null, seen_time: ($("#log-date").value && $("#log-time").value) || null, rating: logState.rating || null, liked: logState.liked,
                   review: $("#log-review").value.trim() || null, spoilers: $("#log-spoil").checked, rewatch: $("#log-rewatch").checked,
                   venue: $("#log-venue").value.trim() || null, city: $("#log-city").value.trim() || null };
@@ -2066,7 +2070,10 @@ function billdMain() {
     if (!logState.edit || !confirm("Delete this diary entry? This can't be undone.")) return;
     try { const r = await S.deleteLog(logState.edit.id); $("#logd").close(); toast(r?.queued ? `Entry deleted. Billd will be told when this ${DEVICE} is back online.` : "Entry deleted"); route(); } catch (e) { note("#log-note", e.message, true); }
   });
-  function note(sel, msg, isErr, ok) { const n = $(sel); n.textContent = msg || ""; n.hidden = !msg; n.classList.toggle("err", !!isErr); n.classList.toggle("ok", !!ok); }
+  function note(sel, msg, isErr, ok) {
+    const n = $(sel); n.textContent = msg || ""; n.hidden = !msg; n.classList.toggle("err", !!isErr); n.classList.toggle("ok", !!ok);
+    if (msg && isErr) n.scrollIntoView?.({ block: "nearest", behavior: "smooth" });  // a long window: bring the message into view
+  }
 
 
   // ---------------------------------------------------------------- plans: a date to see a show
@@ -2492,7 +2499,7 @@ function billdMain() {
   });
   $("#listd-new").addEventListener("submit", async (e) => {
     e.preventDefault();
-    const title = $("#listd-name").value.trim(); if (!title) return;
+    const title = $("#listd-name").value.trim(); if (!title) { toast("Give the new list a name first."); $("#listd-name").focus(); return; }
     try { const l = await S.saveList({ title }); await S.setListItems(l.id, [{ play_id: listPlay }]); $("#listd-name").value = ""; toast("List created"); drawListPicker(); } catch (err) { toast(err.message); }
   });
   function listCard(l) {
@@ -2852,6 +2859,7 @@ function billdMain() {
     const local = S.local && S.kind !== "local" && S.local.isLocalData();
     pageEl().innerHTML = `<div class="wrap" style="padding-top:30px;max-width:720px"><h1 class="h1">Settings</h1>
       ${me ? `<section class="sec"><div class="sec-head"><h2>Profile</h2></div><button class="btn ghost" type="button" id="st-prof">Edit profile and favourites</button></section>` : ""}
+      ${me ? `<section class="sec"><div class="sec-head"><h2>Your diary</h2></div><p class="hint" style="margin-bottom:10px">A short tour of logging, rating and reviewing the shows you see.</p><button class="btn ghost" type="button" id="st-tour">Take the diary tour</button></section>` : ""}
       ${myRank() ? `<section class="sec"><div class="sec-head"><h2>Billd team</h2></div><p class="hint" style="margin-bottom:10px">You're ${myRank() === 1 ? "a moderator" : myRank() === 2 ? "an admin" : "the owner"}.</p><a class="btn ghost" href="#/admin">Open Admin</a></section>` : ""}
       ${syncSettingsHTML()}
       ${canInstall() ? `<section class="sec"><div class="sec-head"><h2>The app</h2></div><p class="hint" style="margin-bottom:10px">Put Billd on your home screen and open it like an app.</p><button class="btn ghost" type="button" data-install>Install the app</button></section>` : ""}
@@ -2900,6 +2908,7 @@ function billdMain() {
     $("#st-out")?.addEventListener("click", logOut);
     $("#st-pw")?.addEventListener("submit", async (e) => { e.preventDefault(); try { await S.setPassword($("#st-pass").value); $("#st-pass").value = ""; toast("Password changed"); } catch (err) { toast(err.message); } });
     $("#st-delete")?.addEventListener("click", openDeleteAccount);
+    $("#st-tour")?.addEventListener("click", () => openTour(1));
     if ($("#st-blocks")) S.blocks().then((rows) => {
       const el = $("#st-blocks"); if (!el) return;
       blockedSet = new Set(rows.map((r) => r.blocked));
@@ -2976,7 +2985,7 @@ function billdMain() {
     form.onsubmit = async (e) => {
       e.preventDefault();
       const typed = $("#del-confirm")?.value.trim().replace(/^@/, "").toLowerCase();
-      if (typed !== word) return;
+      if (typed !== word) return note("#del-note", local ? "Type erase in the box to confirm." : `Type your username, ${word}, in the box to confirm.`, true);
       $("#del-go").disabled = true; note("#del-note", "");
       try {
         const planned = planKey();
@@ -3210,6 +3219,10 @@ function billdMain() {
     $("#pn-user").value = guess.length >= 3 ? guess : "";
     $("#pn-name").value = me.display_name || "";
     $("#pn-show").textContent = $("#pn-user").value || "yourname";
+    // the Terms box sits in this window: a member who joined with Google or Apple accepts them here, in one step.
+    // Never two windows at once: the one on top makes the other untouchable on a phone.
+    $("#pn-terms-f").hidden = !needsTerms(); $("#pn-terms").checked = false;
+    if ($("#termsd").open) $("#termsd").close();
     note("#pn-note", "");
     $("#pickname").showModal(); $("#pn-user").focus(); $("#pn-user").select();
   }
@@ -3219,12 +3232,18 @@ function billdMain() {
     e.preventDefault();
     const user = $("#pn-user").value.trim().toLowerCase();
     if (!/^[a-z0-9_]{3,20}$/.test(user) || /^member_[0-9a-f]{8}$/.test(user)) return note("#pn-note", "Usernames are 3 to 20 lowercase letters, numbers or _.", true);
+    // the Terms may have loaded after this window opened: ask for them here rather than let the save fail
+    const terms = needsTerms();
+    if (terms && $("#pn-terms-f").hidden) { $("#pn-terms-f").hidden = false; $("#pn-terms").checked = false; }
+    if (terms && !$("#pn-terms").checked) return note("#pn-note", "Tick the box to accept the Terms of Use and Community Guidelines.", true);
     $("#pn-go").disabled = true;
     try {
       if (!(await S.usernameFree(user))) return note("#pn-note", "That username is taken. Try another.", true);
+      if (terms) { await S.acceptTerms(termsState().version); me = S.me(); renderTermsBar(); }
       await S.updateProfile({ username: user, display_name: $("#pn-name").value.trim().slice(0, 50) || null });
       $("#pickname").close(); toast(`Welcome to Billd, ${$("#pn-name").value.trim() || cap(user)}`);
       if (location.hash.startsWith("#/u/")) location.hash = `#/u/${user}`;
+      setTimeout(maybeOfferTour, 900);
     } catch (err) { note("#pn-note", /duplicate|unique|23505/i.test(err.message + (err.code || "")) ? "That username is taken. Try another." : err.message, true); }
     finally { $("#pn-go").disabled = false; }
   });
@@ -3243,7 +3262,7 @@ function billdMain() {
         const r = await S.signUp(email, pass, user, $("#auth-name").value, terms.live ? terms.version : null);
         track("event", "signup");
         if (r.confirm) { note("#auth-note", "Almost there: open the link we emailed you to confirm your address, then log in.", false, true); return; }
-        $("#auth").close(); toast(`Welcome to Billd, ${$("#auth-name").value.trim() || cap(user)}`);
+        $("#auth").close(); toast(`Welcome to Billd, ${$("#auth-name").value.trim() || cap(user)}`); setTimeout(maybeOfferTour, 900);
       } else if (authMode === "reset") {
         await S.resetPassword(email); note("#auth-note", "If there's an account for that email, a reset link is on its way.", false, true); return;
       } else {
@@ -3316,19 +3335,70 @@ function billdMain() {
   const needsTerms = () => { const t = termsState(); return !!(me && S.kind !== "local" && t.live && t.version && me.terms_version !== t.version); };
   function renderTermsBar() {
     const el = $("#terms-bar");
+    // the username window shows the Terms box once they're known (they can load after it opened)
+    if ($("#pickname").open && needsTerms() && $("#pn-terms-f").hidden) { $("#pn-terms-f").hidden = false; $("#pn-terms").checked = false; }
     if (!needsTerms()) { el.hidden = true; el.innerHTML = ""; return; }
-    el.innerHTML = `<b>Please accept Billd's Terms of Use.</b> You can read everything, but you can't post, comment or follow until you do. <button class="linkbtn" type="button" data-terms-open>Read and accept</button>`;
+    el.innerHTML = S.needsUsername?.()
+      ? `<b>Finish joining Billd.</b> Choose your username and accept the Terms of Use to log, review and follow. <button class="linkbtn" type="button" data-terms-open>Finish</button>`
+      : `<b>Please accept Billd's Terms of Use.</b> You can read everything, but you can't post, comment or follow until you do. <button class="linkbtn" type="button" data-terms-open>Read and accept</button>`;
     el.hidden = false;
     // asked once a visit; the bar stays until they accept
     let asked = false; try { asked = sessionStorage.getItem("billd-terms-asked") === termsState().version; sessionStorage.setItem("billd-terms-asked", termsState().version); } catch (e) { /* ask */ }
-    if (!asked && !document.querySelector("dialog[open]")) openTerms();
+    // a member who still needs a username accepts in that window instead (maybePickName), in one step
+    if (!asked && !document.querySelector("dialog[open]") && !S.needsUsername?.()) openTerms();
   }
-  function openTerms() { $("#terms-agree").checked = false; note("#terms-note", ""); $("#termsd").showModal(); }
-  $("#terms-bar").addEventListener("click", (e) => { if (e.target.closest("[data-terms-open]")) openTerms(); });
+  // ---- the diary tour: how to keep a diary on Billd, in a few short steps. Offered once to a new member
+  // (after the username window), and any time from Settings. The same on the website and in the apps.
+  const TOUR_KEY = "billd-tour-offered";
+  const tourSteps = () => [
+    { t: "Welcome to your diary", b: `<p>Billd keeps every show you see in one place: what you saw, when and where, and what you thought.</p><p>Take a one-minute tour of how to keep it?</p>`, next: "Show me", back: "Not now" },
+    { t: "Log a show", b: `<p>Tap <b>${APP ? "the gold +" : "Log a show"}</b>${APP ? " at the bottom of the screen" : " (on a phone, the gold + at the bottom)"}, start typing the title and pick it from the list.</p><p>Billd knows tens of thousands of plays and musicals. If one is missing, suggest it from the same list.</p>` },
+    { t: "When and where", b: `<p>Add the date you saw it, and the theatre and city. Seen it before? Tick <b>I'd seen it before</b>.</p><p>Not sure of the exact date? Leave it blank and add it later.</p>` },
+    { t: "Rate and review", b: `<p>Give it stars, <b>Like</b> it if you loved it, and add a line or a full review. Tick <b>Contains spoilers</b> if it gives the ending away.</p><p>You choose who sees each entry: everyone, the people you follow, or only you.</p>` },
+    { t: "Plan ahead", b: `<p>Going to something? On the show's page, <b>Plan a date to see it</b> keeps the date${APP ? " and can remind you" : ""}, and can add it to your calendar.</p><p>Afterwards Billd asks how it was, so logging it takes a tap.</p>` },
+    { t: "Your diary", b: `<p>Everything you log is in your diary on your profile, newest first, with your ratings, reviews and lists.</p><p>You can download all of it from Settings at any time. Start with the last show you saw.</p>`, next: "Log my first show", back: "Done" },
+  ];
+  let tourAt = 0;
+  function drawTour() {
+    const steps = tourSteps(), s = steps[tourAt];
+    $("#tour-step").textContent = tourAt ? `${tourAt} of ${steps.length - 1}` : "New to Billd";
+    $("#tour-title").textContent = s.t; $("#tour-body").innerHTML = s.b;
+    $("#tour-dots").innerHTML = steps.slice(1).map((_, i) => `<li${i + 1 === tourAt ? ' class="on"' : ""}></li>`).join("");
+    $("#tour-dots").hidden = !tourAt;
+    $("#tour-next").textContent = s.next || "Next"; $("#tour-back").textContent = s.back || "Back";
+  }
+  function openTour(from = 1) {
+    try { localStorage.setItem(TOUR_KEY, "1"); } catch (e) { /* offered again next time */ }
+    for (const d of $$("dialog[open]")) if (d.id !== "tourd") d.close();
+    tourAt = from; drawTour(); if (!$("#tourd").open) $("#tourd").showModal();
+  }
+  $("#tour-next").addEventListener("click", () => {
+    if (tourAt < tourSteps().length - 1) { tourAt++; drawTour(); $("#tour-next").focus(); return; }
+    $("#tourd").close(); openLog(null);
+  });
+  $("#tour-back").addEventListener("click", () => {
+    if (tourAt === 0 || tourAt === tourSteps().length - 1) { $("#tourd").close(); return; }
+    tourAt--; drawTour();
+  });
+  // a member who joined in the last few days, has finished joining and hasn't been offered the tour yet
+  function maybeOfferTour() {
+    if (!me || S.kind === "local" || S.needsUsername?.() || needsTerms() || document.querySelector("dialog[open]")) return;
+    try { if (localStorage.getItem(TOUR_KEY)) return; } catch (e) { return; }
+    const joined = Date.parse(me.created_at || "");
+    if (!(Date.now() - joined < 3 * 864e5)) return;
+    openTour(0);
+  }
+
+  function openTerms() { if ($("#pickname").open) return; $("#terms-agree").checked = false; note("#terms-note", ""); $("#termsd").showModal(); }
+  // a member who still needs a username accepts in the username window (one window, one step)
+  $("#terms-bar").addEventListener("click", (e) => {
+    if (!e.target.closest("[data-terms-open]")) return;
+    if (S.needsUsername?.()) { askedName = false; maybePickName(); } else openTerms();
+  });
   $("#terms-form").addEventListener("submit", async (e) => {
     e.preventDefault();
     if (!$("#terms-agree").checked) return note("#terms-note", "Tick the box to accept.", true);
-    try { await S.acceptTerms(termsState().version); me = S.me(); $("#termsd").close(); renderTermsBar(); toast("Thank you. You're all set"); }
+    try { await S.acceptTerms(termsState().version); me = S.me(); $("#termsd").close(); renderTermsBar(); toast("Thank you. You're all set"); setTimeout(maybeOfferTour, 900); }
     catch (err) { note("#terms-note", err.message, true); }
   });
   function renderStanding() {
@@ -3951,7 +4021,7 @@ function billdMain() {
     try { dbSettings = S.kind !== "local" && !offline ? await S.settings() : {}; } catch (e) { dbSettings = {}; }
     S.setTermsVersion(termsState().live ? termsState().version : null);
     if (!offline) await Promise.all([loadTeam(), loadBlocks()]);
-    renderAcct(); renderStanding(); renderTermsBar(); renderSyncBar(); maybePickName();
+    renderAcct(); renderStanding(); renderTermsBar(); renderSyncBar(); maybePickName(); maybeOfferTour();
     try { myStatus = me ? await S.myStatuses() : {}; } catch (e) { myStatus = {}; }
     if (offline) return;
     try { (await S.popular(60)).forEach((r, i) => (popular[r.play_id] = 1000 - i)); } catch (e) { /* none yet */ }
@@ -3971,7 +4041,7 @@ function billdMain() {
   // web/auth/confirm.html verified a password-reset link and sent the member here
   try { if (sessionStorage.getItem("billd-recovery")) { sessionStorage.removeItem("billd-recovery"); setTimeout(() => toast("Choose a new password below"), 1200); } } catch (e) { /* storage blocked */ }
   S.onAuth(async (p) => {
-    me = p; followingSet = null; await Promise.all([loadTeam(), loadBlocks()]); renderAcct(); renderStanding(); renderTermsBar(); renderSyncBar(); maybePickName();
+    me = p; followingSet = null; await Promise.all([loadTeam(), loadBlocks()]); renderAcct(); renderStanding(); renderTermsBar(); renderSyncBar(); maybePickName(); maybeOfferTour();
     try { myStatus = me ? await S.myStatuses() : {}; } catch (e) { myStatus = {}; }
     if (D) { if (FACETS.length) totals(); route(); }
   });

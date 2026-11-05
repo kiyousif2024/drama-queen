@@ -186,12 +186,29 @@
       <input id="pn-name" autocomplete="name" maxlength="50" autocapitalize="words">
       <p class="hint">How it's shown on your reviews. You can change both later in Settings.</p>
     </div>
+    <!-- shown when the Terms are live and this member hasn't accepted them yet (Google or Apple sign-up) -->
+    <div class="terms-ok" id="pn-terms-f" hidden>
+      <input type="checkbox" id="pn-terms">
+      <label for="pn-terms">I agree to Billd's <a href="#/terms" target="_blank" rel="noopener">Terms of Use</a> and <a href="#/guidelines" target="_blank" rel="noopener">Community Guidelines</a>, and I've read the <a href="#/privacy" target="_blank" rel="noopener">Privacy Policy</a>.</label>
+    </div>
     <p class="note" id="pn-note" role="status" aria-live="polite" hidden></p>
     <div class="acts">
       <button class="linkbtn" type="button" id="pn-later">Later</button>
       <button class="btn" type="submit" id="pn-go">Save</button>
     </div>
   </form>
+</dialog>
+
+<!-- The diary tour: offered once to a new member, and any time from Settings (app.js, the diary tour) -->
+<dialog class="dlg tour" id="tourd" aria-labelledby="tour-title">
+  <p class="tour-step" id="tour-step"></p>
+  <h2 id="tour-title"></h2>
+  <div class="tour-body" id="tour-body"></div>
+  <ol class="tour-dots" id="tour-dots" aria-hidden="true"></ol>
+  <div class="acts">
+    <button class="linkbtn" type="button" id="tour-back"></button>
+    <button class="btn" type="button" id="tour-next"></button>
+  </div>
 </dialog>
 
 <!-- Log a performance / write a review -->

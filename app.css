@@ -49,6 +49,11 @@
 
 * { box-sizing: border-box; }
 html { -webkit-text-size-adjust: 100%; }
+/* Never pan sideways: anything a little wider than the screen (a full-bleed band, a shadow, a long word)
+   is clipped instead of letting the whole page slide left and right on a phone, which iOS does even
+   when the overhang is a few pixels. "clip", unlike "hidden", keeps position: sticky working. */
+html, body { overflow-x: clip; }
+@supports not (overflow-x: clip) { html, body { overflow-x: hidden; } }
 body {
   margin: 0; min-height: 100vh; background: var(--bg); color: var(--ink);
   font: 16px/1.5 var(--font-ui); -webkit-font-smoothing: antialiased;
@@ -1275,3 +1280,16 @@ input:focus, textarea:focus, select:focus { border-bottom-color: var(--gold); ou
 .tr-w { width: 30%; }
 .tr-w i { display: block; height: 8px; min-width: 2px; border-radius: 4px; background: var(--gold); opacity: 0.6; }
 .tr-sec .hint code, #adm > .hint code { overflow-wrap: anywhere; }
+
+/* "Nothing logged yet" in the home page's diary row spans the row instead of sitting in one column */
+.scraps > .empty { grid-column: 1 / -1; padding: 6px 0; }
+
+/* the diary tour (app.js) */
+.tour .tour-step { margin: 0 0 6px; font-size: 12.5px; font-weight: 700; letter-spacing: .08em; text-transform: uppercase; color: var(--muted); }
+.tour .tour-body { margin-top: 12px; font-size: 16px; line-height: 1.55; }
+.tour .tour-body p { margin: 0 0 10px; }
+.tour .tour-dots { display: flex; gap: 6px; list-style: none; padding: 0; margin: 14px 0 18px; }
+.tour .tour-dots li { width: 8px; height: 8px; border-radius: 50%; background: var(--line); }
+.tour .tour-dots li.on { background: var(--gold); }
+.tour .tour-dots[hidden] { display: none; }
+.tour .acts { margin-top: 8px; }
