@@ -594,7 +594,7 @@ function billdMain() {
     if (e.target.closest("[data-log]")) openLog(null);
   });
   $("#tab-log").addEventListener("click", () => openLog(null));
-  if (matchMedia("(max-width: 420px)").matches) $("#q").placeholder = "Search shows";
+  if (matchMedia("(max-width: 600px)").matches) $("#q").placeholder = "Search shows";
   $("#search-form").addEventListener("submit", (e) => { e.preventDefault(); goSearch($("#q").value); });
   let qt;
   $("#q").addEventListener("input", (e) => { clearTimeout(qt); qt = setTimeout(() => goSearch(e.target.value, true), 160); });

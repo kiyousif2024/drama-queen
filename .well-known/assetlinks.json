@@ -5,7 +5,8 @@
       "namespace": "android_app",
       "package_name": "theater.billd.app",
       "sha256_cert_fingerprints": [
-        "TODO:PLAY_APP_SIGNING_KEY_SHA256_FROM_PLAY_CONSOLE_SEE_DOCS_APP_BUILD_MD"
+        "5F:05:BF:0F:78:DA:EE:F3:29:67:00:E0:75:54:5B:65:9B:3D:BE:D4:A1:AA:F2:05:7F:07:FD:11:E1:C8:C5:05",
+        "56:23:22:15:8D:68:91:05:CB:4D:40:1A:E7:3F:39:E5:F2:4C:40:ED:9D:2E:09:9F:F8:ED:FF:6C:35:AC:65:F2"
       ]
     }
   }

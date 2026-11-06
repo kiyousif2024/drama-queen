@@ -617,8 +617,8 @@ legend { padding: 0; margin-bottom: 8px; }
   .top-in { gap: 8px 12px; padding: 8px 16px 0; flex-wrap: wrap; }
   .nav { order: 9; flex-basis: 100%; overflow-x: auto; scrollbar-width: none; margin: 0 -16px; padding: 0 12px 6px; }
   .nav a { padding: 9px 11px; white-space: nowrap; }
-  .search { order: 2; }
-  .acct { order: 3; }
+  .search { order: 2; flex: 1 1 0; }  /* shrinks so a guest's Join button stays on the logo's line */
+  .acct { order: 3; flex: none; }
   .logo-word { font-size: 22px; }
   .acct .btn.ghost { display: none; }
   .wrap { padding: 0 16px; }
@@ -688,9 +688,13 @@ legend { padding: 0; margin-bottom: 8px; }
   .hero { padding-top: 34px; }
 }
 @media (max-width: 420px) {
-  .search input { font-size: 16px; }  /* no zoom on focus in iOS */
-  input:not([type=checkbox]):not([type=radio]), textarea { font-size: 16px; }
   .favs { gap: 8px; }
+}
+/* iOS zooms in on any text box under 16px when it's tapped, and stays zoomed after the box closes
+   (an iPhone 16 Pro Max is 440 wide, so a width test misses it): 16px on every touch screen */
+@media (max-width: 420px), (pointer: coarse) {
+  .search input, input:not([type=checkbox]):not([type=radio]), textarea, select { font-size: 16px; }
+  .facet-find { font-size: 16px !important; }
 }
 @media (prefers-reduced-motion: reduce) { .spot { animation: none; } }
 
