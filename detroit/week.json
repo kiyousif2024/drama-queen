@@ -1,1770 +1,1992 @@
 {
- "days": [
-  {
-   "date": "2026-11-20",
-   "events": [
-    {
-     "venue": "The Magic Bag @Ferndale",
-     "title": "Lee Emi (Emilee Petersmark of The Crane Wives) w/ Cal in Red",
-     "time": null,
-     "source": "https://www.themagicbag.com/magicbag-concerts-calendar"
-    },
-    {
-     "venue": "Motor City Wine @Corktown",
-     "title": "Michael Malis Quartet",
-     "time": "8:00pm",
-     "source": "https://semja.org/webcal/day.php?date=20261120"
-    },
-    {
-     "venue": "Dirty Dog Jazz Café @Grosse Pointe Farms",
-     "title": "Brendon Linsley Band",
-     "time": "6:30pm",
-     "source": "https://semja.org/webcal/day.php?date=20261120"
-    },
-    {
-     "venue": "Meadow Brook Theatre @Rochester",
-     "title": "A Christmas Carol (opening night; through Dec 24)",
-     "time": "7:00pm",
-     "source": "https://mbtheatre.com/season-calendar"
-    },
-    {
-     "venue": "Tipping Point Theatre @Northville",
-     "title": "The Wickhams: Christmas at Pemberley (preview)",
-     "time": null,
-     "source": "https://www.tippingpointtheatre.com/season-19/wickhams"
-    },
-    {
-     "venue": "TV Lounge @Midtown",
-     "title": "Wax On Wax Off",
-     "time": "9:00pm",
-     "source": "https://app.discotech.me/events/38316620-wax-on-wax-off-at-tv-lounge"
-    },
-    {
-     "venue": "Deluxx Fluxx @Downtown",
-     "title": "No Service w/ Houseparty",
-     "time": "9:00pm",
-     "source": "https://app.discotech.me/events/38284662-no-service-with-houseparty-at-deluxx-fluxx"
-    },
-    {
-     "venue": "Detroit Historical Society @Springfield Township Library",
-     "title": "Lecture: Detroit Lions and the Early NFL",
-     "time": "4:00-5:00pm",
-     "source": "https://www.detroithistorical.org/events/lecture-detroit-lions-and-early-nfl-15"
-    },
-    {
-     "venue": "Campus Martius Park @Downtown",
-     "title": "23rd Annual Detroit Tree Lighting (free): Olympic ice dancers Madison Chock & Evan Bates, Soulidified, Detroit Opera, Santa's countdown; food trucks on Monroe St",
-     "time": "4:00-9:00pm",
-     "source": "https://wrif.com/2026/11/06/detroit-tree-lighting-kicks-off-holiday-season-with-spectacular-festivities-and-live-performances/"
-    },
-    {
-     "venue": "Nick Gilbert Way @Downtown",
-     "title": "Holidays at Nick Gilbert Way: holiday vendors, carousel, photo spots (Tree Lighting hours)",
-     "time": "2:00-7:00pm",
-     "source": "https://www.deckedoutdetroit.com/holidays-nick-gilbert-way",
-     "tag": "food"
-    },
-    {
-     "venue": "Hudson's Detroit @Downtown",
-     "title": "Winter Wonders at Entrance One: free photos with Santa (Tree Lighting hours)",
-     "time": "2:00-7:00pm",
-     "source": "https://www.deckedoutdetroit.com/winter-wonders-at-entrance-one"
-    },
-    {
-     "venue": "Cadillac Square @Downtown",
-     "title": "Downtown Detroit Markets: holiday market (early close for Tree Lighting)",
-     "time": "11:00am-4:00pm",
-     "source": "https://www.deckedoutdetroit.com/detroit-markets",
-     "tag": "food"
-    },
-    {
-     "venue": "Centennial Commons @Royal Oak",
-     "title": "Royal Oak Holidays: Lighting of the Park (7pm), Rink at Royal Oak season opening, Thornetta Davis, Santa, free rides with food donation",
-     "time": "4:00-9:00pm",
-     "source": "https://www.royaloakholidays.com/grand-opening"
-    },
-    {
-     "venue": "Royal Oak Farmers Market @Royal Oak",
-     "title": "Royal Oak Market: Art Fair Edition (free, indoor, juried artists; final day)",
-     "time": "11:00am-9:00pm",
-     "source": "https://www.theguild.org/fair/royal-oak-market-art-fair/",
-     "tag": "food"
-    },
-    {
-     "venue": "Twelve Mile Crossing at Fountain Walk @Novi",
-     "title": "Light the Lights: tree lighting & fireworks at 7pm",
-     "time": "6:00-9:00pm",
-     "source": "https://cityofnovi.org/lightthelights/"
-    },
-    {
-     "venue": "Downtown Northville @Northville",
-     "title": "Hometown Holiday: Holiday Lighted Parade (6:30pm) & Tree Lighting in Town Square (7:45pm)",
-     "time": "6:30pm",
-     "source": "https://www.northville.org/holiday-lighted-parade"
-    },
-    {
-     "venue": "The Village of Rochester Hills @Rochester Hills",
-     "title": "Light the Village: Santa's arrival 7pm, fireworks 7:15pm, free Santa visits",
-     "time": "6:00-9:00pm",
-     "source": "https://www.thevorh.com/events"
-    },
-    {
-     "venue": "Downtown Auburn Hills @Auburn Hills",
-     "title": "Holiday Tree Lighting Ceremony",
-     "time": "6:00-9:00pm",
-     "source": "https://www.auburnhills.org/residents/things-to-do/annual-events/tree-lighting-ceremony/"
-    },
-    {
-     "venue": "Downtown Wyandotte @Wyandotte",
-     "title": "Wyandotte Tree Lighting (at dusk)",
-     "time": null,
-     "source": "https://mymichiganbeach.com/michigan-christmas-tree-lightings/"
-    },
-    {
-     "venue": "The War Memorial @Grosse Pointe Farms",
-     "title": "Arias After Dark: Detroit Opera Resident Artists with dessert & wine pairings ($50/$70)",
-     "time": "7:30pm",
-     "source": "https://warmemorial.org/events/ariasafterdark"
-    },
-    {
-     "venue": "Anton Art Center @Mount Clemens",
-     "title": "Holiday Market: Downtown Open House (open late)",
-     "time": "10:00am-8:00pm",
-     "source": "https://theartcenter.org/holiday-market",
-     "tag": "food"
-    },
-    {
-     "venue": "City Hall Artspace Lofts @Dearborn",
-     "title": "Winter Breeze: Art & Cultural Market (free; makers, food, live music; Fridays)",
-     "time": "4:00-8:00pm",
-     "source": "https://happeningnext.com/event/winter-breeze-eid3a0e7rf1vv",
-     "tag": "food"
-    },
-    {
-     "venue": "Glenlore Trails @Commerce Township",
-     "title": "Aurora: Winter Wizards holiday light trail, opening night (timed tickets)",
-     "time": null,
-     "source": "https://www.glenloretrails.com/aurora/"
-    },
-    {
-     "venue": "Detroit Shipping Co.",
-     "title": "Hennessy Courtside: Pop-A-Shot event",
-     "time": "5:30-7:30pm",
-     "source": "https://www.detroitshippingcompany.com/events-calendar/2026/11/20/hennessy-courtside-pop-a-shot-event"
-    },
-    {
-     "venue": "Valade Park @The Riverwalk",
-     "title": "Motor City Mug Club: free coffee meetup (bring your own mug)",
-     "time": "7:00-8:45am",
-     "source": "https://www.detroitriverfront.org/events/calendar/2026/11/20/motor-city-mug-club"
-    },
-    {
-     "venue": "Hines Park @Westland",
-     "title": "Wayne County Lightfest drive-through holiday lights (Wed-Sun through Dec 24)",
-     "time": "6:00-10:00pm",
-     "source": "https://www.waynecountymi.gov/Parks-Recreation/Special-Events-and-Programs/Wayne-County-Lightfest"
-    },
-    {
-     "venue": "Valade Park @The Riverwalk",
-     "title": "Motor City Mug Club (morning coffee meetup)",
-     "time": "7:00-8:45am",
-     "source": "https://www.detroitriverfront.org/events/calendar/2026/11/20/motor-city-mug-club"
-    },
-    {
-     "venue": "Detroit Institute of Arts",
-     "title": "Big Picture Guided Tour (free)",
-     "time": "1:00pm",
-     "source": "https://dia.org/events/big-picture-guided-tour"
-    },
-    {
-     "venue": "Detroit Institute of Arts",
-     "title": "Community Opening Party: new Modern & Contemporary Galleries, DJ Waajeed, performances, films (free, register for timed entry)",
-     "time": "6:00-10:00pm",
-     "source": "https://dia.org/events/modern-and-contemporary-reopening-member-reception"
-    },
-    {
-     "venue": "Henry Ford Museum",
-     "title": "Holidays at The Henry Ford open: Lionel holiday train, LEGO display, decorated dollhouses (through Jan 3)",
-     "time": "9:30am-5:00pm",
-     "source": "https://www.thehenryford.org/visit/things-to-do/calendar/holidays-at-the-henry-ford"
-    },
-    {
-     "venue": "Henry Ford Museum",
-     "title": "Celebrate Indigenous History (through Nov 30)",
-     "time": "9:30am-5:00pm",
-     "source": "https://www.thehenryford.org/visit/things-to-do/calendar/celebrate-indigenous-history"
-    },
-    {
-     "venue": "Henry Ford Museum",
-     "title": "Free Guided Tour: 250 Years of American Innovation (Museum Plaza)",
-     "time": "1:00pm",
-     "source": "https://www.thehenryford.org/visit/things-to-do/calendar/celebrate-indigenous-history"
-    },
-    {
-     "venue": "Fox Theatre",
-     "title": "Little Big Town: For The Art Of It Tour w/ Mae Estes",
-     "time": "7:30pm",
-     "source": "https://www.313presents.com/events/detail/little-big-town"
-    },
-    {
-     "venue": "Fisher Theatre",
-     "title": "The Great Gatsby (Broadway tour)",
-     "time": "7:30pm",
-     "source": "https://www.etickets.com/theater/musical-play/the-great-gatsby-theatrical-production/detroit-mi/161776-727/d"
-    },
-    {
-     "venue": "DSO @Orchestra Hall",
-     "title": "Legends: The Paul Simon Songbook (Jeff Tyzik, conductor)",
-     "time": "10:45am",
-     "source": "https://www.dso.org/events-and-tickets/events/26-27-fall/the-paul-simon-songbook"
-    },
-    {
-     "venue": "Cranbrook",
-     "title": "Frank Lloyd Wright Smith House Tour (registration closed)",
-     "time": "1:00pm",
-     "source": "https://center.cranbrook.edu/events/2026-11/frank-lloyd-wright-smith-house-tour-14"
-    },
-    {
-     "venue": "Cranbrook",
-     "title": "Saarinen House Tour (registration closed)",
-     "time": "3:00pm",
-     "source": "https://center.cranbrook.edu/events/2026-11/saarinen-house-tour-9"
-    },
-    {
-     "venue": "Cranbrook Institute of Science @Bloomfield Hills",
-     "title": "$5 Fridays (open late)",
-     "time": "5:00-10:00pm",
-     "source": "https://science.cranbrook.edu/visit/events/2026-11/5-fridays"
-    },
-    {
-     "venue": "Pewabic Uncovered @Guardian Building",
-     "title": "Pewabic tile tour",
-     "time": "5:00-6:00pm",
-     "source": "https://www.pewabic.org/products/guardian-building-tour-11-20-2026-5-pm-6-pm"
-    },
-    {
-     "venue": "Pewabic Pottery",
-     "title": "Friday Tile Glazing Workshop (sold out)",
-     "time": "5:00pm",
-     "source": "https://www.pewabic.org/products/friday-tile-glazing-workshop-11-20-26-5-pm-6-pm"
-    },
-    {
-     "venue": "Saint Andrew's Hall",
-     "title": "Catch Your Breath: Not Broken Enough Tour",
-     "time": null,
-     "source": "https://www.saintandrewsdetroit.com/shows"
-    },
-    {
-     "venue": "Majestic Theatre",
-     "title": "Madeon presents Victory Live w/ Anamanaguchi (18+)",
-     "time": "8:00pm",
-     "source": "https://www.majesticdetroit.com/events/detail/madeon-1433047"
-    },
-    {
-     "venue": "Magic Stick @Majestic",
-     "title": "Riot Ten",
-     "time": "9:00pm",
-     "source": "https://www.majesticdetroit.com/events/detail/riot-ten-1631925"
-    },
-    {
-     "venue": "El Club",
-     "title": "Kalysta Presents: Midnight Special",
-     "time": null,
-     "source": "https://app.discotech.me/events/38292487-kalysta-presents-midnight-special-at-el-club"
-    },
-    {
-     "venue": "Baker's Keyboard Lounge",
-     "title": "Ralphe Armstrong Trio w/ Gerard Gibbs & Brandon Williams",
-     "time": "7:00pm & 9:30pm",
-     "source": "https://semja.org/webcal/day.php?date=20261120"
-    },
-    {
-     "venue": "Blue LLama @Ann Arbor",
-     "title": "Dave Stryker w/ Kzoo Jazz Project",
-     "time": "7:00pm & 9:00pm",
-     "source": "https://semja.org/webcal/day.php?date=20261120"
-    },
-    {
-     "venue": "Open Book Theatre @Trenton",
-     "title": "The Woman in Black",
-     "time": "8:00pm",
-     "source": "https://app.arts-people.com/index.php?ticketing=obtc&show=329664"
-    },
-    {
-     "venue": "Russell Industrial Center @Milwaukee Junction",
-     "title": "it's murph: Fade Into Nothing Tour",
-     "time": "9:00pm",
-     "source": "https://app.discotech.me/events/38273736-its-murph-fade-into-nothing-tour-at-russell-industrial-center"
-    },
-    {
-     "venue": "Marble Bar",
-     "title": "ORBIT 002: Noncompliant, Flange, sina, AIDEL, Adri, Duck Trash",
-     "time": "9:00pm",
-     "source": "https://app.discotech.me/events/38303195-orbit-002-noncompliant-flange-sina-aidel-adri-duck-trash-at-marble-bar"
-    },
-    {
-     "venue": "Elektricity @Pontiac",
-     "title": "Sodown: Scenes of Consciousness",
-     "time": "9:00pm",
-     "source": "https://app.discotech.me/events/38263698-sodown-scenes-of-consciousness-at-elektricity"
-    },
-    {
-     "venue": "Big Pink",
-     "title": "2016 Night: Club Throwbacks (DJ Kdirty + Celex the DJ)",
-     "time": "10:00pm",
-     "source": "https://app.discotech.me/events/38314551-2016-night-club-throwbacks-dj-kdirty-celex-the-dj-at-big-pink"
-    },
-    {
-     "venue": "Lincoln Factory",
-     "title": "Big A** Party",
-     "time": "10:00pm",
-     "source": "https://app.discotech.me/events/38316596-big-a-party-at-lincoln-factory"
-    },
-    {
-     "venue": "Spkrbox",
-     "title": "Nonstop Dancing",
-     "time": "10:00pm",
-     "source": "https://app.discotech.me/events/38322128-nonstop-dancing-at-spkrbox"
-    },
-    {
-     "venue": "Camp Dearborn @Milford",
-     "title": "MI Bright Lights drive-through light show (nightly through Dec 30)",
-     "time": "6:00-10:00pm",
-     "source": "https://dearborn.gov/events/2026/11/20/mi-bright-lights-camp-dearborn"
-    },
-    {
-     "venue": "Mark Ridley's Comedy Castle",
-     "title": "Erica Rhodes",
-     "time": "7:15pm & 9:45pm",
-     "source": "https://www.comedycastle.com/events/category/series/erica-rhodes/mark-ridleys-comedy-castle/royal-oak/"
-    },
-    {
-     "venue": "Mic Drop Comedy",
-     "title": "Dustin Nickerson",
-     "time": "7:00pm & 9:30pm",
-     "source": "https://theater.guide/events/dustin-nickerson/"
-    },
-    {
-     "venue": "The Comedy Bar",
-     "title": "Ed Bassmaster",
-     "time": "7:00pm",
-     "source": "https://theater.guide/event/ed-bassmaster-detroit-friday-november-20-2026-700-pm/?pid=6618"
-    },
-    {
-     "venue": "Royal Oak Music Theatre",
-     "title": "Trivium: Crown in the Grave World Tour w/ In Flames, Orbit Culture, Frozen Soul",
-     "time": "5:30pm",
-     "source": "https://www.royaloakmusictheatre.com/events/detail/1525432"
-    },
-    {
-     "venue": "Sound Board @MotorCity Casino",
-     "title": "Boney James",
-     "time": "7:30pm",
-     "source": "https://www.313presents.com/events/detail/boney-james-2"
-    },
-    {
-     "venue": "Cliff Bell's",
-     "title": "Anthony Stanco Quartet",
-     "time": "7:30pm",
-     "source": "https://cliffbells.com/event/anthony-stanco-quartet-5-3/"
-    },
-    {
-     "venue": "Pistons @Little Caesar's Arena",
-     "title": "vs Toronto Raptors (NBA Cup)",
-     "time": "7:30pm",
-     "source": "https://www.cbssports.com/nba/teams/DET/detroit-pistons/schedule/"
-    },
-    {
-     "venue": "Ford Field",
-     "title": "Hob Nobble Gobble: the Parade Company's gala kicking off the 100th America's Thanksgiving Parade (sold out)",
-     "time": null,
-     "source": "https://theparade.org/hob-nobble-gobble"
-    }
-   ]
-  },
-  {
-   "date": "2026-11-21",
-   "events": [
-    {
-     "venue": "The Magic Bag @Ferndale",
-     "title": "80s vs. 90s Party: Mega 80s vs. Class of '98",
-     "time": null,
-     "source": "https://www.themagicbag.com/magicbag-concerts-calendar"
-    },
-    {
-     "venue": "Motor City Wine @Corktown",
-     "title": "Jesse Kramer Trio",
-     "time": "8:00pm",
-     "source": "https://semja.org/webcal/day.php?date=20261121"
-    },
-    {
-     "venue": "Dirty Dog Jazz Café @Grosse Pointe Farms",
-     "title": "Brendon Linsley Band",
-     "time": "6:30pm",
-     "source": "https://semja.org/webcal/day.php?date=20261121"
-    },
-    {
-     "venue": "Meadow Brook Theatre @Rochester",
-     "title": "A Christmas Carol",
-     "time": "2:00pm & 6:30pm",
-     "source": "https://mbtheatre.com/season-calendar"
-    },
-    {
-     "venue": "Tipping Point Theatre @Northville",
-     "title": "The Wickhams: Christmas at Pemberley (opens; through Dec 13)",
-     "time": null,
-     "source": "https://www.tippingpointtheatre.com/season-19/wickhams"
-    },
-    {
-     "venue": "TV Lounge @Midtown",
-     "title": "Paxahau Presents: Eli Escobar",
-     "time": "9:00pm",
-     "source": "https://app.discotech.me/events/38294492-paxahau-presents-eli-escobar-at-tv-lounge"
-    },
-    {
-     "venue": "Deluxx Fluxx @Downtown",
-     "title": "Real Vibes Only w/ DJ Carter",
-     "time": "9:00pm",
-     "source": "https://app.discotech.me/events/38284663-real-vibes-only-with-dj-carter-at-deluxx-fluxx"
-    },
-    {
-     "venue": "Library Street Collective @The Shepherd",
-     "title": "Tyree Guyton: Everlasting Life (final day)",
-     "time": null,
-     "source": "https://lscgallery.com/?p=7828"
-    },
-    {
-     "venue": "Detroit Zoo @Royal Oak",
-     "title": "Wild Lights opening night (through Jan 3)",
-     "time": "5:00-10:30pm",
-     "source": "https://detroitzoo.org/events/wild-lights/"
-    },
-    {
-     "venue": "Campus Martius Park @Downtown",
-     "title": "The Rink at Campus Martius opens for the 2026-27 season",
-     "time": "11:00am-12:00am",
-     "source": "https://downtowndetroit.org/experience-downtown/things-to-do/the-rink"
-    },
-    {
-     "venue": "Campus Martius Park @Downtown",
-     "title": "Rink opening weekend: Ugly Holiday Sweater Skate Party",
-     "time": "6:00-11:00pm",
-     "source": "https://www.metroparent.com/things-to-do/glide-into-winter-fun-at-campus-martius-parks-rink-3b07f878"
-    },
-    {
-     "venue": "Beacon Park @Downtown",
-     "title": "Light Up Beacon Park Holiday Extravaganza: 20ft tree lighting, Santa, live reindeer",
-     "time": "6:00-10:00pm",
-     "source": "https://www.eventbrite.com/e/light-up-beacon-park-2026-holiday-extravaganza-tickets-2003527868789"
-    },
-    {
-     "venue": "Nick Gilbert Way @Downtown",
-     "title": "Holidays at Nick Gilbert Way: holiday vendors, carousel, photo spots",
-     "time": "12:00-8:00pm",
-     "source": "https://www.deckedoutdetroit.com/holidays-nick-gilbert-way",
-     "tag": "food"
-    },
-    {
-     "venue": "Hudson's Detroit @Downtown",
-     "title": "Winter Wonders at Entrance One: free photos with Santa",
-     "time": "12:00-8:00pm",
-     "source": "https://www.deckedoutdetroit.com/winter-wonders-at-entrance-one"
-    },
-    {
-     "venue": "Cadillac Square @Downtown",
-     "title": "Downtown Detroit Markets: holiday market (Wed-Sun through Jan 3)",
-     "time": "11:00am-10:00pm",
-     "source": "https://www.deckedoutdetroit.com/detroit-markets",
-     "tag": "food"
-    },
-    {
-     "venue": "Holly Trolley @Downtown",
-     "title": "Holly Trolley: free holiday trolley (Nick Gilbert Way, Campus Martius, Book Tower, Capitol Park)",
-     "time": "12:00-8:00pm",
-     "source": "https://www.deckedoutdetroit.com/holly-trolley"
-    },
-    {
-     "venue": "Michigan Central @Corktown",
-     "title": "Winter at The Station opens (free): live performances by Evening Star, Sketch Bot photos",
-     "time": "1:00pm & 3:00pm",
-     "source": "https://michigancentral.com/event/winter-at-the-station/"
-    },
-    {
-     "venue": "Royal Oak Farmers Market @Royal Oak",
-     "title": "Farmers Market",
-     "time": "7:00am-1:00pm",
-     "source": "https://www.romi.gov/1533/Farmers-Market",
-     "tag": "food"
-    },
-    {
-     "venue": "Detroit Zoo @Royal Oak",
-     "title": "Wild Lights opening night (advance tickets)",
-     "time": "5:00-10:30pm",
-     "source": "https://detroitzoo.org/events/wild-lights/"
-    },
-    {
-     "venue": "Downtown Northville @Northville",
-     "title": "Hometown Holiday: Greens Market, Handmade Market & free Santa visits (noon-6pm)",
-     "time": "10:00am-6:00pm",
-     "source": "https://www.northville.org/holiday-lighted-parade",
-     "tag": "food"
-    },
-    {
-     "venue": "Downtown Mount Clemens @Mount Clemens",
-     "title": "Mount Clemens Santa Parade",
-     "time": "10:00am",
-     "source": "https://www.oaklandcountymoms.com/weekend-events-metro-detroit-26719/"
-    },
-    {
-     "venue": "Anton Art Center @Mount Clemens",
-     "title": "Holiday Market (opens early for the Santa Parade)",
-     "time": "8:00am-5:00pm",
-     "source": "https://theartcenter.org/holiday-market",
-     "tag": "food"
-    },
-    {
-     "venue": "Downtown Wyandotte @Wyandotte",
-     "title": "83rd Annual Wyandotte Christmas Parade",
-     "time": "10:00am",
-     "source": "https://mymichiganbeach.com/michigan-christmas-tree-lightings/"
-    },
-    {
-     "venue": "Royal Oak High School @Royal Oak",
-     "title": "Arts & Crafts Market ($5)",
-     "time": "10:00am-4:00pm",
-     "source": "https://www.oaklandcountymoms.com/weekend-events-metro-detroit-26719/",
-     "tag": "food"
-    },
-    {
-     "venue": "Glenlore Trails @Commerce Township",
-     "title": "Aurora: Winter Wizards holiday light trail (timed tickets)",
-     "time": null,
-     "source": "https://www.glenloretrails.com/aurora/"
-    },
-    {
-     "venue": "Hines Park @Westland",
-     "title": "Wayne County Lightfest drive-through light show (Wed-Sun through Dec 24)",
-     "time": "6:00-10:00pm",
-     "source": "https://www.oaklandcountymoms.com/metro-detroit-christmas-light-shows-111771/"
-    },
-    {
-     "venue": "Detroit Historical Museum",
-     "title": "Detroit Bourbon Fest: 100+ bourbons & whiskeys, food, live music ($35 GA / $95 VIP)",
-     "time": "4:00-6:30pm & 7:00-9:30pm",
-     "source": "https://detroitbourbonfest.com/",
-     "tag": "food"
-    },
-    {
-     "venue": "Eastern Market",
-     "title": "Saturday Market",
-     "time": "6:00am-4:00pm",
-     "source": "https://easternmarket.org/events/saturday-market/2026-11-21/",
-     "tag": "food"
-    },
-    {
-     "venue": "Detroit Institute of Arts",
-     "title": "Big Picture Guided Tour (free)",
-     "time": "1:00pm",
-     "source": "https://dia.org/events/big-picture-guided-tour"
-    },
-    {
-     "venue": "Henry Ford Museum",
-     "title": "Holidays at The Henry Ford: Lionel holiday train, LEGO display, decorated dollhouses (through Jan 3)",
-     "time": "9:30am-5:00pm",
-     "source": "https://www.thehenryford.org/visit/things-to-do/calendar/holidays-at-the-henry-ford"
-    },
-    {
-     "venue": "Henry Ford Museum",
-     "title": "Celebrate Indigenous History (through Nov 30)",
-     "time": "9:30am-5:00pm",
-     "source": "https://www.thehenryford.org/visit/things-to-do/calendar/celebrate-indigenous-history"
-    },
-    {
-     "venue": "Fox Theatre",
-     "title": "Los Tigres del Norte: Los Tigres del Mundo",
-     "time": "8:00pm",
-     "source": "https://www.313presents.com/events/detail/los-tigres-del-norte"
-    },
-    {
-     "venue": "Fisher Theatre",
-     "title": "The Great Gatsby (Broadway tour)",
-     "time": "2:00pm & 7:30pm",
-     "source": "https://www.etickets.com/theater/musical-play/the-great-gatsby-theatrical-production/detroit-mi/161776-727/d"
-    },
-    {
-     "venue": "DSO @Orchestra Hall",
-     "title": "Legends: The Paul Simon Songbook (Jeff Tyzik, conductor)",
-     "time": "8:00pm",
-     "source": "https://www.etickets.com/concerts/classical/the-paul-simon-songbook/detroit-mi/154147-1253/d"
-    },
-    {
-     "venue": "Music Hall",
-     "title": "Harvest Moon (presented by Hollywood Casino at Greektown)",
-     "time": "8:00pm",
-     "source": "https://www.musichall.org/shows-events/harvest-moon"
-    },
-    {
-     "venue": "Cranbrook",
-     "title": "Chanoyu: The Japanese Way of Tea (register)",
-     "time": "10:00am, 11:45am, 2:00pm & 3:45pm",
-     "source": "https://center.cranbrook.edu/events/2026-11/%E8%8C%B6%E3%81%AE%E6%B9%AF-chanoyu-japanese-way-tea-1"
-    },
-    {
-     "venue": "Cranbrook",
-     "title": "Saarinen House Tour",
-     "time": "3:00pm",
-     "source": "https://center.cranbrook.edu/events/2026-11/saarinen-house-tour-10"
-    },
-    {
-     "venue": "Pewabic Pottery",
-     "title": "Saturday Tile Glazing Workshop (sold out)",
-     "time": "1:00pm",
-     "source": "https://www.pewabic.org/products/saturday-tile-glazing-workshop-11-21-26-1-pm-2-pm"
-    },
-    {
-     "venue": "Scarab Club",
-     "title": "113th Annual Gold Medal Exhibition: reception + talk (free)",
-     "time": "2:00pm",
-     "source": "https://www.eventbrite.com/e/113th-annual-gold-medal-exhibition-reception-talk-tickets-2004802448090"
-    },
-    {
-     "venue": "Saint Andrew's Hall",
-     "title": "Yung Gravy: The Joyrider Tour",
-     "time": null,
-     "source": "https://www.saintandrewsdetroit.com/shows"
-    },
-    {
-     "venue": "Magic Stick @Majestic",
-     "title": "Insomnium & Amorphis w/ Hinayana",
-     "time": "6:30pm",
-     "source": "https://www.majesticdetroit.com/events/detail/insomnium-amorphis-1582182"
-    },
-    {
-     "venue": "El Club",
-     "title": "ADULT. & A Place To Bury Strangers",
-     "time": null,
-     "source": "https://app.discotech.me/events/38205700-adult-and-a-place-to-bury-strangers-at-el-club"
-    },
-    {
-     "venue": "Baker's Keyboard Lounge",
-     "title": "Ralphe Armstrong Trio w/ Gerard Gibbs & Brandon Williams",
-     "time": "7:00pm & 9:30pm",
-     "source": "https://semja.org/webcal/day.php?date=20261121"
-    },
-    {
-     "venue": "Blue LLama @Ann Arbor",
-     "title": "Marion Hayden Legacy Ensemble",
-     "time": "7:00pm & 9:00pm",
-     "source": "https://semja.org/webcal/day.php?date=20261121"
-    },
-    {
-     "venue": "Open Book Theatre @Trenton",
-     "title": "The Woman in Black",
-     "time": "3:30pm & 8:00pm",
-     "source": "https://app.arts-people.com/index.php?ticketing=obtc&show=329664"
-    },
-    {
-     "venue": "Marble Bar",
-     "title": "12 Hour Party feat. John Acquaviva",
-     "time": "9:00pm",
-     "source": "https://app.discotech.me/events/38311999-12-hour-party-feat-john-acquaviva-at-marble-bar"
-    },
-    {
-     "venue": "Elektricity @Pontiac",
-     "title": "Whales: Dangerous Waters Tour",
-     "time": "9:00pm",
-     "source": "https://app.discotech.me/events/38233976-whales-dangerous-waters-tour-at-elektricity"
-    },
-    {
-     "venue": "Spkrbox",
-     "title": "Deep Dive",
-     "time": "10:00pm",
-     "source": "https://app.discotech.me/events/38320462-deep-dive-at-spkrbox"
-    },
-    {
-     "venue": "Big Pink",
-     "title": "Hip-Hop Night: DJ Mobeatz (open-format club hits)",
-     "time": "10:00pm",
-     "source": "https://app.discotech.me/events/38314552-hiphop-night-dj-mobeatz-more-open-format-club-hits-at-big-pink"
-    },
-    {
-     "venue": "Waterford Town Hall @Waterford",
-     "title": "Holiday Hoopla & Tree Lighting (tree lit 5:40pm)",
-     "time": "3:00-6:00pm",
-     "source": "https://www.oaklandcountymoms.com/weekend-events-metro-detroit-26719/"
-    },
-    {
-     "venue": "Finnish Cultural Center @Farmington Hills",
-     "title": "Swedish Christmas Fair ($3, under 12 free)",
-     "time": "9:30am",
-     "source": "https://www.oaklandcountymoms.com/weekend-events-metro-detroit-26719/",
-     "tag": "food"
-    },
-    {
-     "venue": "Camp Dearborn @Milford",
-     "title": "MI Bright Lights drive-through light show (nightly through Dec 30)",
-     "time": "6:00-10:00pm",
-     "source": "https://dearborn.gov/events/2026/11/21/mi-bright-lights-camp-dearborn"
-    },
-    {
-     "venue": "Mark Ridley's Comedy Castle",
-     "title": "Erica Rhodes",
-     "time": "7:00pm & 9:30pm",
-     "source": "https://www.comedycastle.com/events/category/series/erica-rhodes/mark-ridleys-comedy-castle/royal-oak/"
-    },
-    {
-     "venue": "Mic Drop Comedy",
-     "title": "Dustin Nickerson",
-     "time": "6:00pm & 8:30pm",
-     "source": "https://theater.guide/events/dustin-nickerson/"
-    },
-    {
-     "venue": "The Comedy Bar",
-     "title": "Ed Bassmaster",
-     "time": "7:00pm",
-     "source": "https://theater.guide/event/ed-bassmaster-detroit-saturday-november-21-2026-700-pm/?pid=6618"
-    },
-    {
-     "venue": "Royal Oak Music Theatre",
-     "title": "Daily Bread: Vanishing Point Tour w/ Vincent Antone, zoska (18+)",
-     "time": "8:30pm",
-     "source": "https://www.royaloakmusictheatre.com/events/detail/1513765"
-    },
-    {
-     "venue": "Cliff Bell's",
-     "title": "Smoke Jones",
-     "time": "7:30pm",
-     "source": "https://cliffbells.com/event/smoke-jones-4/"
-    },
-    {
-     "venue": "Red Wings @Little Caesar's Arena",
-     "title": "vs New York Islanders",
-     "time": "7:00pm",
-     "source": "https://www.cbssports.com/nhl/teams/DET/detroit-red-wings/schedule/"
-    }
-   ]
-  },
-  {
-   "date": "2026-11-22",
-   "events": [
-    {
-     "venue": "Urban Fêtes @Southwest Detroit",
-     "title": "The Lions Den: Lions vs. Buccaneers watch party (big screens, BYOB)",
-     "time": "1:00pm",
-     "source": "https://www.eventbrite.com/e/the-lions-den-detroit-lions-game-day-watch-party-tickets-1999140648495"
-    },
-    {
-     "venue": "Meadow Brook Theatre @Rochester",
-     "title": "A Christmas Carol",
-     "time": "2:00pm",
-     "source": "https://mbtheatre.com/season-calendar"
-    },
-    {
-     "venue": "Detroit Zoo @Royal Oak",
-     "title": "Wild Lights",
-     "time": "5:00-9:00pm",
-     "source": "https://detroitzoo.org/events/wild-lights/"
-    },
-    {
-     "venue": "Campus Martius Park @Downtown",
-     "title": "Rink opening weekend: Santa Skate Party with photos with Santa",
-     "time": "12:00-4:00pm",
-     "source": "https://littleguidedetroit.com/event/santa-skate-party/"
-    },
-    {
-     "venue": "Nick Gilbert Way @Downtown",
-     "title": "Holidays at Nick Gilbert Way: holiday vendors, carousel, photo spots",
-     "time": "12:00-6:00pm",
-     "source": "https://www.deckedoutdetroit.com/holidays-nick-gilbert-way",
-     "tag": "food"
-    },
-    {
-     "venue": "Hudson's Detroit @Downtown",
-     "title": "Winter Wonders at Entrance One: free photos with Santa",
-     "time": "12:00-6:00pm",
-     "source": "https://www.deckedoutdetroit.com/winter-wonders-at-entrance-one"
-    },
-    {
-     "venue": "Cadillac Square @Downtown",
-     "title": "Downtown Detroit Markets: holiday market (Wed-Sun through Jan 3)",
-     "time": "11:00am-7:00pm",
-     "source": "https://www.deckedoutdetroit.com/detroit-markets",
-     "tag": "food"
-    },
-    {
-     "venue": "Holly Trolley @Downtown",
-     "title": "Holly Trolley: free holiday trolley (Nick Gilbert Way, Campus Martius, Book Tower, Capitol Park)",
-     "time": "12:00-6:00pm",
-     "source": "https://www.deckedoutdetroit.com/holly-trolley"
-    },
-    {
-     "venue": "Michigan Central @Corktown",
-     "title": "Winter at The Station (free): vocal workshop & sing-along 1pm, Dreamgirls screening 2pm, Wise Guys Chess 2-5pm",
-     "time": "1:00pm",
-     "source": "https://michigancentral.com/event/winter-at-the-station/"
-    },
-    {
-     "venue": "Detroit Shipping Co.",
-     "title": "Lions vs. Buccaneers watch party",
-     "time": "1:00-6:00pm",
-     "source": "https://www.detroitshippingcompany.com/watch-parties-1"
-    },
-    {
-     "venue": "Detroit Shipping Co.",
-     "title": "313 Comedy (weekly Sunday stand-up)",
-     "time": "7:00pm",
-     "source": "https://www.detroitshippingcompany.com/events-calendar/a8tlkrwjgemnrwz-y7hwg-h5aj4-hl54a-blamn-g5nc5-hg7fw"
-    },
-    {
-     "venue": "Royal Oak Farmers Market @Royal Oak",
-     "title": "Sunday Antiques & Collectibles Market",
-     "time": "8:00am-3:00pm",
-     "source": "https://www.romi.gov/1533/Farmers-Market",
-     "tag": "food"
-    },
-    {
-     "venue": "The War Memorial @Grosse Pointe Farms",
-     "title": "Tree Lighting Ceremony (free, registration required): tree lit 5:30pm, vintage holiday market, ice sculpting, Santa",
-     "time": "4:00-7:00pm",
-     "source": "https://warmemorial.org/events/treelighting2026"
-    },
-    {
-     "venue": "Downtown Northville @Northville",
-     "title": "Hometown Holiday: Greens Market, Handmade Market & free Santa visits (noon-3pm)",
-     "time": "9:00am-3:00pm",
-     "source": "https://www.northville.org/holiday-lighted-parade",
-     "tag": "food"
-    },
-    {
-     "venue": "Anton Art Center @Mount Clemens",
-     "title": "Holiday Market (Meet the Artists 1-3pm)",
-     "time": "11:00am-3:00pm",
-     "source": "https://theartcenter.org/holiday-market",
-     "tag": "food"
-    },
-    {
-     "venue": "Detroit Zoo @Royal Oak",
-     "title": "Wild Lights (advance tickets)",
-     "time": "5:00-9:00pm",
-     "source": "https://detroitzoo.org/events/wild-lights/"
-    },
-    {
-     "venue": "Glenlore Trails @Commerce Township",
-     "title": "Aurora: Winter Wizards holiday light trail (timed tickets)",
-     "time": null,
-     "source": "https://www.glenloretrails.com/aurora/"
-    },
-    {
-     "venue": "Hines Park @Westland",
-     "title": "Wayne County Lightfest drive-through light show (Wed-Sun through Dec 24)",
-     "time": "6:00-10:00pm",
-     "source": "https://www.oaklandcountymoms.com/metro-detroit-christmas-light-shows-111771/"
-    },
-    {
-     "venue": "Eastern Market",
-     "title": "Detroit Lions game-day tailgate",
-     "time": "8:00am-5:00pm",
-     "source": "https://easternmarket.org/events/eastern-market-detroit-lions-tailgate-nov-22/"
-    },
-    {
-     "venue": "Eastern Market",
-     "title": "Detroit Lions Tailgate (Lions vs Buccaneers)",
-     "time": "8:00am-5:00pm",
-     "source": "https://easternmarket.org/events/eastern-market-detroit-lions-tailgate-nov-22/"
-    },
-    {
-     "venue": "100 Proof by Detroit City Distillery @Eastern Market",
-     "title": "Lions Tailgate & Watch Party (DCD drinks, Lady of the House food)",
-     "time": "9:00am-5:00pm",
-     "source": "https://www.detroitcitydistillery.com/event-details/lions-tailgate-watch-party-2026-11-22-09-00"
-    },
-    {
-     "venue": "Detroit Institute of Arts",
-     "title": "Big Picture Guided Tour (free)",
-     "time": "1:00pm",
-     "source": "https://dia.org/events/big-picture-guided-tour"
-    },
-    {
-     "venue": "Henry Ford Museum",
-     "title": "Holidays at The Henry Ford: Lionel holiday train, LEGO display, decorated dollhouses (through Jan 3)",
-     "time": "9:30am-5:00pm",
-     "source": "https://www.thehenryford.org/visit/things-to-do/calendar/holidays-at-the-henry-ford"
-    },
-    {
-     "venue": "Henry Ford Museum",
-     "title": "Celebrate Indigenous History (through Nov 30)",
-     "time": "9:30am-5:00pm",
-     "source": "https://www.thehenryford.org/visit/things-to-do/calendar/celebrate-indigenous-history"
-    },
-    {
-     "venue": "Henry Ford Museum",
-     "title": "Meet the Grinch (from Dr. Seuss' How The Grinch Stole Christmas! The Musical)",
-     "time": "12:30-1:30pm",
-     "source": "https://www.thehenryford.org/visit/things-to-do/calendar/holidays-at-the-henry-ford"
-    },
-    {
-     "venue": "Aretha's Jazz Café @ Music Hall",
-     "title": "Aretha's Jazz Jam (no cover)",
-     "time": "7:00pm",
-     "source": "https://www.jazzcafedetroit.com/events/November-2026/Aretha-s-Jazz-Jam3"
-    },
-    {
-     "venue": "Fisher Theatre",
-     "title": "The Great Gatsby (Broadway tour)",
-     "time": "1:00pm & 6:30pm",
-     "source": "https://www.etickets.com/theater/musical-play/the-great-gatsby-theatrical-production/detroit-mi/161776-727/d"
-    },
-    {
-     "venue": "DSO @Orchestra Hall",
-     "title": "Legends: The Paul Simon Songbook (Jeff Tyzik, conductor)",
-     "time": "3:00pm",
-     "source": "https://www.etickets.com/concerts/classical/the-paul-simon-songbook/detroit-mi/154147-1253/d"
-    },
-    {
-     "venue": "Cranbrook",
-     "title": "Frank Lloyd Wright Smith House Tour",
-     "time": "1:00pm",
-     "source": "https://center.cranbrook.edu/events/2026-11/frank-lloyd-wright-smith-house-tour-17"
-    },
-    {
-     "venue": "Cranbrook",
-     "title": "Saarinen House Tour",
-     "time": "3:00pm",
-     "source": "https://center.cranbrook.edu/events/2026-11/saarinen-house-tour-11"
-    },
-    {
-     "venue": "Scarab Club",
-     "title": "Chamber Music at the Scarab Club: The Baldwin Ensemble",
-     "time": "3:00pm",
-     "source": "https://www.eventbrite.com/e/chamber-music-at-the-scarab-club-presents-the-baldwin-ensemble-and-more-tickets-1998911618460"
-    },
-    {
-     "venue": "The Fillmore",
-     "title": "WJLB Presents Skilla Baby: The Price of Fame Tour (18+)",
-     "time": null,
-     "source": "https://www.livenation.com/event/vv17OZ_oGkR6VlfY/wjlb-presents-skilla-baby-the-price-of-fame-tour-ages-18"
-    },
-    {
-     "venue": "Saint Andrew's Hall",
-     "title": "Hawthorne Heights: 20th anniversary of If Only You Were Lonely",
-     "time": null,
-     "source": "https://www.saintandrewsdetroit.com/shows"
-    },
-    {
-     "venue": "El Club",
-     "title": "whiterosemoxie",
-     "time": null,
-     "source": "https://app.discotech.me/events/38282673-whiterosemoxie-at-el-club"
-    },
-    {
-     "venue": "Cadieux Cafe",
-     "title": "Planet D Nonet",
-     "time": "4:00pm",
-     "source": "https://semja.org/webcal/day.php?date=20261122"
-    },
-    {
-     "venue": "Blue LLama @Ann Arbor",
-     "title": "Janis Siegel",
-     "time": "6:00pm & 8:00pm",
-     "source": "https://semja.org/webcal/day.php?date=20261122"
-    },
-    {
-     "venue": "Open Book Theatre @Trenton",
-     "title": "The Woman in Black (final performance)",
-     "time": "2:00pm",
-     "source": "https://app.arts-people.com/index.php?ticketing=obtc&show=329664"
-    },
-    {
-     "venue": "Big Pink",
-     "title": "Sundaze: Hip-Hop & R&B w/ Blakito",
-     "time": "10:00pm",
-     "source": "https://app.discotech.me/events/38322072-sundaze-hiphop-and-rb-sunday-night-blakito-at-big-pink"
-    },
-    {
-     "venue": "Camp Dearborn @Milford",
-     "title": "MI Bright Lights drive-through light show (nightly through Dec 30)",
-     "time": "6:00-10:00pm",
-     "source": "https://dearborn.gov/events/2026/11/22/mi-bright-lights-camp-dearborn"
-    },
-    {
-     "venue": "Sound Board @MotorCity Casino",
-     "title": "Cheap Trick",
-     "time": "7:30pm",
-     "source": "https://www.313presents.com/events/detail/cheap-trick"
-    },
-    {
-     "venue": "Cliff Bell's",
-     "title": "Cliff Bell's Big Band performs the music of Radiohead",
-     "time": "5:30pm",
-     "source": "https://cliffbells.com/event/cliff-bells-big-band-performs-the-music-of-radiohead/"
-    },
-    {
-     "venue": "Lions @Ford Field",
-     "title": "vs Tampa Bay Buccaneers",
-     "time": "1:00pm",
-     "source": "https://www.fordfield.com/events/detail/buccaneers-vs-lions-2026"
-    }
-   ]
-  },
-  {
-   "date": "2026-11-23",
-   "events": [
-    {
-     "venue": "Downtown Rochester @Rochester",
-     "title": "The Big, Bright Light Show switches on (nightly through Jan 17)",
-     "time": "5:00pm-12:00am",
-     "source": "https://www.downtownrochestermi.com/the-big-bright-light-show"
-    },
-    {
-     "venue": "Campus Martius Park @Downtown",
-     "title": "The Rink at Campus Martius: public skating",
-     "time": "11:00am-10:00pm",
-     "source": "https://downtowndetroit.org/experience-downtown/things-to-do/the-rink"
-    },
-    {
-     "venue": "Civic Center Plaza @Madison Heights",
-     "title": "Madison Heights Tree Lighting",
-     "time": "6:00-8:00pm",
-     "source": "https://mymichiganbeach.com/michigan-christmas-tree-lightings/"
-    },
-    {
-     "venue": "Henry Ford Museum",
-     "title": "Holidays at The Henry Ford: Lionel holiday train, LEGO display, decorated dollhouses (through Jan 3)",
-     "time": "9:30am-5:00pm",
-     "source": "https://www.thehenryford.org/visit/things-to-do/calendar/holidays-at-the-henry-ford"
-    },
-    {
-     "venue": "Henry Ford Museum",
-     "title": "Celebrate Indigenous History (through Nov 30)",
-     "time": "9:30am-5:00pm",
-     "source": "https://www.thehenryford.org/visit/things-to-do/calendar/celebrate-indigenous-history"
-    },
-    {
-     "venue": "Henry Ford Museum",
-     "title": "Free Guided Tour: 250 Years of American Innovation (Museum Plaza)",
-     "time": "1:00pm",
-     "source": "https://www.thehenryford.org/visit/things-to-do/calendar/celebrate-indigenous-history"
-    },
-    {
-     "venue": "Aretha's Jazz Café @ Music Hall",
-     "title": "A Tribute to Ella Fitzgerald featuring Jiana Hunter",
-     "time": "7:00pm",
-     "source": "https://www.jazzcafedetroit.com/events/November-2026/A-Tribute-to-Ella-Fitzgerald-Featuring-Jiana-Hunter"
-    },
-    {
-     "venue": "Cadieux Cafe",
-     "title": "Blue Mondays: Bobby East Open Jam w/ Pat Smillie and friends",
-     "time": "8:00pm",
-     "source": "https://semja.org/webcal/day.php?date=20261123"
-    },
-    {
-     "venue": "Camp Dearborn @Milford",
-     "title": "MI Bright Lights drive-through light show (nightly through Dec 30)",
-     "time": "6:00-10:00pm",
-     "source": "https://dearborn.gov/events/2026/11/23/mi-bright-lights-camp-dearborn"
-    },
-    {
-     "venue": "MGM Grand Detroit",
-     "title": "40th Detroit Aglow (Downtown Detroit Partnership holiday gala, 21+; sold out)",
-     "time": "5:30-9:00pm",
-     "source": "https://www.eventbrite.com/e/2026-detroit-aglow-presented-by-amazon-tickets-1998964186693"
-    }
-   ]
-  },
-  {
-   "date": "2026-11-24",
-   "events": [
-    {
-     "venue": "Campus Martius Park @Downtown",
-     "title": "The Rink at Campus Martius: public skating",
-     "time": "11:00am-10:00pm",
-     "source": "https://downtowndetroit.org/experience-downtown/things-to-do/the-rink"
-    },
-    {
-     "venue": "Downtown Rochester @Rochester",
-     "title": "The Big, Bright Light Show (nightly through Jan 17)",
-     "time": "5:00pm-12:00am",
-     "source": "https://www.downtownrochestermi.com/the-big-bright-light-show"
-    },
-    {
-     "venue": "Anton Art Center @Mount Clemens",
-     "title": "Holiday Market",
-     "time": "10:00am-5:00pm",
-     "source": "https://theartcenter.org/holiday-market",
-     "tag": "food"
-    },
-    {
-     "venue": "Detroit Shipping Co.",
-     "title": "Open Mic: Art in a Fly Space",
-     "time": "8:00pm",
-     "source": "https://www.detroitshippingcompany.com/events-calendar/2026/5/12/open-mic-night-yjwl2-bs749-gymyd-n3l8e-5ahlz-le95z-l8265-x92df-kh4wg-g4t8f-flm4f-ce8fm-aw26s-z3lsn-nh2za-pcn4y-elmte-36ra7-zs59e-6yg9k-hbcyl"
-    },
-    {
-     "venue": "Detroit Shipping Co.",
-     "title": "Cornhole League",
-     "time": "4:00-10:00pm",
-     "source": "https://www.detroitshippingcompany.com/events-calendar/2026/10/20/cornhole-league-at-detroit-shipping-co-6pld9-5kc8h-chngt-7pd6g-ywkc3"
-    },
-    {
-     "venue": "Mayor Dennis W. Archer Greenway @The Riverwalk",
-     "title": "Two Mile Tuesdays with We Run 313 (meet at Breadless; walkers welcome)",
-     "time": "6:00pm",
-     "source": "https://www.detroitriverfront.org/events/calendar/2026/11/24/two-mile-tuesdays"
-    },
-    {
-     "venue": "Mayor Dennis W. Archer Greenway @The Riverwalk",
-     "title": "Two Mile Tuesdays (free introductory run, all paces)",
-     "time": "6:00pm",
-     "source": "https://www.detroitriverfront.org/events/calendar/2026/11/24/two-mile-tuesdays"
-    },
-    {
-     "venue": "Eastern Market",
-     "title": "Holiday Market: Thanksgiving Food Shopping",
-     "time": "9:00am-3:00pm",
-     "source": "https://easternmarket.org/events/holiday-market-2026-thanksgiving-food-shopping/",
-     "tag": "food"
-    },
-    {
-     "venue": "Detroit Institute of Arts",
-     "title": "Big Picture Guided Tour (free)",
-     "time": "1:00pm",
-     "source": "https://dia.org/events/big-picture-guided-tour"
-    },
-    {
-     "venue": "Henry Ford Museum",
-     "title": "Holidays at The Henry Ford: Lionel holiday train, LEGO display, decorated dollhouses (through Jan 3)",
-     "time": "9:30am-5:00pm",
-     "source": "https://www.thehenryford.org/visit/things-to-do/calendar/holidays-at-the-henry-ford"
-    },
-    {
-     "venue": "Henry Ford Museum",
-     "title": "Celebrate Indigenous History (through Nov 30)",
-     "time": "9:30am-5:00pm",
-     "source": "https://www.thehenryford.org/visit/things-to-do/calendar/celebrate-indigenous-history"
-    },
-    {
-     "venue": "Henry Ford Museum",
-     "title": "Free Guided Tour: 250 Years of American Innovation (Museum Plaza)",
-     "time": "1:00pm",
-     "source": "https://www.thehenryford.org/visit/things-to-do/calendar/celebrate-indigenous-history"
-    },
-    {
-     "venue": "Fisher Theatre",
-     "title": "The Great Gatsby (Broadway tour)",
-     "time": "7:30pm",
-     "source": "https://www.etickets.com/theater/musical-play/the-great-gatsby-theatrical-production/detroit-mi/161776-727/d"
-    },
-    {
-     "venue": "Saint Andrew's Hall",
-     "title": "Toosii: Platinum Nights",
-     "time": null,
-     "source": "https://www.saintandrewsdetroit.com/shows"
-    },
-    {
-     "venue": "El Club",
-     "title": "The Mainliners",
-     "time": null,
-     "source": "https://app.discotech.me/events/38282674-the-mainliners-at-el-club"
-    },
-    {
-     "venue": "Marble Bar",
-     "title": "Techno Tuesday: Ghetto / Electro Bass",
-     "time": "9:00pm",
-     "source": "https://app.discotech.me/events/38322069-techno-tuesday-ghetto-electro-bass-at-marble-bar"
-    },
-    {
-     "venue": "Spkrbox",
-     "title": "T2b Tuesday",
-     "time": "11:00pm",
-     "source": "https://app.discotech.me/events/38318197-t2b-tuesday-at-spkrbox"
-    },
-    {
-     "venue": "Camp Dearborn @Milford",
-     "title": "MI Bright Lights drive-through light show (nightly through Dec 30)",
-     "time": "6:00-10:00pm",
-     "source": "https://dearborn.gov/events/2026/11/24/mi-bright-lights-camp-dearborn"
-    }
-   ]
-  },
-  {
-   "date": "2026-11-25",
-   "events": [
-    {
-     "venue": "The Magic Bag @Ferndale",
-     "title": "Thanksgiving Is Still Murder: The Smiths United w/ Used Cars & Hynde Sight",
-     "time": null,
-     "source": "https://www.themagicbag.com/magicbag-concerts-calendar"
-    },
-    {
-     "venue": "Dirty Dog Jazz Café @Grosse Pointe Farms",
-     "title": "The GUD Band",
-     "time": "6:30pm",
-     "source": "https://semja.org/webcal/day.php?date=20261125"
-    },
-    {
-     "venue": "Dirty Dog Jazz Café @Grosse Pointe Farms",
-     "title": "Michael Zaporski",
-     "time": "6:30pm",
-     "source": "https://semja.org/webcal/day.php?date=20261125"
-    },
-    {
-     "venue": "Northern Lights Lounge",
-     "title": "House Is Home: Stacey Hotwaxx Hale, Father Dukes & Dru Allan",
-     "time": "9:00pm",
-     "source": "https://app.discotech.me/events/38318185-house-is-home-stacey-hotwaxx-hale-father-dukes-and-dru-allan-at-nothern-lights-lounge"
-    },
-    {
-     "venue": "TV Lounge @Midtown",
-     "title": "Wonderful Wednesday: Night Before Thanksgiving Edition",
-     "time": "9:00pm",
-     "source": "https://app.discotech.me/events/38320495-wonderful-wednesday-the-night-before-thanksgiving-edition-at-tv-lounge"
-    },
-    {
-     "venue": "Deluxx Fluxx @Downtown",
-     "title": "Parkhouse Thanksgiving",
-     "time": "9:00pm",
-     "source": "https://app.discotech.me/events/38293706-parkhouse-thanksgiving-at-deluxx-fluxx"
-    },
-    {
-     "venue": "Nick Gilbert Way @Downtown",
-     "title": "Holidays at Nick Gilbert Way: holiday vendors, carousel, photo spots",
-     "time": "12:00-8:00pm",
-     "source": "https://www.deckedoutdetroit.com/holidays-nick-gilbert-way",
-     "tag": "food"
-    },
-    {
-     "venue": "Hudson's Detroit @Downtown",
-     "title": "Winter Wonders at Entrance One: free photos with Santa",
-     "time": "12:00-8:00pm",
-     "source": "https://www.deckedoutdetroit.com/winter-wonders-at-entrance-one"
-    },
-    {
-     "venue": "Cadillac Square @Downtown",
-     "title": "Downtown Detroit Markets: holiday market",
-     "time": "11:00am-8:00pm",
-     "source": "https://www.deckedoutdetroit.com/detroit-markets",
-     "tag": "food"
-    },
-    {
-     "venue": "Campus Martius Park @Downtown",
-     "title": "The Rink at Campus Martius: public skating",
-     "time": "11:00am-10:00pm",
-     "source": "https://downtowndetroit.org/experience-downtown/things-to-do/the-rink"
-    },
-    {
-     "venue": "Michigan Central @Corktown",
-     "title": "Winter at The Station (free): Goat (PG) screenings",
-     "time": "11:00am & 2:00pm",
-     "source": "https://michigancentral.com/event/winter-at-the-station/"
-    },
-    {
-     "venue": "Detroit Shipping Co.",
-     "title": "Free Qi Gong class",
-     "time": "5:30pm",
-     "source": "https://www.detroitshippingcompany.com/events-calendar/2026/10/21/free-qi-gong-class-w7kwf"
-    },
-    {
-     "venue": "Corktown Tavern @Corktown",
-     "title": "Detroit Official Thanksgiving Eve Bar Crawl (21+, 4+ bars, after party)",
-     "time": "8:00pm-2:00am",
-     "source": "https://www.eventbrite.com/e/detroit-official-thanksgiving-eve-bar-crawl-2026-tickets-1983726904572"
-    },
-    {
-     "venue": "The Garden Theater @Midtown",
-     "title": "Welcome Home 2026: Annual Thanksgiving Eve Party (21+)",
-     "time": "8:30pm",
-     "source": "https://www.eventbrite.com/e/welcome-home-2026-annual-thanksgiving-eve-party-tickets-2004081821677"
-    },
-    {
-     "venue": "The Godfrey Hotel @Corktown",
-     "title": "The Pre-Game: Thanksgiving Eve (21+)",
-     "time": "8:00pm-12:00am",
-     "source": "https://www.eventbrite.com/e/the-pre-game-godfrey-detroit-thanksgiving-eve-tickets-2003555656904"
-    },
-    {
-     "venue": "Annex Nightclub @Downtown",
-     "title": "Thanksgiving Eve at The Annex (21+)",
-     "time": "8:00pm-2:00am",
-     "source": "https://www.eventbrite.com/e/thanksgiving-eve-at-the-annex-on-wednesday-november-25-tickets-2004678092138"
-    },
-    {
-     "venue": "ORA Detroit @Downtown",
-     "title": "The Global Drip Thanksgiving Eve Party ft. Gianni Blu (21+)",
-     "time": "9:00pm-2:00am",
-     "source": "https://www.eventbrite.com/e/the-global-drip-thanksgiving-eve-party-ft-gianni-blu-of-miami-tickets-2004804786083"
-    },
-    {
-     "venue": "The Bosco @Ferndale",
-     "title": "Annual Latin Thanksgiving Eve Celebration with Bachata Nights & Friends (21+)",
-     "time": "8:00pm-2:00am",
-     "source": "https://www.eventbrite.com/e/the-annual-latin-thanksgiving-eve-celebration-wbachata-nights-friends-tickets-2004269100834"
-    },
-    {
-     "venue": "Rock & Brews @Royal Oak",
-     "title": "Thanksgiving Eve with The Crampton Brothers",
-     "time": "8:00pm",
-     "source": "https://www.eventbrite.com/e/thanksgiving-eve-w-the-crampton-brothers-rock-brews-royal-oak-tickets-2002860426451"
-    },
-    {
-     "venue": "Tequila Blue @Royal Oak",
-     "title": "Thanksgiving Eve: The Biggest Bar Night of the Year (21+, two floors, two DJs)",
-     "time": "6:30pm-2:00am",
-     "source": "https://www.eventbrite.com/e/thanksgiving-eve-the-biggest-bar-night-of-the-year-tequila-blue-nightclub-tickets-1997156814795"
-    },
-    {
-     "venue": "Downtown Rochester @Rochester",
-     "title": "The Big, Bright Light Show (nightly through Jan 17)",
-     "time": "5:00pm-12:00am",
-     "source": "https://www.downtownrochestermi.com/the-big-bright-light-show"
-    },
-    {
-     "venue": "Valade Park @The Riverwalk",
-     "title": "Wisdom Wednesdays with Wise Guys Chess Club (season finale; free lessons 6-7:30pm)",
-     "time": "6:00-9:00pm",
-     "source": "https://www.detroitriverfront.org/events/calendar/2026/11/25/wisdom-wednesdays"
-    },
-    {
-     "venue": "Hines Park @Westland",
-     "title": "Wayne County Lightfest drive-through light show (Wed-Sun through Dec 24)",
-     "time": "6:00-10:00pm",
-     "source": "https://www.oaklandcountymoms.com/metro-detroit-christmas-light-shows-111771/"
-    },
-    {
-     "venue": "Detroit Institute of Arts",
-     "title": "Big Picture Guided Tour (free)",
-     "time": "1:00pm",
-     "source": "https://dia.org/events/big-picture-guided-tour"
-    },
-    {
-     "venue": "Henry Ford Museum",
-     "title": "Holidays at The Henry Ford: Lionel holiday train, LEGO display, decorated dollhouses (through Jan 3)",
-     "time": "9:30am-5:00pm",
-     "source": "https://www.thehenryford.org/visit/things-to-do/calendar/holidays-at-the-henry-ford"
-    },
-    {
-     "venue": "Henry Ford Museum",
-     "title": "Celebrate Indigenous History (through Nov 30)",
-     "time": "9:30am-5:00pm",
-     "source": "https://www.thehenryford.org/visit/things-to-do/calendar/celebrate-indigenous-history"
-    },
-    {
-     "venue": "Henry Ford Museum",
-     "title": "Free Guided Tour: 250 Years of American Innovation (Museum Plaza)",
-     "time": "1:00pm",
-     "source": "https://www.thehenryford.org/visit/things-to-do/calendar/celebrate-indigenous-history"
-    },
-    {
-     "venue": "Fisher Theatre",
-     "title": "The Great Gatsby (Broadway tour)",
-     "time": "2:00pm & 7:30pm",
-     "source": "https://www.etickets.com/theater/musical-play/the-great-gatsby-theatrical-production/detroit-mi/161776-727/d"
-    },
-    {
-     "venue": "Music Hall",
-     "title": "The Pak & Friends: 22nd Annual Nite B4 Thanksgiving Gala",
-     "time": "7:00pm",
-     "source": "https://www.jazzcafedetroit.com/events/November-2026/THE-PAK-FRIENDS-present-The-22nd-ANNUAL-NITE-B4-THANKSGIVING-GALA"
-    },
-    {
-     "venue": "MOCAD",
-     "title": "Choir: The Theology of Preservation, listening session with Ben Hall",
-     "time": "12:00-2:00pm",
-     "source": "https://mocadetroit.org/event/choir-the-theology-of-preservation/"
-    },
-    {
-     "venue": "Cranbrook Institute of Science @Bloomfield Hills",
-     "title": "Discovery Days: Turkey & T. rex (family activities, holiday vendors)",
-     "time": "11:00am-3:00pm",
-     "source": "https://science.cranbrook.edu/visit/events/2026-11/discovery-days"
-    },
-    {
-     "venue": "Saint Andrew's Hall",
-     "title": "Black Milk",
-     "time": null,
-     "source": "https://www.saintandrewsdetroit.com/shows"
-    },
-    {
-     "venue": "El Club",
-     "title": "#Ask Jenn: the 5 Year Anniversary Show",
-     "time": null,
-     "source": "https://app.discotech.me/events/38305336-ask-jenn-the-5-year-anniversary-show-at-el-club"
-    },
-    {
-     "venue": "Blue LLama @Ann Arbor",
-     "title": "William Hill III Trio",
-     "time": "7:00pm & 8:30pm",
-     "source": "https://semja.org/webcal/day.php?date=20261125"
-    },
-    {
-     "venue": "Big Pink",
-     "title": "Biggest Bar Night of the Year: DJ Kdirty & Slikkmoney (hip-hop all night)",
-     "time": "10:00pm",
-     "source": "https://app.discotech.me/events/38322073-biggest-bar-night-of-the-year-dj-kdirty-and-slikkmoney-hiphop-all-night-at-big-pink"
-    },
-    {
-     "venue": "Legends @Greektown",
-     "title": "Thanksgiving Eve: The Biggest Bar Night of the Year (21+)",
-     "time": "6:00pm-2:00am",
-     "source": "https://www.eventbrite.com/e/thanksgiving-eve-at-legends-the-biggest-bar-night-of-the-year-tickets-2004407591062"
-    },
-    {
-     "venue": "Parlay Detroit",
-     "title": "The After Parlay: Thanks-Drinking Eve (21+)",
-     "time": "10:00pm-2:00am",
-     "source": "https://www.eventbrite.com/e/the-after-parlay-thanks-drinking-eve-tickets-2004784184463"
-    },
-    {
-     "venue": "Camp Dearborn @Milford",
-     "title": "MI Bright Lights drive-through light show (nightly through Dec 30)",
-     "time": "6:00-10:00pm",
-     "source": "https://dearborn.gov/events/2026/11/25/mi-bright-lights-camp-dearborn"
-    },
-    {
-     "venue": "Mark Ridley's Comedy Castle",
-     "title": "The Night Before Thanksgiving Special",
-     "time": "7:30pm",
-     "source": "https://www.comedycastle.com/events/category/series/the-night-before-thanksgiving-special/mark-ridleys-comedy-castle/royal-oak/"
-    },
-    {
-     "venue": "Royal Oak Music Theatre",
-     "title": "Whitechapel: 20th Anniversary Tour w/ Chelsea Grin, The Acacia Strain, Netherwalker",
-     "time": "6:00pm",
-     "source": "https://www.royaloakmusictheatre.com/events/detail/1477930"
-    },
-    {
-     "venue": "Cliff Bell's",
-     "title": "Caleb Robinson and Reaching",
-     "time": "7:30pm",
-     "source": "https://cliffbells.com/event/caleb-robinson-and-reaching-7/"
-    },
-    {
-     "venue": "Red Wings @Little Caesar's Arena",
-     "title": "vs Vancouver Canucks",
-     "time": "7:30pm",
-     "source": "https://www.cbssports.com/nhl/teams/DET/detroit-red-wings/schedule/"
-    },
-    {
-     "venue": "Huntington Place",
-     "title": "S3 Turkey Trot Race Central: packet pickup (Hall E)",
-     "time": "12:00-7:00pm",
-     "source": "https://theparade.org/turkeytrot/general-info/faqs/"
-    }
-   ]
-  },
-  {
-   "date": "2026-11-26",
-   "events": [
-    {
-     "venue": "Urban Fêtes @Southwest Detroit",
-     "title": "The Lions Den: Lions vs. Bears Thanksgiving watch party (big screens, BYOB)",
-     "time": "1:00pm",
-     "source": "https://www.eventbrite.com/e/the-lions-den-detroit-lions-game-day-watch-party-tickets-1999140648495"
-    },
-    {
-     "venue": "Woodward Avenue @Downtown",
-     "title": "100th America's Thanksgiving Parade (Kirby to Congress, about 3 miles; free)",
-     "time": "8:45am",
-     "source": "https://theparade.org/americas-thanksgiving-parade/visitor-info/"
-    },
-    {
-     "venue": "Huntington Place @Downtown",
-     "title": "Detroit Turkey Trot: S3 10K & Mashed Potato Mile 7:30am, Stuffing Strut 5K 8:30am (10K and 5K sold out)",
-     "time": "7:30am & 8:30am",
-     "source": "https://runsignup.com/Race/TheParadeCompanyDetroitTurkeyTrot/Page/FAQ"
-    },
-    {
-     "venue": "Grand Circus Park @Downtown",
-     "title": "Free hot cocoa & hand warmers for parade-goers (People Mover station)",
-     "time": "8:00-10:30am",
-     "source": "https://theparade.org/americas-thanksgiving-parade/visitor-info/"
-    },
-    {
-     "venue": "Nick Gilbert Way @Downtown",
-     "title": "Holidays at Nick Gilbert Way: Thanksgiving hours",
-     "time": "8:00am-2:00pm",
-     "source": "https://www.deckedoutdetroit.com/holidays-nick-gilbert-way",
-     "tag": "food"
-    },
-    {
-     "venue": "Cadillac Square @Downtown",
-     "title": "Downtown Detroit Markets: holiday market (Thanksgiving hours)",
-     "time": "8:00am-2:00pm",
-     "source": "https://www.deckedoutdetroit.com/detroit-markets",
-     "tag": "food"
-    },
-    {
-     "venue": "Campus Martius Park @Downtown",
-     "title": "The Rink at Campus Martius: public skating (open holidays)",
-     "time": "11:00am-10:00pm",
-     "source": "https://downtowndetroit.org/experience-downtown/things-to-do/the-rink"
-    },
-    {
-     "venue": "Detroit Shipping Co.",
-     "title": "Lions vs. Bears Thanksgiving watch party",
-     "time": "1:00-6:00pm",
-     "source": "https://www.detroitshippingcompany.com/watch-parties-1"
-    },
-    {
-     "venue": "Big Beaver Road @Troy",
-     "title": "The Mighty Gobbler: 1 Mile Run/Walk 8:30am, 5K 9:00am",
-     "time": "8:30am & 9:00am",
-     "source": "https://www.givesignup.org/Race/MI/Troy/TheMightyGobbler"
-    },
-    {
-     "venue": "Downtown Rochester @Rochester",
-     "title": "The Big, Bright Light Show (nightly through Jan 17)",
-     "time": "5:00pm-12:00am",
-     "source": "https://www.downtownrochestermi.com/the-big-bright-light-show"
-    },
-    {
-     "venue": "Hines Park @Westland",
-     "title": "Wayne County Lightfest drive-through light show (open Thanksgiving)",
-     "time": "6:00-10:00pm",
-     "source": "https://metrodetroitmommy.com/thanksgiving-in-metro-detroit/"
-    },
-    {
-     "venue": "Detroit Historical Museum",
-     "title": "America's Thanksgiving Day Parade viewing (sold out)",
-     "time": "7:30-11:00am",
-     "source": "https://www.detroithistorical.org/events/americas-thanksgiving-day-parade-sold-out"
-    },
-    {
-     "venue": "Eastern Market",
-     "title": "Detroit Lions Thanksgiving game-day tailgate",
-     "time": "8:00am-5:00pm",
-     "source": "https://easternmarket.org/events/eastern-market-detroit-lions-tailgate-nov-26/"
-    },
-    {
-     "venue": "Eastern Market",
-     "title": "Detroit Lions Thanksgiving Tailgate (Lions vs Bears)",
-     "time": "8:00am-5:00pm",
-     "source": "https://easternmarket.org/events/eastern-market-detroit-lions-tailgate-nov-26/"
-    },
-    {
-     "venue": "100 Proof by Detroit City Distillery @Eastern Market",
-     "title": "Detroit City Distillery x Lady of the House Thanksgiving Tailgate (ticketed; food & drinks included)",
-     "time": "9:00am-1:00pm",
-     "source": "https://www.eventbrite.com/e/detroit-city-distillery-x-lady-of-the-house-thanksgiving-tailgate-tickets-2004246482181"
-    },
-    {
-     "venue": "Majestic Theatre",
-     "title": "Thanksgiving Family Fun Fest: brunch buffet with front-row view of the Thanksgiving Parade on Woodward",
-     "time": "7:00am",
-     "source": "https://www.majesticdetroit.com/events/detail/thanksgiving-family-fun-fest-1598796",
-     "tag": "food"
-    },
-    {
-     "venue": "London Chop House",
-     "title": "Thanksgiving: Paul Keller, Paul King, Ralph Tope & Adam Mosley",
-     "time": "7:30pm",
-     "source": "https://semja.org/webcal/day.php?date=20261126"
-    },
-    {
-     "venue": "Cadieux Cafe",
-     "title": "Bill Meyer Group w/ Ibrahim Jones & Butter Hawkins",
-     "time": "8:00pm",
-     "source": "https://semja.org/webcal/day.php?date=20261126"
-    },
-    {
-     "venue": "Camp Dearborn @Milford",
-     "title": "MI Bright Lights drive-through light show (nightly through Dec 30)",
-     "time": "6:00-10:00pm",
-     "source": "https://dearborn.gov/events/2026/11/26/mi-bright-lights-camp-dearborn"
-    },
-    {
-     "venue": "Lions @Ford Field",
-     "title": "Thanksgiving Day: vs Chicago Bears",
-     "time": "1:00pm",
-     "source": "https://www.fordfield.com/events/detail/bears-vs-lions-2026"
-    },
-    {
-     "venue": "Little Caesar's Arena",
-     "title": "CareSource Invitational men's college basketball: Michigan State vs. Arkansas",
-     "time": "4:30pm",
-     "source": "https://www.313presents.com/events/detail/mens-basketball-michigan-state-spartans-vs-arkansas-razorbacks"
-    }
-   ]
-  }
- ],
- "film": [
-  {
-   "venue": "Detroit Film Theatre",
-   "note": null,
-   "films": [
-    {
-     "title": "Once Upon a Time in Harlem (2026); Sat pre-screening Early Hour 12-2pm at Easy Peasy",
-     "times": "Sa: 3:00pm & 7:00pm; Su: 2:00pm & 5:00pm",
-     "source": "https://weeklywatchlistdet.substack.com/p/the-weekly-watchlist-111826"
-    }
-   ]
-  },
-  {
-   "venue": "The Redford Theatre",
-   "note": null,
-   "films": [
-    {
-     "title": "The Departed (2006), intro by Mark Binelli",
-     "times": "F: 8:00pm",
-     "source": "https://redfordtheatre.com/events/the-departed-2006/"
-    },
-    {
-     "title": "Home for the Holidays (1995)",
-     "times": "Sa: 2:00pm",
-     "source": "https://redfordtheatre.com/events/home-for-the-holidays-1995/"
-    },
-    {
-     "title": "Clue (1985) on 35mm, in memory of Tim Curry",
-     "times": "Sa: 8:00pm",
-     "source": "https://redfordtheatre.com/events/clue-1985-in-memory-of-tim-curry/"
-    }
-   ]
-  },
-  {
-   "venue": "Henry Ford Museum Giant Screen",
-   "note": "Giant Screen closed Mon-Tue; museum closed Thanksgiving",
-   "films": [
-    {
-     "title": "The Polar Express 3D (2004), daily through Jan 1",
-     "times": "F-Su, W: times not stated",
-     "source": "https://www.thehenryford.org/visit/venues/giant-screen-experience"
-    },
-    {
-     "title": "America the Beautiful: Our Natural Wonders ($2.50, through Nov 25)",
-     "times": "F-Su, W: times not stated",
-     "source": "https://www.thehenryford.org/visit/venues/giant-screen-experience"
-    }
-   ]
-  },
-  {
-   "venue": "Senate Theater",
-   "note": "organ overtures before shows",
-   "films": [
-    {
-     "title": "Warren Miller's Days Off (2026), fundraiser",
-     "times": "F: 8:00pm",
-     "source": "https://weeklywatchlistdet.substack.com/p/the-weekly-watchlist-111826"
-    },
-    {
-     "title": "Movie Book Club: All Quiet on the Western Front (1930), with 27th Letter Books",
-     "times": "Sa: 3:00pm",
-     "source": "https://weeklywatchlistdet.substack.com/p/the-weekly-watchlist-111826"
-    }
-   ]
-  },
-  {
-   "venue": "Motor City Cinema Society",
-   "note": null,
-   "films": [
-    {
-     "title": "Paths of Glory (1957) on 16mm",
-     "times": "M: 7:00pm",
-     "source": "https://weeklywatchlistdet.substack.com/p/the-weekly-watchlist-111826"
-    }
-   ]
-  },
-  {
-   "venue": "Natural Villain Cinema",
-   "note": null,
-   "films": [
-    {
-     "title": "Holy Motors (2012)",
-     "times": "F: 7:00pm",
-     "source": "https://weeklywatchlistdet.substack.com/p/the-weekly-watchlist-111826"
-    },
-    {
-     "title": "Santa Sangre (1989)",
-     "times": "Sa: 7:00pm",
-     "source": "https://weeklywatchlistdet.substack.com/p/the-weekly-watchlist-111826"
-    },
-    {
-     "title": "The Discreet Charm of the Bourgeoisie (1972)",
-     "times": "Su: 7:00pm",
-     "source": "https://weeklywatchlistdet.substack.com/p/the-weekly-watchlist-111826"
-    }
-   ]
-  },
-  {
-   "venue": "Penn Theatre @Plymouth",
-   "note": null,
-   "films": [
-    {
-     "title": "Jolly (2026), Sat with director Q&A",
-     "times": "Sa: 7:00pm; Su: 5:00pm",
-     "source": "https://weeklywatchlistdet.substack.com/p/the-weekly-watchlist-111826"
-    }
-   ]
-  },
-  {
-   "venue": "Other special screenings",
-   "note": null,
-   "films": [
-    {
-     "title": "Affirmations Queer Film Series: What Will I Become? (2026), Affirmations, Ferndale (free)",
-     "times": "F: 7:00pm",
-     "source": "https://weeklywatchlistdet.substack.com/p/the-weekly-watchlist-111826"
-    },
-    {
-     "title": "Kevin's Garbage Movie Night, Occult 83",
-     "times": "Sa: 8:00pm",
-     "source": "https://weeklywatchlistdet.substack.com/p/the-weekly-watchlist-111826"
-    },
-    {
-     "title": "St. Nicholas and the Lost Letter (2026, Ukraine), Ukrainian Films USA @MJR Troy",
-     "times": "Su: 6:00pm",
-     "source": "https://weeklywatchlistdet.substack.com/p/the-weekly-watchlist-111826"
-    },
-    {
-     "title": "Bugonia (2025), Dearborn Public Library (free)",
-     "times": "M: 6:30pm",
-     "source": "https://weeklywatchlistdet.substack.com/p/the-weekly-watchlist-111826"
-    },
-    {
-     "title": "The Twilight Saga: Eclipse (2010), Tocororo Detroit",
-     "times": "Tu: 9:00pm",
-     "source": "https://weeklywatchlistdet.substack.com/p/the-weekly-watchlist-111826"
-    },
-    {
-     "title": "Head (1968), Motor City Cinematheque @Better Books & Music, Ferndale",
-     "times": "W: 7:00pm",
-     "source": "https://weeklywatchlistdet.substack.com/p/the-weekly-watchlist-111826"
-    },
-    {
-     "title": "Double features: Honey, I Shrunk the Kids, Pee-wee's Big Adventure, Who Framed Roger Rabbit, Fantastic Mr. Fox, The Black Salt",
-     "times": "W: times not stated",
-     "source": "https://weeklywatchlistdet.substack.com/p/the-weekly-watchlist-111826"
-    }
-   ]
-  }
- ],
- "happy": [
-  {
-   "venue": "Sullivan's Steakhouse",
-   "hours": "Mon-Thu 3:00-6:00pm"
-  },
-  {
-   "venue": "Parc",
-   "hours": "Daily 2:30-5:00pm (Social Hour)"
-  },
-  {
-   "venue": "Anchor Bar",
-   "hours": "Mon-Fri 3:00-6:00pm"
-  },
-  {
-   "venue": "The Old Shillelagh",
-   "hours": "Mon-Fri 4:00-7:00pm"
-  },
-  {
-   "venue": "Besa",
-   "hours": "Mon-Fri 4:00-6:30pm"
-  },
-  {
-   "venue": "Joe Muer @Bloomfield Hills",
-   "hours": "Mon-Fri 4:00-6:00pm"
-  },
-  {
-   "venue": "Batch Brewing Company",
-   "hours": "Wed-Thu 5:00-7:00pm"
-  }
- ],
- "happyNote": "Checked Nov 19: Sullivan's (Mon-Thu 3-6pm, own site) and Joe Muer Bloomfield Hills (Mon-Fri 4-6pm, own site) confirmed; Parc, Old Shillelagh and Batch sites list no happy hour times, Besa's site is closed to AI agents, Anchor Bar sources disagree (3-6pm vs 3-7pm): those per last week"
+"days": [
+{
+"date": "2026-11-27",
+"events": [
+{
+"venue": "Cadillac Square @Downtown",
+"title": "Downtown Detroit Markets: holiday market (Wed-Sun through Jan 3)",
+"time": "11:00am-10:00pm",
+"source": "https://www.deckedoutdetroit.com/detroit-markets",
+"tag": "food"
+},
+{
+"venue": "Nick Gilbert Way @Downtown",
+"title": "Holidays at Nick Gilbert Way: holiday markets, carousel, Santa's Magic Mailbox (Black Friday hours)",
+"time": "12:00-8:00pm",
+"source": "https://www.deckedoutdetroit.com/holidays-nick-gilbert-way",
+"tag": "food"
+},
+{
+"venue": "Hudson's Detroit @Downtown",
+"title": "Winter Wonders at Entrance One: free photos with Santa (Black Friday hours)",
+"time": "12:00-8:00pm",
+"source": "https://www.deckedoutdetroit.com/winter-wonders-at-entrance-one"
+},
+{
+"venue": "Campus Martius Park @Downtown",
+"title": "The Rink at Campus Martius: public skating",
+"time": "11:00am-12:00am",
+"source": "https://www.oaklandcountymoms.com/campus-martius-park-ice-skating-26381/"
+},
+{
+"venue": "Michigan Central @Corktown",
+"title": "Winter at The Station: Winter Market Weekend, up to 40 local makers in the Grand Hall (free)",
+"time": "10:00am-5:00pm",
+"source": "https://michigancentral.com/winter-at-the-station",
+"tag": "food"
+},
+{
+"venue": "Michigan Central @Corktown",
+"title": "Fridays at The Station: Motown Museum Takeover ($15 ticket)",
+"time": "6:00pm",
+"source": "https://michigancentral.com/winter-at-the-station"
+},
+{
+"venue": "Detroit Zoo @Royal Oak",
+"title": "Wild Lights (advance tickets; 21+ Igloo with live music Fri & Sat)",
+"time": "5:00-10:30pm",
+"source": "https://detroitzoo.org/events/wild-lights/"
+},
+{
+"venue": "Hines Park @Westland",
+"title": "Wayne County Lightfest drive-through holiday lights ($5 cash per car; Wed-Sun through Dec 24)",
+"time": "6:00-10:00pm",
+"source": "https://www.oaklandcountymoms.com/metro-detroit-christmas-light-shows-111771/"
+},
+{
+"venue": "Camp Dearborn @Milford",
+"title": "MI Bright Lights drive-through light show (nightly through Dec 30)",
+"time": "6:00-10:00pm",
+"source": "https://dearborn.gov/events/2026/11/27/mi-bright-lights-camp-dearborn"
+},
+{
+"venue": "Downtown Rochester @Rochester",
+"title": "The Big, Bright Light Show (free; nightly through Jan 17)",
+"time": "5:00pm-12:00am",
+"source": "https://www.downtownrochestermi.com/the-big-bright-light-show"
+},
+{
+"venue": "Glenlore Trails @Commerce Township",
+"title": "Aurora: Winter Wizards light trail (Thu-Sun through Dec 27)",
+"time": "5:00-10:00pm",
+"source": "https://www.oaklandcountymoms.com/metro-detroit-christmas-light-shows-111771/"
+},
+{
+"venue": "Downtown Plymouth @Plymouth",
+"title": "Santa's City of Plymouth Parade (6pm), entertainment in Kellogg Park (7-8pm), Kellogg Park Tree Lighting (8:15pm)",
+"time": "6:00pm",
+"source": "https://www.downtownplymouth.org/70/Special-Events-List"
+},
+{
+"venue": "Kellogg Park @Plymouth",
+"title": "Walk of Trees opens (through December)",
+"time": null,
+"source": "https://www.downtownplymouth.org/70/Special-Events-List"
+},
+{
+"venue": "Downtown Holly @Holly",
+"title": "Holly Dickens Festival: Kickoff Lighted Parade & Tree Lighting",
+"time": "6:00pm",
+"source": "https://www.hollydickensfestival.org/"
+},
+{
+"venue": "Eatóri @Downtown",
+"title": "Massive Group presents Black Reign Cocktail Party",
+"time": "7:00pm",
+"source": "https://www.eventbrite.com/e/massive-group-presents-black-reign-cocktail-party-tickets-2005238048984"
+},
+{
+"venue": "Floods Bar & Grille @Downtown",
+"title": "HUSH All Black Party (Black Friday)",
+"time": "8:00pm",
+"source": "https://www.eventbrite.com/e/hush-all-black-party-tickets-2004397718533"
+},
+{
+"venue": "The Annex @Downtown",
+"title": "Annex on Fridays: Black Friday",
+"time": "10:00pm",
+"source": "https://www.eventbrite.com/e/annex-on-fridays-presents-black-friday-on-november-27-tickets-2005295866919"
+},
+{
+"venue": "Compound Detroit @Downtown",
+"title": "Black Friday All Black Party with DJ Ocho ($30 advance)",
+"time": "10:00pm",
+"source": "https://www.eventbrite.com/e/black-friday-all-black-party-compound-detroit-tickets-2005166450832"
+},
+{
+"venue": "Orchid Theatre @Ferndale",
+"title": "Emo Night (18+, free pizza)",
+"time": null,
+"source": "https://www.eventbrite.com/e/emo-night-at-orchid-theatre-tickets-1994250363521"
+},
+{
+"venue": "Elektricity @Pontiac",
+"title": "Deep Dark Bass (limited free w/ RSVP before 11pm)",
+"time": "9:00pm",
+"source": "https://app.discotech.me/events/38298507-deep-dark-bass-limited-free-w-rsvp-before-11pm-at-elektricity"
+},
+{
+"venue": "TV Lounge @Midtown",
+"title": "Left On Red",
+"time": "9:00pm",
+"source": "https://app.discotech.me/events/38322092-left-on-red-at-tv-lounge"
+},
+{
+"venue": "Deluxx Fluxx @Downtown",
+"title": "Nostalgia Fridays: Blaaqfriday Edition w/ Blaaqgold",
+"time": "9:00pm",
+"source": "https://app.discotech.me/events/38287668-nostalgia-fridays-blaaqfriday-edition-with-blaaqgold-at-deluxx-fluxx"
+},
+{
+"venue": "Canterbury Village @Lake Orion",
+"title": "Holiday Stroll (advance tickets only)",
+"time": null,
+"source": "https://www.oaklandcountymoms.com/christmas-events-metro-detroit-26345/"
+},
+{
+"venue": "Pure Detroit @Fisher Building",
+"title": "Fisher Building Tour: Black Friday edition (1-hour walking tour)",
+"time": "3:00pm",
+"source": "https://www.eventbrite.com/e/fisher-building-tour-black-friday-tickets-2003209265839"
+},
+{
+"venue": "Society Detroit @Rivertown",
+"title": "All Black Affair: Thanksgiving Weekend (R&B and hip-hop rooms)",
+"time": "10:00pm",
+"source": "https://www.eventbrite.com/e/all-black-affair-thanksgiving-weekend-tickets-2004428003115"
+},
+{
+"venue": "Spkrbox",
+"title": "House Coffee",
+"time": "9:00pm",
+"source": "https://app.discotech.me/events/38326500-house-coffee-at-spkrbox"
+},
+{
+"venue": "Marble Bar",
+"title": "Adam X, Craig Gonzalez b2b Francois Dillinger + more",
+"time": "10:00pm",
+"source": "https://app.discotech.me/events/38306213-adam-x-craig-gonzalez-b2b-francois-dillinger-more-marble-bar-at-marble-bar"
+},
+{
+"venue": "Big Pink",
+"title": "Latin Night: Thanksgiving Edition (Swdejay & DJ Iza)",
+"time": "10:00pm",
+"source": "https://app.discotech.me/events/38322074-latin-night-thanksgiving-edition-swdejay-and-dj-iza-at-big-pink"
+},
+{
+"venue": "Lincoln Factory",
+"title": "Steve Bug + John Johr",
+"time": "10:00pm",
+"source": "https://app.discotech.me/events/38320518-steve-bug-john-johr-at-lincoln-factory"
+},
+{
+"venue": "Spkrbox",
+"title": "Techno + Electro DJs",
+"time": "10:00pm",
+"source": "https://app.discotech.me/events/38324795-techno-electro-djs-at-spkrbox"
+},
+{
+"venue": "Northern Lights Lounge",
+"title": "Rick Wilhite, Mike Agent X Clark, Deeper Waters",
+"time": "9:00pm",
+"source": "https://app.discotech.me/events/38326381-rick-wilhite-mike-agent-x-clark-deeper-waters-at-nothern-lights-lounge"
+},
+{
+"venue": "Greenfield Village",
+"title": "Regular season final weekend (Village closes Nov 30 until Holiday Nights)",
+"time": "9:30am-5:00pm",
+"source": "https://www.thehenryford.org/visit/plan-your-visit/hours"
+},
+{
+"venue": "Henry Ford Museum",
+"title": "Holidays at The Henry Ford: Lionel holiday train, LEGO display, decorated dollhouses, Light & Joy in the Holiday Season spotlight (daily through Jan 3)",
+"time": null,
+"source": "https://www.thehenryford.org/visit/things-to-do/calendar/holidays-at-the-henry-ford"
+},
+{
+"venue": "Henry Ford Museum",
+"title": "Visit with Santa (Arctic Alcove)",
+"time": "9:30am-12:30pm & 1:30-4:00pm",
+"source": "https://www.thehenryford.org/visit/things-to-do/calendar/visit-with-santa"
+},
+{
+"venue": "Henry Ford Museum @Clocktower",
+"title": "Holiday Greens & Tree Market (no museum admission needed)",
+"time": "9:00am-6:00pm",
+"source": "https://www.thehenryford.org/visit/things-to-do/calendar/holiday-greens-tree-market",
+"tag": "food"
+},
+{
+"venue": "Henry Ford Museum",
+"title": "Celebrate Indigenous History (through Nov 30)",
+"time": "9:30am-5:00pm",
+"source": "https://www.thehenryford.org/visit/things-to-do/calendar/celebrate-indigenous-history"
+},
+{
+"venue": "Henry Ford Museum",
+"title": "Corliss Steam Engine Demonstration (Made in America: Power)",
+"time": "2:00-3:00pm",
+"source": "https://www.thehenryford.org/visit/things-to-do/calendar"
+},
+{
+"venue": "Dirty Dog Jazz Café @Grosse Pointe Farms",
+"title": "Jim McCarty & Mystery Train",
+"time": "6:30pm",
+"source": "https://www.dirtydogjazz.com/"
+},
+{
+"venue": "Meadow Brook Hall @Rochester",
+"title": "Winter Wonder Lights outdoor light walk (timed tickets online)",
+"time": "5:00-10:00pm",
+"source": "https://www.oaklandcountymoms.com/thanksgiving-weekend-events-metro-detroit-41685/"
+},
+{
+"venue": "Meadow Brook Hall @Rochester",
+"title": "Holiday Walk opens: self-guided holiday house tour (through Dec 30)",
+"time": null,
+"source": "https://www.oaklandcountymoms.com/thanksgiving-weekend-events-metro-detroit-41685/"
+},
+{
+"venue": "Aretha's Jazz Café @ Music Hall",
+"title": "House Nation (presented by The UnderDawgs)",
+"time": "7:00pm",
+"source": "https://www.jazzcafedetroit.com/events/November-2026/HOUSE-NATION"
+},
+{
+"venue": "Meadow Brook Theatre @Rochester",
+"title": "A Christmas Carol (through Dec 24)",
+"time": "7:00pm",
+"source": "https://mbtheatre.com/season-calendar/2026/11/27/a-christmas-carol"
+},
+{
+"venue": "Fisher Theatre",
+"title": "The Great Gatsby (Broadway tour)",
+"time": "7:30pm",
+"source": "https://www.etickets.com/theater/musical-play/the-great-gatsby-theatrical-production/detroit-mi/161776-727/d"
+},
+{
+"venue": "Planet Ant @Hamtramck",
+"title": "improv4humans with Matt Besser feat. Tim Meadows & Danielle Schneider (sold out)",
+"time": "8:00pm",
+"source": "https://www.crowdwork.com/e/comedy-l-improv4humans-with-matt-besser-featuring-tim-meadows-and-danielle-schneider"
+},
+{
+"venue": "Detroit Repertory Theatre",
+"title": "When We Were Young and Unafraid by Sarah Treem (through Dec 13)",
+"time": "8:00pm",
+"source": "https://www.detroitreptheatre.com/"
+},
+{
+"venue": "Cranbrook",
+"title": "Frank Lloyd Wright Smith House Tour (sold out)",
+"time": "1:00pm",
+"source": "https://center.cranbrook.edu/events/2026-11/frank-lloyd-wright-smith-house-tour-18"
+},
+{
+"venue": "Cranbrook",
+"title": "Saarinen House Tour",
+"time": "3:00pm",
+"source": "https://center.cranbrook.edu/events/2026-11/saarinen-house-tour-12"
+},
+{
+"venue": "Cranbrook Institute of Science @Bloomfield Hills",
+"title": "Discovery Days",
+"time": "11:00am-3:00pm",
+"source": "https://science.cranbrook.edu/visit/events/2026-11/discovery-days"
+},
+{
+"venue": "Pewabic Pottery",
+"title": "Friday Tile Glazing Workshop (sold out)",
+"time": "5:00pm",
+"source": "https://www.pewabic.org/products/friday-tile-glazing-workshop-11-27-26-5-pm-6-pm"
+},
+{
+"venue": "The Masonic",
+"title": "Zeds Dead: Bassonic Temple w/ Taiki Nulight b2b Moody Good, Rohaan, Papajay, Die By The Sword (16+)",
+"time": "7:30pm",
+"source": "https://aegwebprod.blob.core.windows.net/json/events/151/events.json"
+},
+{
+"venue": "Magic Stick @Majestic",
+"title": "Venna w/ KHAL!L",
+"time": "8:00pm",
+"source": "https://www.majesticdetroit.com/events/detail/venna-1547846"
+},
+{
+"venue": "Mic Drop Comedy",
+"title": "Matthew Broussard",
+"time": "7:00pm & 9:30pm",
+"source": "https://theater.guide/venue/mic-drop-comedy-detroit/"
+},
+{
+"venue": "Mark Ridley's Comedy Castle",
+"title": "Mike Stanley (18+)",
+"time": "7:15pm & 9:45pm",
+"source": "https://www.comedycastle.com/events/category/series/mike-stanley/mark-ridleys-comedy-castle/royal-oak/"
+},
+{
+"venue": "Go Comedy! Improv Theater @Ferndale",
+"title": "The Holiday Show! A Festive Night of Comedy",
+"time": "7:30pm",
+"source": "https://www.crowdwork.com/e/the-holiday-show"
+},
+{
+"venue": "Go Comedy! Improv Theater @Ferndale",
+"title": "Late Night House Party (improv)",
+"time": "9:30pm",
+"source": "https://www.crowdwork.com/e/late-night-house-party"
+},
+{
+"venue": "Cliff Bell's",
+"title": "Detroit Riddim Crew",
+"time": "7:30pm",
+"source": "https://cliffbells.com/event/detroit-riddim-crew-3/"
+},
+{
+"venue": "Ford Field",
+"title": "MHSAA Football Finals (Day 1): D8 Hudson vs Beal City 9:30am; D4 Kenowa Hills vs Dearborn Divine Child 12:30pm; D6 Almont vs Jackson Lumen Christi 4:00pm; D2 Muskegon Mona Shores vs Orchard Lake St. Mary's 7:00pm",
+"time": "9:30am",
+"source": "https://www.fordfield.com/events/detail/mhsaa-football-finals-2026"
+},
+{
+"venue": "Pistons @Little Caesar's Arena",
+"title": "vs Milwaukee Bucks",
+"time": "7:30pm",
+"source": "https://www.cbssports.com/nba/teams/DET/detroit-pistons/schedule/"
+},
+{
+"venue": "Motor City Cruise @Wayne State Fieldhouse",
+"title": "vs Windy City Bulls (NBA G League)",
+"time": "6:30pm",
+"source": "https://www.rateyourseats.com/tickets/motor-city-cruise"
+}
+]
+},
+{
+"date": "2026-11-28",
+"events": [
+{
+"venue": "Royal Oak Farmers Market @Royal Oak",
+"title": "Farmers Market",
+"time": "7:00am-1:00pm",
+"source": "https://www.romi.gov/1533/Farmers-Market",
+"tag": "food"
+},
+{
+"venue": "Cadillac Square @Downtown",
+"title": "Downtown Detroit Markets: holiday market (Small Business Saturday)",
+"time": "11:00am-10:00pm",
+"source": "https://www.deckedoutdetroit.com/detroit-markets",
+"tag": "food"
+},
+{
+"venue": "Nick Gilbert Way @Downtown",
+"title": "Holidays at Nick Gilbert Way: holiday markets, carousel, Santa's Magic Mailbox",
+"time": "12:00-8:00pm",
+"source": "https://www.deckedoutdetroit.com/holidays-nick-gilbert-way",
+"tag": "food"
+},
+{
+"venue": "Hudson's Detroit @Downtown",
+"title": "Winter Wonders at Entrance One: free photos with Santa",
+"time": "12:00-8:00pm",
+"source": "https://www.deckedoutdetroit.com/winter-wonders-at-entrance-one"
+},
+{
+"venue": "Holly Trolley @Downtown",
+"title": "Holly Trolley: free holiday trolley (Nick Gilbert Way, Campus Martius, Book Tower, Capitol Park)",
+"time": "12:00-8:00pm",
+"source": "https://www.deckedoutdetroit.com/holly-trolley"
+},
+{
+"venue": "Campus Martius Park @Downtown",
+"title": "The Rink at Campus Martius: public skating",
+"time": "11:00am-12:00am",
+"source": "https://www.oaklandcountymoms.com/campus-martius-park-ice-skating-26381/"
+},
+{
+"venue": "Michigan Central @Corktown",
+"title": "Winter at The Station: Winter Market Weekend, up to 40 local makers in the Grand Hall (free)",
+"time": "10:00am-9:00pm",
+"source": "https://michigancentral.com/winter-at-the-station",
+"tag": "food"
+},
+{
+"venue": "Michigan Central @Corktown",
+"title": "A Yacht Rock Holiday with James Walin and The Come Sail Away Band",
+"time": "4:00pm",
+"source": "https://michigancentral.com/winter-at-the-station"
+},
+{
+"venue": "Hastings Market @North End",
+"title": "Music and Matcha: meet the NextUP313 market vendors",
+"time": "11:00am-1:00pm",
+"source": "https://www.eventbrite.com/e/music-and-matcha-hastings-market-tickets-2003859965098",
+"tag": "food"
+},
+{
+"venue": "Radisson Hotel @Southfield",
+"title": "Enjoy Motor City Small Business Saturday Marketplace (75 Black-owned businesses)",
+"time": "1:00-6:00pm",
+"source": "https://www.eventbrite.com/e/enjoy-motor-city-small-business-saturday-marketplace-tickets-2004549741237",
+"tag": "food"
+},
+{
+"venue": "The Gathering @Plymouth",
+"title": "Plymouth Community Christmas Farmers Market",
+"time": "9:00am-3:00pm",
+"source": "https://www.downtownplymouth.org/70/Special-Events-List",
+"tag": "food"
+},
+{
+"venue": "Troy High School @Troy",
+"title": "Elf Shelf Arts & Crafts Show (Troy Women's Association; proceeds to local charities)",
+"time": "9:00am-4:00pm",
+"source": "https://www.oaklandcountymoms.com/thanksgiving-weekend-events-metro-detroit-41685/",
+"tag": "food"
+},
+{
+"venue": "Downtown Milford @Milford",
+"title": "Milford Christmas Parade",
+"time": "10:00am",
+"source": "https://www.oaklandcountymoms.com/thanksgiving-weekend-events-metro-detroit-41685/"
+},
+{
+"venue": "Downtown Pontiac @Pontiac",
+"title": "Tree of Hope Tree Lighting: treats, community meal, petting zoo (lighting 7:30pm; free)",
+"time": "4:00-8:00pm",
+"source": "https://www.oaklandcountymoms.com/thanksgiving-weekend-events-metro-detroit-41685/"
+},
+{
+"venue": "Downtown Holly @Holly",
+"title": "Holly Dickens Festival",
+"time": "11:00am-6:00pm",
+"source": "https://www.hollydickensfestival.org/"
+},
+{
+"venue": "Ford House @Grosse Pointe Shores",
+"title": "Home for the Holidays evening tours begin (advance tickets)",
+"time": "5:30-8:00pm",
+"source": "https://www.oaklandcountymoms.com/thanksgiving-weekend-events-metro-detroit-41685/"
+},
+{
+"venue": "Detroit Zoo @Royal Oak",
+"title": "Wild Lights (advance tickets; 21+ Igloo with live music Fri & Sat)",
+"time": "5:00-10:30pm",
+"source": "https://detroitzoo.org/events/wild-lights/"
+},
+{
+"venue": "Hines Park @Westland",
+"title": "Wayne County Lightfest drive-through holiday lights ($5 cash per car; Wed-Sun through Dec 24)",
+"time": "6:00-10:00pm",
+"source": "https://www.oaklandcountymoms.com/metro-detroit-christmas-light-shows-111771/"
+},
+{
+"venue": "Camp Dearborn @Milford",
+"title": "MI Bright Lights drive-through light show (nightly through Dec 30)",
+"time": "6:00-10:00pm",
+"source": "https://dearborn.gov/events/2026/11/28/mi-bright-lights-camp-dearborn"
+},
+{
+"venue": "Downtown Rochester @Rochester",
+"title": "The Big, Bright Light Show (free; nightly through Jan 17)",
+"time": "5:00pm-12:00am",
+"source": "https://www.downtownrochestermi.com/the-big-bright-light-show"
+},
+{
+"venue": "Glenlore Trails @Commerce Township",
+"title": "Aurora: Winter Wizards light trail (Thu-Sun through Dec 27)",
+"time": "5:00-10:00pm",
+"source": "https://www.oaklandcountymoms.com/metro-detroit-christmas-light-shows-111771/"
+},
+{
+"venue": "Checker Bar @Downtown",
+"title": "Heated Mobile Igloo + Sing-Along Brunch (HandleBar ride through downtown)",
+"time": "10:30am",
+"source": "https://www.eventbrite.com/e/heated-mobile-igloo-sing-a-long-brunch-tickets-2004800463153"
+},
+{
+"venue": "Floods Bar & Grille @Downtown",
+"title": "Floods' Annual Black Party: Thanksgiving Saturday (soul food, drinks)",
+"time": "7:00pm",
+"source": "https://www.eventbrite.com/e/thanksgiving-weekend-floods-annual-black-party-tickets-2005394920190"
+},
+{
+"venue": "1528 Woodward @Downtown",
+"title": "THANKFUL: The All Black Affair",
+"time": "9:00pm",
+"source": "https://www.eventbrite.com/e/thankful-the-all-black-affair-tickets-2005104642963"
+},
+{
+"venue": "Parlay Detroit @Downtown",
+"title": "Holiday Double Feature @ Parlay & Hidden Detroit (2 floors, 2 DJs)",
+"time": "9:00pm",
+"source": "https://www.eventbrite.com/e/holiday-double-feature-parlay-hidden-detroit-tickets-2005215574763"
+},
+{
+"venue": "TV Lounge @Midtown",
+"title": "Thanksgiving",
+"time": "8:00pm",
+"source": "https://app.discotech.me/events/38312056-thanksgiving-at-tv-lounge"
+},
+{
+"venue": "Deluxx Fluxx @Downtown",
+"title": "#Pulluponthekid w/ Kid Mcfly",
+"time": "9:00pm",
+"source": "https://app.discotech.me/events/38287670-pulluponthekid-with-kid-mcfly-at-deluxx-fluxx"
+},
+{
+"venue": "Elektricity @Pontiac",
+"title": "Wriddim Wrestlemania (limited free w/ RSVP before 11pm)",
+"time": "9:00pm",
+"source": "https://app.discotech.me/events/38314672-wriddim-wrestlemania-limited-free-w-rsvp-before-11pm-at-elektricity"
+},
+{
+"venue": "Marygrove Conservancy @Livernois",
+"title": "Marygrove Community Tree Lighting",
+"time": "5:00-6:30pm",
+"source": "https://www.eventbrite.com/e/marygrove-community-tree-lighting-tickets-2004258330620"
+},
+{
+"venue": "WGPR TV-62 Museum @East Jefferson",
+"title": "Holiday Pop-Up Shop",
+"time": "11:00am-4:00pm",
+"source": "https://www.eventbrite.com/e/holiday-pop-up-shop-at-the-wgpr-tv-62-museum-tickets-2005089222841",
+"tag": "food"
+},
+{
+"venue": "CopyCat Community Print Studio @Michigan Avenue",
+"title": "Print Studio Open House: shop local art, free screen print to take home",
+"time": "12:00-3:00pm",
+"source": "https://www.eventbrite.com/e/print-studio-open-house-tickets-2004679596638"
+},
+{
+"venue": "Canterbury Village @Lake Orion",
+"title": "Holiday Stroll (advance tickets only)",
+"time": null,
+"source": "https://www.oaklandcountymoms.com/christmas-events-metro-detroit-26345/"
+},
+{
+"venue": "Lincoln Factory",
+"title": "Detroit Love: Carl Craig b2b Seth Troxler",
+"time": "9:00pm",
+"source": "https://app.discotech.me/events/38288867-detroit-love-carl-craig-b2b-seth-troxler-at-lincoln-factory"
+},
+{
+"venue": "Big Pink",
+"title": "Big Pink's Birthday Party: Munch & Blakito (4-year anniversary)",
+"time": "10:00pm",
+"source": "https://app.discotech.me/events/38321568-big-pinks-birthday-party-munch-and-blakito-4-year-anniversary-at-big-pink"
+},
+{
+"venue": "Marble Bar",
+"title": "Fiesta Rave",
+"time": "10:00pm",
+"source": "https://app.discotech.me/events/38326374-fiesta-rave-at-marble-bar"
+},
+{
+"venue": "Spkrbox",
+"title": "Terms & Conditions",
+"time": "10:00pm",
+"source": "https://app.discotech.me/events/38322076-terms-and-conditions-at-spkrbox"
+},
+{
+"venue": "Detroit Shipping Co.",
+"title": "Return To Static: Unofficial Zeds Dead Afterparty",
+"time": "11:00pm",
+"source": "https://www.detroitshippingcompany.com/events-calendar/2026/11/28/return-to-static-unofficial-zd-afterparty"
+},
+{
+"venue": "Grand Parklet @Grandmont Rosedale",
+"title": "Holidays on Grand River: Small Business Saturday celebration (free; local vendors, Santa & the Grinch, live reindeer, ice sculpting, wreath decorating; tree lighting 6pm)",
+"time": "4:00-7:00pm",
+"source": "https://www.eventbrite.com/e/holidays-on-grand-river-tickets-2003365677671",
+"tag": "food"
+},
+{
+"venue": "Northern Lights Lounge",
+"title": "Handoff: Dolls Night 3 Year Anniversary",
+"time": "10:00pm",
+"source": "https://app.discotech.me/events/38322684-handoff-dolls-night-3-year-anniversary-at-nothern-lights-lounge"
+},
+{
+"venue": "Detroit Historical Museum",
+"title": "Guided Tour",
+"time": "11:00am & 1:00pm",
+"source": "https://www.detroithistorical.org/events/guided-tour-50"
+},
+{
+"venue": "Dossin Great Lakes Museum @Belle Isle",
+"title": "Guided Tour",
+"time": "11:00am & 1:00pm",
+"source": "https://www.detroithistorical.org/events/guided-tour-66"
+},
+{
+"venue": "Greenfield Village",
+"title": "Regular season final weekend (Village closes Nov 30 until Holiday Nights)",
+"time": "9:30am-5:00pm",
+"source": "https://www.thehenryford.org/visit/plan-your-visit/hours"
+},
+{
+"venue": "Eastern Market",
+"title": "Saturday Market",
+"time": "6:00am-4:00pm",
+"source": "https://easternmarket.org/",
+"tag": "food"
+},
+{
+"venue": "Henry Ford Museum",
+"title": "Holidays at The Henry Ford: Lionel holiday train, LEGO display, decorated dollhouses, Light & Joy in the Holiday Season spotlight (daily through Jan 3)",
+"time": null,
+"source": "https://www.thehenryford.org/visit/things-to-do/calendar/holidays-at-the-henry-ford"
+},
+{
+"venue": "Henry Ford Museum",
+"title": "Visit with Santa (Arctic Alcove)",
+"time": "9:30am-12:30pm & 1:30-4:00pm",
+"source": "https://www.thehenryford.org/visit/things-to-do/calendar/visit-with-santa"
+},
+{
+"venue": "Henry Ford Museum @Clocktower",
+"title": "Holiday Greens & Tree Market (no museum admission needed)",
+"time": "9:00am-6:00pm",
+"source": "https://www.thehenryford.org/visit/things-to-do/calendar/holiday-greens-tree-market",
+"tag": "food"
+},
+{
+"venue": "Henry Ford Museum",
+"title": "Celebrate Indigenous History (through Nov 30)",
+"time": "9:30am-5:00pm",
+"source": "https://www.thehenryford.org/visit/things-to-do/calendar/celebrate-indigenous-history"
+},
+{
+"venue": "Dirty Dog Jazz Café @Grosse Pointe Farms",
+"title": "Jim McCarty & Mystery Train",
+"time": "6:30pm",
+"source": "https://www.dirtydogjazz.com/"
+},
+{
+"venue": "Meadow Brook Hall @Rochester",
+"title": "Winter Wonder Lights outdoor light walk (timed tickets online)",
+"time": "5:00-10:00pm",
+"source": "https://www.oaklandcountymoms.com/thanksgiving-weekend-events-metro-detroit-41685/"
+},
+{
+"venue": "Fisher Theatre",
+"title": "The Great Gatsby (Broadway tour)",
+"time": "2:00pm & 7:30pm",
+"source": "https://www.etickets.com/theater/musical-play/the-great-gatsby-theatrical-production/detroit-mi/161776-727/d"
+},
+{
+"venue": "Meadow Brook Theatre @Rochester",
+"title": "A Christmas Carol",
+"time": "2:00pm & 6:30pm",
+"source": "https://mbtheatre.com/season-calendar/2026/11/28/a-christmas-carol"
+},
+{
+"venue": "Detroit Repertory Theatre",
+"title": "When We Were Young and Unafraid by Sarah Treem",
+"time": "3:00pm & 8:00pm",
+"source": "https://www.detroitreptheatre.com/"
+},
+{
+"venue": "Music Hall",
+"title": "Udit Narayan & Aditya Narayan: Legacy - The World Tour",
+"time": "8:00pm",
+"source": "https://www.musichall.org/shows-events/legacy"
+},
+{
+"venue": "Planet Ant @Hamtramck",
+"title": "Stand-up: Nate Varrone",
+"time": "8:00pm",
+"source": "https://www.crowdwork.com/e/standup-comedy-l-nate-varrone"
+},
+{
+"venue": "Detroit Opera House",
+"title": "The Nutcracker with Grand Rapids Ballet and the Detroit Opera Orchestra",
+"time": null,
+"source": "https://detroitopera.org/the-nutcracker-with-grand-rapids-ballet/"
+},
+{
+"venue": "Cranbrook",
+"title": "Frank Lloyd Wright Smith House Tour",
+"time": "11:00am",
+"source": "https://center.cranbrook.edu/events/2026-11/frank-lloyd-wright-smith-house-tour-20"
+},
+{
+"venue": "Cranbrook",
+"title": "Frank Lloyd Wright Smith House Tour",
+"time": "1:00pm",
+"source": "https://center.cranbrook.edu/events/2026-11/frank-lloyd-wright-smith-house-tour-19"
+},
+{
+"venue": "Cranbrook",
+"title": "Saarinen House Tour (sold out)",
+"time": "3:00pm",
+"source": "https://center.cranbrook.edu/events/2026-11/saarinen-house-tour-13"
+},
+{
+"venue": "Cranbrook Institute of Science @Bloomfield Hills",
+"title": "Discovery Days",
+"time": "11:00am-3:00pm",
+"source": "https://science.cranbrook.edu/visit/events/2026-11/discovery-days"
+},
+{
+"venue": "Pewabic Pottery",
+"title": "Holiday Showcase Saturday: St. Paul Lutheran Church Handbell Choir, coffee, cocoa & sweets",
+"time": "12:00-3:00pm",
+"source": "https://www.pewabic.org/pages/holiday-showcase"
+},
+{
+"venue": "Pewabic Pottery",
+"title": "Saturday Tile Glazing Workshop (sold out)",
+"time": "1:00pm",
+"source": "https://www.pewabic.org/products/saturday-tile-glazing-workshop-11-28-26-1-pm-2-pm"
+},
+{
+"venue": "The Crofoot @Pontiac",
+"title": "Holiday Glitz, Giggles & Giving",
+"time": "6:00pm",
+"source": "https://thecrofoot.com/events/the-crofoot-ballroom-pontiac-mi-129/holiday-glitz-giggle-amp-giving-nov-28-2026-10542/"
+},
+{
+"venue": "The Masonic",
+"title": "Zeds Dead: Bassonic Temple w/ Jkyl & Hyde, Phrva, Zen Selekta, Blurrd Vzn (16+)",
+"time": "7:30pm",
+"source": "https://aegwebprod.blob.core.windows.net/json/events/151/events.json"
+},
+{
+"venue": "Saint Andrew's Hall",
+"title": "Turnover: Down On Earth Tour",
+"time": null,
+"source": "https://www.saintandrewsdetroit.com/shows"
+},
+{
+"venue": "El Club",
+"title": "Tiny Habits: The Keepers Tour",
+"time": null,
+"source": "https://app.discotech.me/events/38227926-tiny-habits-the-keepers-tour-at-el-club"
+},
+{
+"venue": "The Magic Bag @Ferndale",
+"title": "Mega 80s: The Ultimate Retro Party",
+"time": null,
+"source": "https://americanarenas.com/events/mega-80s-the-ultimate-retro-party-ferndale-magic-bag-saturday-november-28-2026-7-00-pm/"
+},
+{
+"venue": "Mic Drop Comedy",
+"title": "Matthew Broussard",
+"time": "6:00pm & 8:30pm",
+"source": "https://theater.guide/venue/mic-drop-comedy-detroit/"
+},
+{
+"venue": "Mark Ridley's Comedy Castle",
+"title": "Mike Stanley (18+)",
+"time": "7:00pm & 9:30pm",
+"source": "https://www.comedycastle.com/events/category/series/mike-stanley/mark-ridleys-comedy-castle/royal-oak/"
+},
+{
+"venue": "Go Comedy! Improv Theater @Ferndale",
+"title": "The Holiday Show! A Festive Night of Comedy",
+"time": "7:30pm",
+"source": "https://www.crowdwork.com/e/the-holiday-show"
+},
+{
+"venue": "Go Comedy! Improv Theater @Ferndale",
+"title": "Late Night House Party (improv)",
+"time": "9:30pm",
+"source": "https://www.crowdwork.com/e/late-night-house-party"
+},
+{
+"venue": "Sound Board @MotorCity Casino",
+"title": "Night of Knockouts XLIV (boxing)",
+"time": "7:00pm",
+"source": "https://www.313presents.com/events/detail/night-of-knockouts"
+},
+{
+"venue": "Cliff Bell's",
+"title": "Nicole New",
+"time": "7:30pm",
+"source": "https://cliffbells.com/event/nicole-new-8/"
+},
+{
+"venue": "Ford Field",
+"title": "MHSAA Football Finals (Day 2): D7 Ithaca vs Ottawa Lake Whiteford 9:30am; D3 Harper Woods vs Zeeland West 12:30pm; D5 GR West Catholic vs Frankenmuth 4:00pm; D1 Romeo vs Detroit Catholic Central 7:00pm",
+"time": "9:30am",
+"source": "https://www.fordfield.com/events/detail/mhsaa-football-finals-2026-2"
+},
+{
+"venue": "Red Wings @Little Caesar's Arena",
+"title": "vs Nashville Predators",
+"time": "7:00pm",
+"source": "https://www.cbssports.com/nhl/teams/DET/detroit-red-wings/schedule/"
+}
+]
+},
+{
+"date": "2026-11-29",
+"events": [
+{
+"venue": "Royal Oak Farmers Market @Royal Oak",
+"title": "Sunday Antiques & Collectibles Market",
+"time": "8:00am-3:00pm",
+"source": "https://www.romi.gov/1533/Farmers-Market",
+"tag": "food"
+},
+{
+"venue": "Cadillac Square @Downtown",
+"title": "Downtown Detroit Markets: holiday market",
+"time": "11:00am-7:00pm",
+"source": "https://www.deckedoutdetroit.com/detroit-markets",
+"tag": "food"
+},
+{
+"venue": "Nick Gilbert Way @Downtown",
+"title": "Holidays at Nick Gilbert Way: holiday markets, carousel, Santa's Magic Mailbox",
+"time": "12:00-6:00pm",
+"source": "https://www.deckedoutdetroit.com/holidays-nick-gilbert-way",
+"tag": "food"
+},
+{
+"venue": "Hudson's Detroit @Downtown",
+"title": "Winter Wonders at Entrance One: free photos with Santa",
+"time": "12:00-6:00pm",
+"source": "https://www.deckedoutdetroit.com/winter-wonders-at-entrance-one"
+},
+{
+"venue": "Holly Trolley @Downtown",
+"title": "Holly Trolley: free holiday trolley (Nick Gilbert Way, Campus Martius, Book Tower, Capitol Park)",
+"time": "12:00-6:00pm",
+"source": "https://www.deckedoutdetroit.com/holly-trolley"
+},
+{
+"venue": "Campus Martius Park @Downtown",
+"title": "The Rink at Campus Martius: public skating",
+"time": "11:00am-10:00pm",
+"source": "https://www.oaklandcountymoms.com/campus-martius-park-ice-skating-26381/"
+},
+{
+"venue": "Michigan Central @Corktown",
+"title": "Winter at The Station: Winter Market Weekend, up to 40 local makers in the Grand Hall (free)",
+"time": "10:00am-5:00pm",
+"source": "https://michigancentral.com/winter-at-the-station",
+"tag": "food"
+},
+{
+"venue": "Michigan Central @Corktown",
+"title": "Winter at The Station: Michael (PG-13) screening",
+"time": "2:00pm",
+"source": "https://michigancentral.com/winter-at-the-station"
+},
+{
+"venue": "Detroit Shipping Company @Midtown",
+"title": "Pop Up Market",
+"time": "12:00-5:00pm",
+"source": "https://www.eventbrite.com/e/pop-up-market-tickets-2005409618152",
+"tag": "food"
+},
+{
+"venue": "Makers Mile @Lathrup Village",
+"title": "Makers Mile Winter Market (Sundays)",
+"time": "10:00am-3:00pm",
+"source": "https://www.eventbrite.com/e/lathrup-village-makers-mile-winter-market-tickets-2004437245760",
+"tag": "food"
+},
+{
+"venue": "Hype Athletics @Dearborn Heights",
+"title": "Light for Lebanon Holiday Market: local vendors, food, live dabke (free entry)",
+"time": "12:00-6:00pm",
+"source": "https://www.eventbrite.com/e/light-for-lebanon-holiday-market-tickets-2004726814869",
+"tag": "food"
+},
+{
+"venue": "The Godfrey Hotel @Corktown",
+"title": "Café Con Perreo: Holiday Latin Brunch on the rooftop",
+"time": "11:00am-4:00pm",
+"source": "https://www.eventbrite.com/e/cafe-con-perreo-holiday-latin-brunch-at-the-godfrey-hotel-rooftop-tickets-2005475107031"
+},
+{
+"venue": "Downtown Holly @Holly",
+"title": "Holly Dickens Festival",
+"time": "12:00-5:00pm",
+"source": "https://www.hollydickensfestival.org/"
+},
+{
+"venue": "Detroit Zoo @Royal Oak",
+"title": "Wild Lights (advance tickets)",
+"time": "5:00-9:00pm",
+"source": "https://detroitzoo.org/events/wild-lights/"
+},
+{
+"venue": "Hines Park @Westland",
+"title": "Wayne County Lightfest drive-through holiday lights ($5 cash per car; Wed-Sun through Dec 24)",
+"time": "6:00-10:00pm",
+"source": "https://www.oaklandcountymoms.com/metro-detroit-christmas-light-shows-111771/"
+},
+{
+"venue": "Camp Dearborn @Milford",
+"title": "MI Bright Lights drive-through light show (nightly through Dec 30)",
+"time": "6:00-10:00pm",
+"source": "https://dearborn.gov/events/2026/11/29/mi-bright-lights-camp-dearborn"
+},
+{
+"venue": "Downtown Rochester @Rochester",
+"title": "The Big, Bright Light Show (free; nightly through Jan 17)",
+"time": "5:00pm-12:00am",
+"source": "https://www.downtownrochestermi.com/the-big-bright-light-show"
+},
+{
+"venue": "Glenlore Trails @Commerce Township",
+"title": "Aurora: Winter Wizards light trail (Thu-Sun through Dec 27)",
+"time": "5:00-10:00pm",
+"source": "https://www.oaklandcountymoms.com/metro-detroit-christmas-light-shows-111771/"
+},
+{
+"venue": "Weber's Habitat Lounge @Ann Arbor",
+"title": "William Marshall Bennett (jazz brunch)",
+"time": "10:00am",
+"source": "https://semja.org/webcal/day.php?date=20261129"
+},
+{
+"venue": "TV Lounge @Midtown",
+"title": "Gospel House 313 presented by Thill Radio",
+"time": "10:00am",
+"source": "https://app.discotech.me/events/38312057-gospel-house-313-presented-by-thill-radio-at-tv-lounge"
+},
+{
+"venue": "Weber's Habitat Lounge @Ann Arbor",
+"title": "William Marshall Bennett",
+"time": "5:00pm",
+"source": "https://semja.org/webcal/day.php?date=20261129"
+},
+{
+"venue": "Zal Gaz Grotto Club @Ann Arbor",
+"title": "Phil Ogilvie's Rhythm Kings (PORK)",
+"time": "5:00pm",
+"source": "https://semja.org/webcal/day.php?date=20261129"
+},
+{
+"venue": "Ebenezer Cocktail Lounge @Plymouth",
+"title": "Hayden Cusmano Trio",
+"time": "6:00pm",
+"source": "https://semja.org/webcal/day.php?date=20261129"
+},
+{
+"venue": "Blue LLama @Ann Arbor",
+"title": "Stella Cole",
+"time": "6:00pm",
+"source": "https://semja.org/webcal/day.php?date=20261129"
+},
+{
+"venue": "Society Detroit @Rivertown",
+"title": "Pajama Warz (18+)",
+"time": "10:00pm",
+"source": "https://www.eventbrite.com/e/pajama-warz-tickets-2005206842645"
+},
+{
+"venue": "Ypsi Alehouse @Ypsilanti",
+"title": "Steve Somers & Friends",
+"time": "2:00pm",
+"source": "https://semja.org/webcal/day.php?date=20261129"
+},
+{
+"venue": "Ypsi Alehouse @Ypsilanti",
+"title": "Focus:Jazz",
+"time": "7:00pm",
+"source": "https://semja.org/webcal/day.php?date=20261129"
+},
+{
+"venue": "Detroit Shipping Co.",
+"title": "313 Comedy (weekly Sunday stand-up)",
+"time": "7:00pm",
+"source": "https://www.detroitshippingcompany.com/events-calendar/a8tlkrwjgemnrwz-y7hwg-h5aj4-hl54a-blamn-g5nc5-hg7fw-xgtmb"
+},
+{
+"venue": "Spkrbox",
+"title": "Zest",
+"time": "9:00pm",
+"source": "https://app.discotech.me/events/38324796-zest-at-spkrbox"
+},
+{
+"venue": "Big Pink",
+"title": "Sundaze: Thanksgiving Weekend (Blakito)",
+"time": "10:00pm",
+"source": "https://app.discotech.me/events/38322075-sundaze-thanksgiving-weekend-blakito-at-big-pink"
+},
+{
+"venue": "Greenfield Village",
+"title": "Regular season final day (Village closes Nov 30 until Holiday Nights)",
+"time": "9:30am-5:00pm",
+"source": "https://www.thehenryford.org/visit/plan-your-visit/hours"
+},
+{
+"venue": "Eastern Market",
+"title": "Holiday Market (Sundays through Dec 20)",
+"time": "10:00am-4:00pm",
+"source": "https://easternmarket.org/events/holiday-market-2026/2026-11-29/",
+"tag": "food"
+},
+{
+"venue": "Henry Ford Museum",
+"title": "Holidays at The Henry Ford: Lionel holiday train, LEGO display, decorated dollhouses, Light & Joy in the Holiday Season spotlight (daily through Jan 3)",
+"time": null,
+"source": "https://www.thehenryford.org/visit/things-to-do/calendar/holidays-at-the-henry-ford"
+},
+{
+"venue": "Henry Ford Museum",
+"title": "Visit with Santa (Arctic Alcove)",
+"time": "9:30am-12:30pm & 1:30-4:00pm",
+"source": "https://www.thehenryford.org/visit/things-to-do/calendar/visit-with-santa"
+},
+{
+"venue": "Henry Ford Museum @Clocktower",
+"title": "Holiday Greens & Tree Market (no museum admission needed)",
+"time": "9:00am-6:00pm",
+"source": "https://www.thehenryford.org/visit/things-to-do/calendar/holiday-greens-tree-market",
+"tag": "food"
+},
+{
+"venue": "Henry Ford Museum",
+"title": "Celebrate Indigenous History (through Nov 30)",
+"time": "9:30am-5:00pm",
+"source": "https://www.thehenryford.org/visit/things-to-do/calendar/celebrate-indigenous-history"
+},
+{
+"venue": "Meadow Brook Hall @Rochester",
+"title": "Winter Wonder Lights outdoor light walk (timed tickets online)",
+"time": "5:00-10:00pm",
+"source": "https://www.oaklandcountymoms.com/thanksgiving-weekend-events-metro-detroit-41685/"
+},
+{
+"venue": "Fisher Theatre",
+"title": "The Great Gatsby (Broadway tour; final performances)",
+"time": "1:00pm & 6:30pm",
+"source": "https://www.etickets.com/theater/musical-play/the-great-gatsby-theatrical-production/detroit-mi/161776-727/d"
+},
+{
+"venue": "Detroit Repertory Theatre",
+"title": "When We Were Young and Unafraid by Sarah Treem",
+"time": "2:00pm",
+"source": "https://www.detroitreptheatre.com/"
+},
+{
+"venue": "Meadow Brook Theatre @Rochester",
+"title": "A Christmas Carol",
+"time": "2:00pm",
+"source": "https://mbtheatre.com/season-calendar/2026/11/29/a-christmas-carol"
+},
+{
+"venue": "Music Hall",
+"title": "Lightwire Theater: A Very Electric Christmas",
+"time": "3:00pm",
+"source": "https://www.musichall.org/shows-events/electric-christmas"
+},
+{
+"venue": "Aretha's Jazz Café @ Music Hall",
+"title": "Aretha's Jazz Jam (no cover)",
+"time": "7:00pm",
+"source": "https://www.jazzcafedetroit.com/events/November-2026/Aretha-s-Jazz-Jam4"
+},
+{
+"venue": "Detroit Opera House",
+"title": "The Nutcracker with Grand Rapids Ballet and the Detroit Opera Orchestra",
+"time": null,
+"source": "https://detroitopera.org/the-nutcracker-with-grand-rapids-ballet/"
+},
+{
+"venue": "Cranbrook",
+"title": "Frank Lloyd Wright Smith House Tour",
+"time": "1:00pm",
+"source": "https://center.cranbrook.edu/events/2026-11/frank-lloyd-wright-smith-house-tour-21"
+},
+{
+"venue": "Cranbrook",
+"title": "Saarinen House Tour",
+"time": "3:00pm",
+"source": "https://center.cranbrook.edu/events/2026-11/saarinen-house-tour-14"
+},
+{
+"venue": "Cranbrook Institute of Science @Bloomfield Hills",
+"title": "Discovery Days",
+"time": "11:00am-3:00pm",
+"source": "https://science.cranbrook.edu/visit/events/2026-11/discovery-days"
+},
+{
+"venue": "Majestic Theatre",
+"title": "Baby Smoove Live! The Purple Heart Tour",
+"time": "7:00pm",
+"source": "https://www.majesticdetroit.com/events/detail/baby-smoove-live-1608387"
+},
+{
+"venue": "Saint Andrew's Hall",
+"title": "Suicide Silence: Reminders of Hell Tour",
+"time": null,
+"source": "https://www.saintandrewsdetroit.com/shows"
+},
+{
+"venue": "The Fillmore",
+"title": "Sabaton: Legends on Tour (rescheduled date)",
+"time": null,
+"source": "https://www.thefillmoredetroit.com/shows"
+},
+{
+"venue": "Go Comedy! Improv Theater @Ferndale",
+"title": "The Weekend Finale (weekly improv)",
+"time": "7:00pm",
+"source": "https://www.crowdwork.com/e/the-weekend-finale"
+},
+{
+"venue": "Go Comedy! Improv Theater @Ferndale",
+"title": "Fresh Sauce: An Open Improv Jam",
+"time": "9:00pm",
+"source": "https://www.crowdwork.com/e/fresh-sauce"
+},
+{
+"venue": "Cliff Bell's",
+"title": "William Hill III",
+"time": "5:30pm",
+"source": "https://cliffbells.com/event/william-hill-iii-4/"
+},
+{
+"venue": "Pistons @Little Caesar's Arena",
+"title": "vs Orlando Magic",
+"time": "6:00pm",
+"source": "https://www.cbssports.com/nba/teams/DET/detroit-pistons/schedule/"
+},
+{
+"venue": "Motor City Cruise @Wayne State Fieldhouse",
+"title": "vs Windy City Bulls (NBA G League)",
+"time": "3:00pm",
+"source": "https://www.rateyourseats.com/tickets/motor-city-cruise"
+}
+]
+},
+{
+"date": "2026-11-30",
+"events": [
+{
+"venue": "Campus Martius Park @Downtown",
+"title": "The Rink at Campus Martius: public skating",
+"time": "11:00am-10:00pm",
+"source": "https://www.oaklandcountymoms.com/campus-martius-park-ice-skating-26381/"
+},
+{
+"venue": "Camp Dearborn @Milford",
+"title": "MI Bright Lights drive-through light show (nightly through Dec 30)",
+"time": "6:00-10:00pm",
+"source": "https://dearborn.gov/events/2026/11/30/mi-bright-lights-camp-dearborn"
+},
+{
+"venue": "Downtown Rochester @Rochester",
+"title": "The Big, Bright Light Show (free; nightly through Jan 17)",
+"time": "5:00pm-12:00am",
+"source": "https://www.downtownrochestermi.com/the-big-bright-light-show"
+},
+{
+"venue": "Henry Ford Museum",
+"title": "Holidays at The Henry Ford: Lionel holiday train, LEGO display, decorated dollhouses, Light & Joy in the Holiday Season spotlight (daily through Jan 3)",
+"time": null,
+"source": "https://www.thehenryford.org/visit/things-to-do/calendar/holidays-at-the-henry-ford"
+},
+{
+"venue": "Henry Ford Museum @Clocktower",
+"title": "Holiday Greens & Tree Market (no museum admission needed)",
+"time": "9:00am-6:00pm",
+"source": "https://www.thehenryford.org/visit/things-to-do/calendar/holiday-greens-tree-market",
+"tag": "food"
+},
+{
+"venue": "Henry Ford Museum",
+"title": "Celebrate Indigenous History (final day)",
+"time": "9:30am-5:00pm",
+"source": "https://www.thehenryford.org/visit/things-to-do/calendar/celebrate-indigenous-history"
+},
+{
+"venue": "Henry Ford Museum",
+"title": "Corliss Steam Engine Demonstration (Made in America: Power)",
+"time": "2:00-3:00pm",
+"source": "https://www.thehenryford.org/visit/things-to-do/calendar"
+},
+{
+"venue": "Aretha's Jazz Café @ Music Hall",
+"title": "The George Benson / Peabo Bryson Tribute ft. Randal Wilson Project Jazz",
+"time": "7:00pm",
+"source": "https://www.jazzcafedetroit.com/events/November-2026/The-George-Benson-Peabo-Bryson-Tribute-ft.-Randal-Wilson-Project-Jazz"
+},
+{
+"venue": "Planet Ant @Hamtramck",
+"title": "Monday Night Improv w/ The Planet Ant Home Team",
+"time": "7:30pm",
+"source": "https://www.crowdwork.com/e/improv-l-monday-night-improv-w-the-planet-ant-home-team"
+},
+{
+"venue": "Pistons @Little Caesar's Arena",
+"title": "vs Denver Nuggets",
+"time": "7:00pm",
+"source": "https://www.cbssports.com/nba/teams/DET/detroit-pistons/schedule/"
+}
+]
+},
+{
+"date": "2026-12-01",
+"events": [
+{
+"venue": "Campus Martius Park @Downtown",
+"title": "The Rink at Campus Martius: public skating",
+"time": "11:00am-10:00pm",
+"source": "https://www.oaklandcountymoms.com/campus-martius-park-ice-skating-26381/"
+},
+{
+"venue": "Detroit Public Library Main @Midtown",
+"title": "The Giving Tree: Share the Warmth (Giving Tuesday)",
+"time": "12:00-6:00pm",
+"source": "https://www.eventbrite.com/e/the-giving-tree-share-the-warmth-tickets-2003490765813"
+},
+{
+"venue": "Shinola @Midtown",
+"title": "Holiday Shop-N-Stroll Art Exhibition & Prize Contest (benefit)",
+"time": "6:00-8:00pm",
+"source": "https://www.eventbrite.com/e/holiday-shop-n-stroll-art-exhibition-prize-contest-at-shinola-tickets-2004744494750"
+},
+{
+"venue": "Farmington Hills City Hall @Farmington Hills",
+"title": "Holiday Lights Celebration: tree illumination (free)",
+"time": "6:30pm",
+"source": "https://www.oaklandcountymoms.com/christmas-events-metro-detroit-26345/"
+},
+{
+"venue": "Camp Dearborn @Milford",
+"title": "MI Bright Lights drive-through light show (nightly through Dec 30)",
+"time": "6:00-10:00pm",
+"source": "https://dearborn.gov/events/2026/12/01/mi-bright-lights-camp-dearborn"
+},
+{
+"venue": "Downtown Rochester @Rochester",
+"title": "The Big, Bright Light Show (free; nightly through Jan 17)",
+"time": "5:00pm-12:00am",
+"source": "https://www.downtownrochestermi.com/the-big-bright-light-show"
+},
+{
+"venue": "Weber's Habitat Lounge @Ann Arbor",
+"title": "Kevin Royer & Josef Deas",
+"time": "6:00pm",
+"source": "https://semja.org/webcal/day.php?date=20261201"
+},
+{
+"venue": "Zal Gaz Grotto Club @Ann Arbor",
+"title": "Easy Street Jazz Band w/ Terry Kimura",
+"time": "7:00pm",
+"source": "https://semja.org/webcal/day.php?date=20261201"
+},
+{
+"venue": "The Earle @Ann Arbor",
+"title": "Jake Reichbart",
+"time": "7:00pm",
+"source": "https://semja.org/webcal/day.php?date=20261201"
+},
+{
+"venue": "Developing KIDS @Northwest Detroit",
+"title": "World AIDS Day 2026: remembrance and awareness gathering",
+"time": "10:00am-4:00pm",
+"source": "https://www.eventbrite.com/e/world-aids-day-2026-tickets-2003086031241"
+},
+{
+"venue": "Ziggy's @Ypsilanti",
+"title": "Jam Session w/ Kenji Lee's Fortune Teller Trio",
+"time": "9:00pm",
+"source": "https://semja.org/webcal/day.php?date=20261201"
+},
+{
+"venue": "Dennis Archer Greenway @The Riverwalk",
+"title": "Two Mile Tuesdays with We Run 313: free intro run, walkers welcome (meet at Breadless; final date of the series)",
+"time": "6:00pm",
+"source": "https://www.detroitriverfront.org/events/calendar/2026/12/01/two-mile-tuesdays"
+},
+{
+"venue": "Henry Ford Museum",
+"title": "Holidays at The Henry Ford: Lionel holiday train, LEGO display, decorated dollhouses, Light & Joy in the Holiday Season spotlight (daily through Jan 3)",
+"time": null,
+"source": "https://www.thehenryford.org/visit/things-to-do/calendar/holidays-at-the-henry-ford"
+},
+{
+"venue": "Henry Ford Museum",
+"title": "Corliss Steam Engine Demonstration (Made in America: Power)",
+"time": "2:00-3:00pm",
+"source": "https://www.thehenryford.org/visit/things-to-do/calendar"
+},
+{
+"venue": "Meadow Brook Hall @Rochester",
+"title": "Candlelight Tours ($40)",
+"time": "6:00-9:00pm",
+"source": "https://www.oaklandcountymoms.com/christmas-events-metro-detroit-26345/"
+},
+{
+"venue": "Fox Theatre",
+"title": "Dr. Seuss' How The Grinch Stole Christmas! The Musical (through Dec 6)",
+"time": "7:30pm",
+"source": "https://www.313presents.com/events/detail/how-the-grinch-stole-christmas"
+},
+{
+"venue": "Fisher Theatre",
+"title": "BOOP! The Betty Boop Musical (opening; through Dec 13)",
+"time": null,
+"source": "https://www.michigan.org/node/5159902"
+},
+{
+"venue": "El Club",
+"title": "2Dead Boyz x The Underachievers w/ Lord Sko",
+"time": null,
+"source": "https://app.discotech.me/events/38279551-2dead-boyz-x-the-underachievers-with-lord-sko-at-el-club"
+},
+{
+"venue": "Mark Ridley's Comedy Castle",
+"title": "101 Comedy Class Showcase",
+"time": "7:30pm",
+"source": "https://www.comedycastle.com/events/category/series/101-comedy-class-showcase/mark-ridleys-comedy-castle/royal-oak/"
+},
+{
+"venue": "Red Wings @Little Caesar's Arena",
+"title": "vs Calgary Flames",
+"time": "7:00pm",
+"source": "https://www.cbssports.com/nhl/teams/DET/detroit-red-wings/schedule/"
+}
+]
+},
+{
+"date": "2026-12-02",
+"events": [
+{
+"venue": "Cadillac Square @Downtown",
+"title": "Downtown Detroit Markets: holiday market",
+"time": "11:00am-8:00pm",
+"source": "https://www.deckedoutdetroit.com/detroit-markets",
+"tag": "food"
+},
+{
+"venue": "Nick Gilbert Way @Downtown",
+"title": "Holidays at Nick Gilbert Way: holiday markets, carousel, Santa's Magic Mailbox",
+"time": "4:00-8:00pm",
+"source": "https://www.deckedoutdetroit.com/holidays-nick-gilbert-way",
+"tag": "food"
+},
+{
+"venue": "Hudson's Detroit @Downtown",
+"title": "Winter Wonders at Entrance One: free photos with Santa",
+"time": "4:00-8:00pm",
+"source": "https://www.deckedoutdetroit.com/winter-wonders-at-entrance-one"
+},
+{
+"venue": "Campus Martius Park @Downtown",
+"title": "The Rink at Campus Martius: public skating",
+"time": "11:00am-10:00pm",
+"source": "https://www.oaklandcountymoms.com/campus-martius-park-ice-skating-26381/"
+},
+{
+"venue": "Detroit Public Library Main @Midtown",
+"title": "Dreidel, Dreidel, Dreidel: A Hanukkah Celebration",
+"time": "6:00pm",
+"source": "https://www.eventbrite.com/e/dreidel-dreidel-dreidel-a-hanukkah-celebration-tickets-2003489735732"
+},
+{
+"venue": "Oakland County Market @Waterford",
+"title": "Oakland County Parks Holiday Market: reindeer photos, s'mores, wagon rides (free)",
+"time": "3:00-7:00pm",
+"source": "https://www.oaklandcountymoms.com/christmas-events-metro-detroit-26345/",
+"tag": "food"
+},
+{
+"venue": "Memorial Park @Clawson",
+"title": "Clawson Christmas Tree Lighting with caroling",
+"time": "6:30pm",
+"source": "https://www.oaklandcountymoms.com/christmas-events-metro-detroit-26345/"
+},
+{
+"venue": "Hines Park @Westland",
+"title": "Wayne County Lightfest drive-through holiday lights ($5 cash per car; Wed-Sun through Dec 24)",
+"time": "6:00-10:00pm",
+"source": "https://www.oaklandcountymoms.com/metro-detroit-christmas-light-shows-111771/"
+},
+{
+"venue": "Camp Dearborn @Milford",
+"title": "MI Bright Lights drive-through light show (nightly through Dec 30)",
+"time": "6:00-10:00pm",
+"source": "https://dearborn.gov/events/2026/12/02/mi-bright-lights-camp-dearborn"
+},
+{
+"venue": "Downtown Rochester @Rochester",
+"title": "The Big, Bright Light Show (free; nightly through Jan 17)",
+"time": "5:00pm-12:00am",
+"source": "https://www.downtownrochestermi.com/the-big-bright-light-show"
+},
+{
+"venue": "Weber's Habitat Lounge @Ann Arbor",
+"title": "Kevin Royer & Josef Deas",
+"time": "6:00pm",
+"source": "https://semja.org/webcal/day.php?date=20261202"
+},
+{
+"venue": "The Earle @Ann Arbor",
+"title": "Jake Reichbart",
+"time": "7:00pm",
+"source": "https://semja.org/webcal/day.php?date=20261202"
+},
+{
+"venue": "Spkrbox",
+"title": "Detroit Grit",
+"time": "10:00pm",
+"source": "https://app.discotech.me/events/38324797-detroit-grit-at-spkrbox"
+},
+{
+"venue": "Detroit Historical Society @St. Clair Shores Library",
+"title": "Lecture: Becoming Hockeytown - The Detroit Red Wings at 100",
+"time": "6:00-7:00pm",
+"source": "https://www.detroithistorical.org/events/lecture-becoming-hockeytown-detroit-red-wings-100-3"
+},
+{
+"venue": "Eastern Market",
+"title": "Holiday Twilight Stroll: evening shopping and specials at district businesses (Henry the Hatter, Marrow, DeVries & Co., Whimsy Home and more)",
+"time": "5:00-9:00pm",
+"source": "https://easternmarket.org/events/eastern-market-holiday-twilight-stroll/"
+},
+{
+"venue": "MOCAD",
+"title": "Blind Date With A Book: book swap in the MOCAD Café (bring a wrapped book)",
+"time": "1:00-3:00pm",
+"source": "https://mocadetroit.org/event/blind-date-with-a-book/"
+},
+{
+"venue": "Henry Ford Museum",
+"title": "Holidays at The Henry Ford: Lionel holiday train, LEGO display, decorated dollhouses, Light & Joy in the Holiday Season spotlight (daily through Jan 3)",
+"time": null,
+"source": "https://www.thehenryford.org/visit/things-to-do/calendar/holidays-at-the-henry-ford"
+},
+{
+"venue": "Henry Ford Museum",
+"title": "Corliss Steam Engine Demonstration (Made in America: Power)",
+"time": "2:00-3:00pm",
+"source": "https://www.thehenryford.org/visit/things-to-do/calendar"
+},
+{
+"venue": "Dirty Dog Jazz Café @Grosse Pointe Farms",
+"title": "The GUD Band",
+"time": "6:30pm",
+"source": "https://www.dirtydogjazz.com/"
+},
+{
+"venue": "Meadow Brook Hall @Rochester",
+"title": "Holiday Soirée (21+, $175)",
+"time": "7:00-10:00pm",
+"source": "https://www.oaklandcountymoms.com/christmas-events-metro-detroit-26345/"
+},
+{
+"venue": "Meadow Brook Theatre @Rochester",
+"title": "A Christmas Carol",
+"time": "2:00pm",
+"source": "https://mbtheatre.com/season-calendar/2026/12/2/a-christmas-carol"
+},
+{
+"venue": "Fox Theatre",
+"title": "Dr. Seuss' How The Grinch Stole Christmas! The Musical (through Dec 6)",
+"time": "7:30pm",
+"source": "https://www.313presents.com/events/detail/how-the-grinch-stole-christmas"
+},
+{
+"venue": "Fisher Theatre",
+"title": "BOOP! The Betty Boop Musical",
+"time": null,
+"source": "https://www.michigan.org/node/5159902"
+},
+{
+"venue": "Pewabic Uncovered @Guardian Building",
+"title": "Pewabic tile tour",
+"time": "5:00-6:00pm",
+"source": "https://www.pewabic.org/products/guardian-building-tour-12-2-2026-5-pm-6-pm"
+},
+{
+"venue": "Majestic Theatre",
+"title": "Bryce Alakai w/ RAEDY LEX & IOTA (18+)",
+"time": "8:00pm",
+"source": "https://www.majesticdetroit.com/events/detail/bryce-alakai-1616988"
+},
+{
+"venue": "Mark Ridley's Comedy Castle",
+"title": "Age Is Just a Number: Senior Mic",
+"time": "7:00pm",
+"source": "https://www.comedycastle.com/events/category/series/age-is-just-a-number-senior-mic/mark-ridleys-comedy-castle/royal-oak/"
+},
+{
+"venue": "Cliff Bell's",
+"title": "The Swing Syndicate Jazz Lab",
+"time": "7:00pm",
+"source": "https://cliffbells.com/event/the-swing-syndicate-jazz-lab-2/"
+},
+{
+"venue": "Pistons @Little Caesar's Arena",
+"title": "vs Memphis Grizzlies",
+"time": "7:00pm",
+"source": "https://www.cbssports.com/nba/teams/DET/detroit-pistons/schedule/"
+}
+]
+},
+{
+"date": "2026-12-03",
+"events": [
+{
+"venue": "Cadillac Square @Downtown",
+"title": "Downtown Detroit Markets: holiday market",
+"time": "11:00am-8:00pm",
+"source": "https://www.deckedoutdetroit.com/detroit-markets",
+"tag": "food"
+},
+{
+"venue": "Nick Gilbert Way @Downtown",
+"title": "Holidays at Nick Gilbert Way: holiday markets, carousel, Santa's Magic Mailbox",
+"time": "4:00-8:00pm",
+"source": "https://www.deckedoutdetroit.com/holidays-nick-gilbert-way",
+"tag": "food"
+},
+{
+"venue": "Hudson's Detroit @Downtown",
+"title": "Winter Wonders at Entrance One: free photos with Santa",
+"time": "4:00-8:00pm",
+"source": "https://www.deckedoutdetroit.com/winter-wonders-at-entrance-one"
+},
+{
+"venue": "Campus Martius Park @Downtown",
+"title": "The Rink at Campus Martius: public skating",
+"time": "11:00am-10:00pm",
+"source": "https://www.oaklandcountymoms.com/campus-martius-park-ice-skating-26381/"
+},
+{
+"venue": "Royal Oak Farmers Market @Royal Oak",
+"title": "Holiday Magic Marketplace (60+ vendors)",
+"time": "4:00-9:00pm",
+"source": "https://www.romi.gov/Calendar.aspx?month=12&year=2026",
+"tag": "food"
+},
+{
+"venue": "Downtown Milford @Milford",
+"title": "Christmas Open House: Santa arrives 6pm, carriage rides, caroling",
+"time": "6:00-9:00pm",
+"source": "https://www.oaklandcountymoms.com/christmas-events-metro-detroit-26345/"
+},
+{
+"venue": "Franklin Public Library @Franklin",
+"title": "Downtown Franklin Tree Lighting",
+"time": "6:00pm",
+"source": "https://www.oaklandcountymoms.com/christmas-events-metro-detroit-26345/"
+},
+{
+"venue": "Hines Park @Westland",
+"title": "Wayne County Lightfest drive-through holiday lights ($5 cash per car; Wed-Sun through Dec 24)",
+"time": "6:00-10:00pm",
+"source": "https://www.oaklandcountymoms.com/metro-detroit-christmas-light-shows-111771/"
+},
+{
+"venue": "Camp Dearborn @Milford",
+"title": "MI Bright Lights drive-through light show (nightly through Dec 30)",
+"time": "6:00-10:00pm",
+"source": "https://dearborn.gov/events/2026/12/03/mi-bright-lights-camp-dearborn"
+},
+{
+"venue": "Downtown Rochester @Rochester",
+"title": "The Big, Bright Light Show (free; nightly through Jan 17)",
+"time": "5:00pm-12:00am",
+"source": "https://www.downtownrochestermi.com/the-big-bright-light-show"
+},
+{
+"venue": "Glenlore Trails @Commerce Township",
+"title": "Aurora: Winter Wizards light trail (Thu-Sun through Dec 27)",
+"time": "5:00-10:00pm",
+"source": "https://www.oaklandcountymoms.com/metro-detroit-christmas-light-shows-111771/"
+},
+{
+"venue": "Detroit Zoo @Royal Oak",
+"title": "Polar Beers: 21+ craft beer tasting at Wild Lights (VIP entry 6pm)",
+"time": "6:30-10:00pm",
+"source": "https://detroitzoo.org/events/polar-beers/",
+"tag": "food"
+},
+{
+"venue": "Jam Handy @Milwaukee Junction",
+"title": "Outlier Media's Holiday Hustle Party: hustle lessons, photo booth, food & drinks",
+"time": "6:00-9:00pm",
+"source": "https://www.eventbrite.com/e/the-holiday-hustle-party-tickets-2003926717757"
+},
+{
+"venue": "CopyCat Community Print Studio @Michigan Avenue",
+"title": "Holiday Ornament Print Party (drop-in, all ages)",
+"time": "6:00-8:00pm",
+"source": "https://www.eventbrite.com/e/holiday-ornament-print-party-tickets-2004673019967"
+},
+{
+"venue": "Detroit Historical Museum",
+"title": "Trivia with Detroit 313",
+"time": "6:30-9:00pm",
+"source": "https://www.detroithistorical.org/events/trivia-detroit-313"
+},
+{
+"venue": "Greenfield Village @Dearborn",
+"title": "Holiday Nights opening night (select nights through Dec 28)",
+"time": "6:30-10:00pm",
+"source": "https://www.thehenryford.org/visit/things-to-do/calendar/holiday-nights-in-greenfield-village"
+},
+{
+"venue": "Eagle Tavern @Greenfield Village",
+"title": "Holiday Nights in Eagle Tavern dinner package (sold out)",
+"time": "5:00-7:00pm & 7:30-9:30pm",
+"source": "https://www.thehenryford.org/visit/things-to-do/calendar/holiday-nights-dinner-package-in-eagle-tavern",
+"tag": "food"
+},
+{
+"venue": "A Taste of History @Greenfield Village",
+"title": "Supper with Santa (sold out)",
+"time": "5:00-6:00pm",
+"source": "https://www.thehenryford.org/visit/things-to-do/calendar/supper-with-santa",
+"tag": "food"
+},
+{
+"venue": "Stand 44 @Greenfield Village",
+"title": "Mummers' Dinner: chef's menu with craft beer flight (21+)",
+"time": "5:00-6:00pm",
+"source": "https://www.thehenryford.org/visit/things-to-do/calendar/mummers-dinner-at-stand-44",
+"tag": "food"
+},
+{
+"venue": "Charles H. Wright Museum",
+"title": "A Different World Thursdays: community screening of the new Netflix series + talk-back (register)",
+"time": "6:00pm",
+"source": "https://www.thewright.org/events/different-world-thursdays"
+},
+{
+"venue": "Henry Ford Museum @Clocktower",
+"title": "Holiday Greens & Tree Market (no museum admission needed)",
+"time": "10:00am-6:00pm",
+"source": "https://www.thehenryford.org/visit/things-to-do/calendar/holiday-greens-tree-market",
+"tag": "food"
+},
+{
+"venue": "Henry Ford Museum",
+"title": "Holidays at The Henry Ford: Lionel holiday train, LEGO display, decorated dollhouses, Light & Joy in the Holiday Season spotlight (daily through Jan 3)",
+"time": null,
+"source": "https://www.thehenryford.org/visit/things-to-do/calendar/holidays-at-the-henry-ford"
+},
+{
+"venue": "Henry Ford Museum",
+"title": "Corliss Steam Engine Demonstration (Made in America: Power)",
+"time": "2:00-3:00pm",
+"source": "https://www.thehenryford.org/visit/things-to-do/calendar"
+},
+{
+"venue": "Dirty Dog Jazz Café @Grosse Pointe Farms",
+"title": "James Montgomery (one night only)",
+"time": "7:00pm",
+"source": "https://www.dirtydogjazz.com/"
+},
+{
+"venue": "Meadow Brook Hall @Rochester",
+"title": "Winter Wonder Lights outdoor light walk (timed tickets online)",
+"time": "5:00-10:00pm",
+"source": "https://www.oaklandcountymoms.com/thanksgiving-weekend-events-metro-detroit-41685/"
+},
+{
+"venue": "Music Hall",
+"title": "One Sleepy Night: a new Christmas musical with a Detroit vibe (through Dec 5)",
+"time": "7:00pm",
+"source": "https://www.musichall.org/shows-events/sleepy-night"
+},
+{
+"venue": "Fox Theatre",
+"title": "Dr. Seuss' How The Grinch Stole Christmas! The Musical (through Dec 6)",
+"time": "7:30pm",
+"source": "https://www.313presents.com/events/detail/how-the-grinch-stole-christmas"
+},
+{
+"venue": "Planet Ant @Hamtramck",
+"title": "The Thursday Show w/ The Planet Ant Farm Team",
+"time": "8:00pm",
+"source": "https://www.crowdwork.com/e/comedy-l-the-thursday-show-w-the-planet-ant-farm-team"
+},
+{
+"venue": "Planet Ant @Hamtramck",
+"title": "Last Call Improv (free)",
+"time": "9:00pm",
+"source": "https://www.crowdwork.com/e/last-call-improv-free"
+},
+{
+"venue": "Fisher Theatre",
+"title": "BOOP! The Betty Boop Musical",
+"time": null,
+"source": "https://www.michigan.org/node/5159902"
+},
+{
+"venue": "Alley Deck @Majestic",
+"title": "Thiccc Thursday feat. LucyV (no cover before 9pm)",
+"time": "7:00pm",
+"source": "https://www.majesticdetroit.com/events/detail/thiccc-thursday-on-the-alley-deck-feat-lucyv"
+},
+{
+"venue": "The Fillmore",
+"title": "Something Different Presents: Unpopular Opinion Night (21+)",
+"time": "8:00pm",
+"source": "https://www.thefillmoredetroit.com/shows"
+},
+{
+"venue": "The Shelter @Saint Andrew's Hall",
+"title": "Belly Gang Kushington",
+"time": null,
+"source": "https://www.saintandrewsdetroit.com/shows"
+},
+{
+"venue": "El Club",
+"title": "King Buffalo",
+"time": null,
+"source": "https://app.discotech.me/events/38206496-king-buffalo-at-el-club"
+},
+{
+"venue": "Mark Ridley's Comedy Castle",
+"title": "Drew Thomas (18+)",
+"time": "7:30pm",
+"source": "https://www.comedycastle.com/events/category/series/drew-thomas/mark-ridleys-comedy-castle/royal-oak/"
+},
+{
+"venue": "Go Comedy! Improv Theater @Ferndale",
+"title": "Proving Grounds feat. Mug Boys (monthly improv)",
+"time": "7:30pm",
+"source": "https://www.crowdwork.com/e/proving-grounds"
+},
+{
+"venue": "Go Comedy! Improv Theater @Ferndale",
+"title": "Super Sauce: A Long Form Jam",
+"time": "9:00pm",
+"source": "https://www.crowdwork.com/e/super-sauce"
+},
+{
+"venue": "Royal Oak Music Theatre",
+"title": "Sabrina Cast Reunion 30 Year Anniversary Live: Melissa Joan Hart, David Lascher, Nate Richert, Jenna Leigh Green, Beth Broderick",
+"time": "6:00pm",
+"source": "https://www.royaloakmusictheatre.com/events/detail/1622982"
+},
+{
+"venue": "Cliff Bell's",
+"title": "ELEW",
+"time": "7:30pm",
+"source": "https://cliffbells.com/event/elew-4-2/"
+},
+{
+"venue": "Red Wings @Little Caesar's Arena",
+"title": "vs Colorado Avalanche",
+"time": "7:00pm",
+"source": "https://www.cbssports.com/nhl/teams/DET/detroit-red-wings/schedule/"
+}
+]
+}
+],
+"film": [
+{
+"venue": "Detroit Film Theatre",
+"note": null,
+"films": [
+{
+"title": "Fatherland (2026, dir. Pawel Pawlikowski); Sun 2pm also a Club Cinephilia meet-up",
+"times": "F: 7:00pm; Sa: 7:00pm; Su: 2:00pm",
+"source": "https://weeklywatchlistdet.substack.com/p/the-weekly-watchlist-112526"
+},
+{
+"title": "Raise the Red Lantern (1991), new 4K restoration",
+"times": "Sa: 3:00pm",
+"source": "https://weeklywatchlistdet.substack.com/p/the-weekly-watchlist-112526"
+},
+{
+"title": "Member Movie Night: The Sound of Music (1965)",
+"times": "W: 5:30pm",
+"source": "https://weeklywatchlistdet.substack.com/p/the-weekly-watchlist-112526"
+}
+]
+},
+{
+"venue": "Senate Theater",
+"note": "organ overtures before shows",
+"films": [
+{
+"title": "The Royal Tenenbaums (2001), 25th anniversary screening",
+"times": "Sa: 8:00pm",
+"source": "https://www.senatetheater.com/events-input/the-royal-tenenbaums-2001-25th-anniversary-screening"
+}
+]
+},
+{
+"venue": "Henry Ford Museum Giant Screen",
+"note": "No showtimes published; the venue's hours listing conflicts with 'shows daily'",
+"films": [
+{
+"title": "The Polar Express 3D (2004), through Jan 1",
+"times": "times not stated",
+"source": "https://www.thehenryford.org/visit/venues/giant-screen-experience"
+},
+{
+"title": "Blue Whales: Return of the Giants; Detroit: The City of Hot Rods & Muscle Cars; T. Rex; National Parks Adventure; Space: The New Frontier",
+"times": "times not stated",
+"source": "https://www.thehenryford.org/visit/venues/giant-screen-experience"
+}
+]
+},
+{
+"venue": "Penn Theatre @Plymouth",
+"note": null,
+"films": [
+{
+"title": "Home Alone (1990)",
+"times": "F: 7:00pm; Sa: 7:00pm; Su: 5:00pm",
+"source": "https://weeklywatchlistdet.substack.com/p/the-weekly-watchlist-112526"
+},
+{
+"title": "It's a Wonderful Life (1946), Thu 12/3 - Sun 12/6",
+"times": "Th: times not stated",
+"source": "https://weeklywatchlistdet.substack.com/p/the-weekly-watchlist-112526"
+}
+]
+},
+{
+"venue": "Natural Villain Cinema",
+"note": null,
+"films": [
+{
+"title": "Terror & Tease: The Electric Spookshow (2026), world premiere with short films",
+"times": "Sa: 5:30pm",
+"source": "https://weeklywatchlistdet.substack.com/p/the-weekly-watchlist-112526"
+}
+]
+},
+{
+"venue": "Motor City Cinema Society",
+"note": null,
+"films": [
+{
+"title": "Rocky (1976) on 16mm",
+"times": "M: 7:00pm",
+"source": "https://weeklywatchlistdet.substack.com/p/the-weekly-watchlist-112526"
+}
+]
+},
+{
+"venue": "Milford Independent Cinema @Milford",
+"note": null,
+"films": [
+{
+"title": "Meet Me in St. Louis (1944), Classics at the MIC",
+"times": "M: 7:00pm",
+"source": "https://weeklywatchlistdet.substack.com/p/the-weekly-watchlist-112526"
+}
+]
+},
+{
+"venue": "Other special screenings",
+"note": null,
+"films": [
+{
+"title": "Occult 83 Backroom Movie (theme: Food; title not announced)",
+"times": "F: 8:00pm",
+"source": "https://weeklywatchlistdet.substack.com/p/the-weekly-watchlist-112526"
+},
+{
+"title": "Moonlight: 10 Years Later: Moonlight (2016) + The Cut (2025) short, discussion with filmmaker Jeremy Brockman, LGBT Detroit Health",
+"times": "Sa: 1:00pm",
+"source": "https://weeklywatchlistdet.substack.com/p/the-weekly-watchlist-112526"
+},
+{
+"title": "Neutrals (2026) with live set by NORMAL, Planet Ant Theatre, Hamtramck",
+"times": "Sa: 2:00pm",
+"source": "https://weeklywatchlistdet.substack.com/p/the-weekly-watchlist-112526"
+},
+{
+"title": "Book vs. Movie Book Club: Smoke Signals (1998), Corner Shop",
+"times": "M: 7:00pm",
+"source": "https://weeklywatchlistdet.substack.com/p/the-weekly-watchlist-112526"
+},
+{
+"title": "Blockbuster Film Series: Hundreds of Beavers (2022), Dearborn Public Library (free)",
+"times": "M: 6:30pm",
+"source": "https://weeklywatchlistdet.substack.com/p/the-weekly-watchlist-112526"
+},
+{
+"title": "Day With(out) Art 2026: seeds in a dying colony, CCS Wendell W. Anderson Jr. Auditorium (free)",
+"times": "Tu: 7:00pm",
+"source": "https://weeklywatchlistdet.substack.com/p/the-weekly-watchlist-112526"
+},
+{
+"title": "Movies on Mars BREENFEST: Double Down (2005) & Fateful Findings (2012), Six Spoke Brewing (free)",
+"times": "Tu: 5:45pm",
+"source": "https://weeklywatchlistdet.substack.com/p/the-weekly-watchlist-112526"
+},
+{
+"title": "Double feature: Desperately Seeking Susan (1985) & Ferris Bueller's Day Off (1986), The Black Salt",
+"times": "W: times not stated",
+"source": "https://weeklywatchlistdet.substack.com/p/the-weekly-watchlist-112526"
+},
+{
+"title": "Motor City Cinematheque: A Woman Under the Influence (1974), Better Books & Music, Ferndale",
+"times": "W: 7:00pm",
+"source": "https://weeklywatchlistdet.substack.com/p/the-weekly-watchlist-112526"
+},
+{
+"title": "The Bishop's Wife (1947), MJR Troy",
+"times": "W: 7:00pm",
+"source": "https://weeklywatchlistdet.substack.com/p/the-weekly-watchlist-112526"
+},
+{
+"title": "REEL Social Club: The Hunger Games: Sunrise on the Reaping (2026), Emagine Rochester Hills",
+"times": "W: 7:00pm",
+"source": "https://weeklywatchlistdet.substack.com/p/the-weekly-watchlist-112526"
+},
+{
+"title": "It's a Wonderful Life (1946), Detroit Public Library Chandler Park Branch",
+"times": "W: 3:30pm",
+"source": "https://weeklywatchlistdet.substack.com/p/the-weekly-watchlist-112526"
+},
+{
+"title": "Cult Classics on the Canal: Bad Santa (2003), Coriander Kitchen",
+"times": "Th: 7:00pm",
+"source": "https://weeklywatchlistdet.substack.com/p/the-weekly-watchlist-112526"
+},
+{
+"title": "Franks 'n' Steins: Jack Frost (1997), Batch Brewing Company",
+"times": "Th: 7:00pm",
+"source": "https://weeklywatchlistdet.substack.com/p/the-weekly-watchlist-112526"
+}
+]
+}
+],
+"happy": [
+{
+"venue": "Sullivan's Steakhouse",
+"hours": "Mon-Thu 3:00-6:00pm"
+},
+{
+"venue": "Parc",
+"hours": "Daily 2:30-5:00pm (Social Hour)"
+},
+{
+"venue": "Anchor Bar",
+"hours": "Mon-Fri 3:00-6:00pm"
+},
+{
+"venue": "The Old Shillelagh",
+"hours": "Mon-Fri 4:00-7:00pm"
+},
+{
+"venue": "Besa",
+"hours": "Mon-Fri 4:00-6:30pm"
+},
+{
+"venue": "Joe Muer @Bloomfield Hills",
+"hours": "Mon-Fri 4:00-6:00pm"
+},
+{
+"venue": "Batch Brewing Company",
+"hours": "Wed-Thu 5:00-7:00pm"
+}
+],
+"happyNote": "Checked Nov 26 (Anchor Bar, Old Shillelagh, Batch, Besa per last week)"
 }
